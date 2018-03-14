@@ -4,6 +4,9 @@ import random
 import numpy as np
 from scipy import stats
 
+def sigmoid(a):
+    return 1.0 / (1.0 + math.exp(-a)) 
+
 def softmax(a, t = 1):
     temp = np.empty(len(a))
 
@@ -17,3 +20,14 @@ def dice(pkIn):
     pk = (pkIn)
     custm = stats.rv_discrete(name='custm', values=(xk, pk))
     return (custm.rvs(size=1))[0]
+
+def throwSomeCoins(pOn, n):
+    omote = 0
+
+    for i in range(n):
+        omote += dice([1 - pOn, pOn ])
+
+    if omote > 0:
+        return 1
+    else :
+        return 0

@@ -4,7 +4,7 @@ import createMelody as pitch
 import numpy as np
 
 #rehC
-def Create(bars_n, n, notePerBar_n = 16, lastNote = 0):
+def Create(bars_n, loop_n, notePerBar_n = 16, lastNote = 0):
     reh_rythm = rythm.Create(bars_n)
     reh_pitch = pitch.Create(bars_n)
     rev_reh_rythm = reh_rythm[::-1]
@@ -22,12 +22,12 @@ def Create(bars_n, n, notePerBar_n = 16, lastNote = 0):
         j += 1
 
     melody = reh_melody[::-1]
-    for i in range(n - 1 ):
+    for i in range(loop_n - 1 ):
         melody = np.r_[melody,reh_melody[::-1]]
 
     return melody
 
 #TEST
-test = Create(16,3)
-print test
-print len(test)
+#test = Create(16,3)
+#print test
+#print len(test)
