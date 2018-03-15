@@ -5,8 +5,8 @@ import numpy as np
 
 #rehC
 def Create(bars_n, loop_n, notePerBar_n = 16, lastNote = 0):
-    reh_rythm = rythm.Create(bars_n)
-    reh_pitch = pitch.Create(bars_n)
+    reh_rythm = rythm.Create(bars_n, notePerBar_n = notePerBar_n )
+    reh_pitch = pitch.Create(bars_n, notePerBar_n = notePerBar_n )
     rev_reh_rythm = reh_rythm[::-1]
     rev_reh_pitch  = reh_pitch[::-1]
 
