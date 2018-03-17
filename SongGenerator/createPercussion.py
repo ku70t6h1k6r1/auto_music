@@ -6,7 +6,7 @@ def pickUpAccent(melody, notePerBar_n = 16):
     output = np.zeros(0)
     oneBar = np.zeros(len(melody))
 
-    for j in range(len(melody)/notePerBar_n):
+    for j in range(int(len(melody)/notePerBar_n)):
         for i in range(notePerBar_n):
             if melody[notePerBar_n*j + i] != -1:
                 oneBar[notePerBar_n*j + i] = oneBar[notePerBar_n*j + i]  + 1
@@ -18,7 +18,7 @@ def pickUpSectionAccent(melody, notePerBar_n = 16, barsPerOneSection = 4):
     oneBar = np.zeros(notePerBar_n)
 
     # minimum beat length sixteen-beat and then 16
-    for j in range(len(melody)/notePerBar_n):
+    for j in range(int(len(melody)/notePerBar_n)):
         for i in range(notePerBar_n):
             if melody[j*notePerBar_n + i] != -1:
                 oneBar[i] = oneBar[i]  + 1
@@ -34,7 +34,7 @@ def Create(melody, notePerBar_n = 16, barsPerOneSection = 4, temperature = 0.000
     output = np.zeros(0)
     oneBar = np.zeros(notePerBar_n)
 
-    for j in range(len(merge)/notePerBar_n ):
+    for j in range(int(len(merge)/notePerBar_n )):
         for i in range(notePerBar_n ):
             oneBar[i] = merge[j*notePerBar_n  + i]
         output = np.r_[output, func.softmax(oneBar, t = temperature)] #0.0005がちょうどよい

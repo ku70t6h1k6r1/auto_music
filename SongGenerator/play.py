@@ -10,11 +10,11 @@ def smoothing(note, pastNote, lowestPitch = 60, highestPitch = 80):
     if (note - pastNote) > 5  and note > lowestPitch:
         note = note - 12
     elif (note - pastNote) < -6 and note < highestPitch:
-		note = note + 12
+        note = note + 12
     else:
-		note = note
+        note = note
 
-    return note
+    return int(note)
 
 
 

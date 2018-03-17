@@ -129,7 +129,7 @@ def Create(melody, noteParChord_n = 16): #8か12か16でしょう。
     chordObj = Harmonize()
     chords = np.full(len(melody), -1)
 
-    for i in range(len(melody)/noteParChord_n):
+    for i in range(int(len(melody)/noteParChord_n)):
         noteFreq = chordObj.translateMelody(melody[i*noteParChord_n : (i+1)*noteParChord_n])
         tempOutputLayer = harmonizeNW.commit(noteFreq)
         outputLayer = np.zeros(96)
