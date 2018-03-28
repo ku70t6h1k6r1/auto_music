@@ -4,9 +4,10 @@ import common_function as func
 
 class PitchWeight:
     def __init__(self):
-        self.pitchWeight_a = [5.5, 1.5, 5, 1.5, 5, 5, 1.5, 5.1, 1.5, 5, 1.5, 5]
+        #self.pitchWeight_a = [5.5, 1.5, 5, 1.5, 5, 5, 1.5, 5.1, 1.5, 5, 1.5, 5]
+        self.pitchWeight_a = [5.5, 0, 5, 0, 5, 6, 0, 5.1, 0, 0, 0, 8]
         self.degreeWeight_a = [1, 0.1, 2, 1.2, 1.2, 0.7, 0.7, 0.7, 1.2, 1.2, 2, 1.2]
-        self.pitchWeight = func.softmax(self.pitchWeight_a)
+        self.pitchWeight = func.softmax(self.pitchWeight_a,t = 0.2)
         self.degreeWeight = func.softmax(self.degreeWeight_a)
 
     def updateDW(self, t):

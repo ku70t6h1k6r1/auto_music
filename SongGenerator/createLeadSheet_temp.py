@@ -11,21 +11,12 @@ class SampleComposition:
         self.noteParChord_n = 16
 
         #create leadLine
-        self.a_onePhrase_bars = 8
-        self.a_loop = 4
-        self.a_lastNote = 0
-        self.b_onePhrase_bars = 8
-        self.b_loop = 4
-        self.b_lastNote = 0
-        self.vamp_onePhrase_bars = 4
-        self.vamp_loop = 4
+        self.vamp_onePhrase_bars = 2
+        self.vamp_loop = 2
         self.vamp_lastNote = 0
 
-        self.a = melody.Create(self.a_onePhrase_bars, self.a_loop, self.notePerBar_n, self.a_lastNote)
-        self.b = melody.Create(self.b_onePhrase_bars, self.b_loop, self.notePerBar_n, self.b_lastNote)
         self.vamp = melody.Create(self.vamp_onePhrase_bars, self.vamp_loop, self.notePerBar_n, self.vamp_lastNote)
-
-        self.leadLine = np.r_[self.vamp,self.a,self.b,self.vamp]
+        self.leadLine = np.r_[self.vamp]
 
         #create chordProgeression
         self.chordProgress = hm.Create(self.leadLine, self.noteParChord_n)

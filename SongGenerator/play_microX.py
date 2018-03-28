@@ -25,8 +25,8 @@ output_id = pygame.midi.get_default_output_id()
 #print("input MIDI:%d" % input_id)
 print("output MIDI:%d" % output_id)
 #input = pygame.midi.Input(input_id)
-o = pygame.midi.Output(output_id)
-#o = pygame.midi.Output(3)
+#o = pygame.midi.Output(output_id)
+o = pygame.midi.Output(3)
 print ("starting")
 
 i = 0
@@ -36,17 +36,18 @@ note_past_v1 = 60
 note_past_v2 = 60
 
 #set inst
-o.set_instrument(8,0) #Lead
-o.set_instrument(4,1) #ba
-o.set_instrument(4,2) #backing
-o.set_instrument(53,3) #Lead2
-o.set_instrument(25,9) #drum
+#o.set_instrument(1,0) #Lead
+#o.set_instrument(8,1) #Lead
+#o.set_instrument(4,2) #ba
+#o.set_instrument(4,3) #backing
+#o.set_instrument(53,4) #Lead2
+#o.set_instrument(0,10) #drum
 
 #control change
 o.write_short(0xb0, 10, 42)
 o.write_short(0xb1, 10, 54)
 o.write_short(0xb2, 10, 74)
-o.write_short(0xb3, 10, 90)
+o.write_short(0xb9, 10, 90)
 
 #load part
 leadSheet = ls.SampleComposition()
@@ -67,15 +68,15 @@ for note in melody:
     if note != -1 :
         o.note_off(note_past, 60, 0)
         fixedNote = smoothing(note + 60, note_past)
-        o.note_on(fixedNote, int(45*articuration[i]) ,0)
+        o.note_on(fixedNote, int(90*articuration[i]) ,0)
 
         o.note_off(note_past, 60, 3)
-        o.note_on(fixedNote, int(21*articuration[i]) ,3)
+        o.note_on(fixedNote, int(50*articuration[i]) ,3)
 
         note_past = fixedNote
     #Dr
-    #if i % leadSheet.notePerBar_n == 0:
-    if i % leadSheet.notePerBar_n == 0 or i % leadSheet.notePerBar_n == 4 or i % leadSheet.notePerBar_n == 8 or i % leadSheet.notePerBar_n == 12 :
+    if i % leadSheet.notePerBar_n == 0:
+    #if i % leadSheet.notePerBar_n == 0 or i % leadSheet.notePerBar_n == 4 or i % leadSheet.notePerBar_n == 8 or i % leadSheet.notePerBar_n == 12 :
         o.note_on(36, 50, 9)
     else:
         o.note_on(func.dice([1 - bDr[i] , bDr[i] ]) * 36,50,9)
@@ -83,7 +84,7 @@ for note in melody:
 
     #throwSomeCoins
     o.note_on(func.throwSomeCoins(cHH[i],20) * 42, int(21*articuration[i]) , 9)
-    #o.note_on(42,20,9)
+    o.note_on(42,20,9)
 
     #Ba
     #baOn = dice([1 - ba_rythm[i] , ba_rythm[i] ]) + dice([1 - ba_rythm[i] , ba_rythm[i] ]) + dice([1 - ba_rythm[i] , ba_rythm[i] ])
@@ -91,16 +92,16 @@ for note in melody:
     if baOn > 0:
         #print melodyObj.voice[0][0]
         o.note_off(note_past_bs,60, 1)
-        o.note_on(chordObj.tones[int(chords[i] * 1.0 / 8)][chords[i]  % 8][0] + 36 , int(25*articuration[i]), 1)
-        note_past_bs = chordObj.tones[int(chords[i] * 1.0 / 8)][chords[i]  % 8][0] + 36
+        o.note_on(chordObj.tones[int(chords[i] * 1.0 / 8)][chords[i]  % 8][0] + 48 , int(80*articuration[i]), 1)
+        note_past_bs = chordObj.tones[int(chords[i] * 1.0 / 8)][chords[i]  % 8][0] + 48
 
-        o.note_off(note_past_v1,60, 2)
-        o.note_on(chordObj.tones[int(chords[i] * 1.0 / 8)][chords[i]  % 8][1] + 48 , int(27*articuration[i]), 2)
-        note_past_v1 = chordObj.tones[int(chords[i] * 1.0 / 8)][chords[i]  % 8][1] + 48
+        #o.note_off(note_past_v1,60, 2)
+        #o.note_on(chordObj.tones[int(chords[i] * 1.0 / 8)][chords[i]  % 8][1] + 48 , int(60*articuration[i]), 2)
+        #note_past_v1 = chordObj.tones[int(chords[i] * 1.0 / 8)][chords[i]  % 8][1] + 48
 
-        o.note_off(note_past_v2,60, 2)
-        o.note_on(chordObj.tones[int(chords[i] * 1.0 / 8)][chords[i]  % 8][2] + 48 , int(27*articuration[i]), 2)
-        note_past_v2 = chordObj.tones[int(chords[i] * 1.0 / 8)][chords[i]  % 8][2] + 48
+        #o.note_off(note_past_v2,60, 2)
+        #o.note_on(chordObj.tones[int(chords[i] * 1.0 / 8)][chords[i]  % 8][2] + 48 , int(60*articuration[i]), 2)
+        #note_past_v2 = chordObj.tones[int(chords[i] * 1.0 / 8)][chords[i]  % 8][2] + 48
 
     i += 1
     sleep(sleepTime)
