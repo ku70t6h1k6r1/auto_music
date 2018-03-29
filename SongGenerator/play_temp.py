@@ -50,115 +50,142 @@ o.write_short(0xb1, 10, 54)
 o.write_short(0xb2, 10, 74)
 o.write_short(0xb3, 10, 90)
 
-#load part
+#load lead sheet
 leadSheet = ls.SampleComposition()
-melody = leadSheet.leadLine
-chords = leadSheet.chordProgress
-chordObj = cv.Chord()
-ba = leadSheet.perc4
-bDr = leadSheet.perc1
-sDr = leadSheet.perc2
-cHH = leadSheet.perc3
+rehA_length = leadSheet.vamp_onePhrase_bars * leadSheet.vamp_loop
+rehB_length = leadSheet.vamp2_onePhrase_bars * leadSheet.vamp2_loop
+rehC_length = leadSheet.vamp3_onePhrase_bars * leadSheet.vamp3_loop
 
-articuration = leadSheet.articuration
+# parse section
+melody = leadSheet.leadLine[0:rehA_length]
+chords = leadSheet.chordProgress[0:rehA_length]
+chordObj = cv.Chord()
+ba = leadSheet.perc4[0:rehA_length]
+bDr = leadSheet.perc1[0:rehA_length]
+sDr = leadSheet.perc2[0:rehA_length]
+cHH = leadSheet.perc3[0:rehA_length]
+articuration = leadSheet.articuration[0:rehA_length]
 
 sleepTime = np.random.normal(0.10,0.04)
+    
+for section_n in range(3):
+    i = 0
+    flg = True
+    leadFlg = 3
+    leadFlg2 = -1
+    chordsFlg = -1
+    drFlg = -1
+    drFlg2 = -1
+    drFlg3 = -1
+    baFlg = -1
 
-i = 0
-flg = True
-leadFlg = 3
-leadFlg2 = -1
-chordsFlg = -1
-drFlg = -1
-drFlg2 = -1
-drFlg3 = -1
-baFlg = -1
-
-seqObj = seq.Sequencer()
-seqObj.crateStepSequence()
-sequence = seqObj.sequence
-lead = seqObj.update(melody, leadFlg)
-
-
-cds = np.full(len(melody), -1)
-bass = np.full(len(melody), -1)
-hh = np.full(len(melody), -1)
-sn = np.full(len(melody), -1)
-bd = np.full(len(melody), -1)
+    seqObj = seq.Sequencer()
+    seqObj.crateStepSequence()
+    sequence = seqObj.sequence
+    lead = seqObj.update(melody, leadFlg)
 
 
-cnt = 0
-while flg:
-    start = time.time()
-
-    #Lead
-    if lead[i] != -1 :
-        o.note_off(note_past, 60, 0)
-        fixedNote = smoothing(lead[i]  + 60, note_past)
-        o.note_on(fixedNote, int(95*articuration[i]) ,0)
-
-        o.note_off(note_past + 12, 60, 3)
-        o.note_on(fixedNote + 12, int(51*articuration[i]) ,3)
-
-        note_past = fixedNote
-    #Dr
-    if bd[i] != -1 :
-        o.note_on(func.dice([1 - bd[i] , bd[i] ]) * 36,80,9)
-
-    if sn[i] != -1 :
-        o.note_on(func.dice([1 - sn[i] , sn[i] ]) * 39,80,9)
-
-    if hh[i] != -1 :
-        o.note_on(func.throwSomeCoins(hh[i],20) * 42, int(70*articuration[i]) , 9)
-
-    #Ba
-    if bd[i] != -1 :
-        baOn = func.throwSomeCoins(bass[i],4)
-
-        if baOn > 0 :
-            o.note_off(note_past_bs,60, 1)
-            o.note_on(chordObj.tones[int(cds[i] * 1.0 / 8)][cds[i]  % 8][0] + 36 , int(85*articuration[i]), 1)
-            note_past_bs = chordObj.tones[int(cds[i] * 1.0 / 8)][cds[i]  % 8][0] + 36
-
-        if baOn > 0 :
-            o.note_off(note_past_v1,60, 2)
-            o.note_on(chordObj.tones[int(cds[i] * 1.0 / 8)][cds[i]  % 8][1] + 48 , int(30*articuration[i]), 2)
-            note_past_v1 = chordObj.tones[int(cds[i] * 1.0 / 8)][cds[i]  % 8][1] + 48
-
-            o.note_off(note_past_v2,60, 2)
-            o.note_on(chordObj.tones[int(cds[i] * 1.0 / 8)][cds[i]  % 8][2] + 48 , int(30*articuration[i]), 2)
-            note_past_v2 = chordObj.tones[int(cds[i] * 1.0 / 8)][cds[i]  % 8][2] + 48
-
-    if i % 64 == 63 :
-        if sequence[cnt] == 0:
-            leadFlg += 1
-            lead = seqObj.update(melody, leadFlg)
-        elif sequence[cnt] == 2:
-            chordsFlg += 1
-            baFlg += 1
-            cds = seqObj.update(chords, chordsFlg)
-            bass = seqObj.update(ba, baFlg)
-        elif sequence[cnt] == 4:
-            drFlg += 1
-            hh = seqObj.update(cHH, drFlg)
-        elif sequence[cnt] == 5:
-            drFlg2 += 1
-            sn = seqObj.update(sDr, drFlg2)
-        elif sequence[cnt] == 6:
-            drFlg3 += 1
-            bd = seqObj.update(bDr, drFlg3)
+    cds = np.full(len(melody), -1)
+    bass = np.full(len(melody), -1)
+    hh = np.full(len(melody), -1)
+    sn = np.full(len(melody), -1)
+    bd = np.full(len(melody), -1)
 
 
-        i = 0
-        cnt += 1
-        if cnt == len(sequence):
-            flg = False
-    else  :
-        i += 1
+    cnt = 0
+    while flg:
+        start = time.time()
 
-    end = time.time()
+        #Lead
+        if lead[i] != -1 :
+            o.note_off(note_past, 60, 0)
+            fixedNote = smoothing(lead[i]  + 60, note_past)
+            o.note_on(fixedNote, int(95*articuration[i]) ,0)
 
-    sleep(sleepTime - (end - start))
+            o.note_off(note_past + 12, 60, 3)
+            o.note_on(fixedNote + 12, int(51*articuration[i]) ,3)
+
+            note_past = fixedNote
+        #Dr
+        if bd[i] != -1 :
+            o.note_on(func.dice([1 - bd[i] , bd[i] ]) * 36,80,9)
+
+        if sn[i] != -1 :
+            o.note_on(func.dice([1 - sn[i] , sn[i] ]) * 39,80,9)
+
+        if hh[i] != -1 :
+            o.note_on(func.throwSomeCoins(hh[i],20) * 42, int(70*articuration[i]) , 9)
+
+        #Ba
+        if bd[i] != -1 :
+            baOn = func.throwSomeCoins(bass[i],4)
+
+            if baOn > 0 :
+                o.note_off(note_past_bs,60, 1)
+                o.note_on(chordObj.tones[int(cds[i] * 1.0 / 8)][cds[i]  % 8][0] + 36 , int(85*articuration[i]), 1)
+                note_past_bs = chordObj.tones[int(cds[i] * 1.0 / 8)][cds[i]  % 8][0] + 36
+
+            if baOn > 0 :
+                o.note_off(note_past_v1,60, 2)
+                o.note_on(chordObj.tones[int(cds[i] * 1.0 / 8)][cds[i]  % 8][1] + 48 , int(30*articuration[i]), 2)
+                note_past_v1 = chordObj.tones[int(cds[i] * 1.0 / 8)][cds[i]  % 8][1] + 48
+
+                o.note_off(note_past_v2,60, 2)
+                o.note_on(chordObj.tones[int(cds[i] * 1.0 / 8)][cds[i]  % 8][2] + 48 , int(30*articuration[i]), 2)
+                note_past_v2 = chordObj.tones[int(cds[i] * 1.0 / 8)][cds[i]  % 8][2] + 48
+
+        if i % 64 == 63 :
+            if sequence[cnt] == 0:
+                leadFlg += 1
+                lead = seqObj.update(melody, leadFlg)
+            elif sequence[cnt] == 2:
+                chordsFlg += 1
+                baFlg += 1
+                cds = seqObj.update(chords, chordsFlg)
+                bass = seqObj.update(ba, baFlg)
+            elif sequence[cnt] == 4:
+                drFlg += 1
+                hh = seqObj.update(cHH, drFlg)
+            elif sequence[cnt] == 5:
+                drFlg2 += 1
+                sn = seqObj.update(sDr, drFlg2)
+            elif sequence[cnt] == 6:
+                drFlg3 += 1
+                bd = seqObj.update(bDr, drFlg3)
+
+
+            i = 0
+            cnt += 1
+            if cnt == len(sequence):
+                flg = False
+        else  :
+            i += 1
+
+        end = time.time()
+
+        sleep(sleepTime - (end - start))
+       
+    # parse section
+    if section_n == 1:
+        melody = leadSheet.leadLine[rehA_length:rehB_length]
+        chords = leadSheet.chordProgress[rehA_length:rehB_length]
+        chordObj = cv.Chord()
+        ba = leadSheet.perc4[rehA_length:rehB_length]
+        bDr = leadSheet.perc1[rehA_length:rehB_length]
+        sDr = leadSheet.perc2[rehA_length:rehB_length]
+        cHH = leadSheet.perc3[rehA_length:rehB_length]
+        articuration = leadSheet.articuration[rehA_length:rehB_length]
+    else:
+        start_rehC = rehA_length + rehB_length
+        melody = leadSheet.leadLine[start_rehC:rehC_length]
+        chords = leadSheet.chordProgress[start_rehC:rehC_length]
+        chordObj = cv.Chord()
+        ba = leadSheet.perc4[start_rehC:rehC_length]
+        bDr = leadSheet.perc1[start_rehC:rehC_length]
+        sDr = leadSheet.perc2[start_rehC:rehC_length]
+        cHH = leadSheet.perc3[start_rehC:rehC_length]
+        articuration = leadSheet.articuration[start_rehC:rehC_length]
+
 ##o.note_on(60 ,60,0)
 #o.note_on(48, 40, 1)
 sleep(6)
