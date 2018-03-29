@@ -14,9 +14,21 @@ class SampleComposition:
         self.vamp_onePhrase_bars = 2
         self.vamp_loop = 2
         self.vamp_lastNote = 0
+        
+        self.vamp2_onePhrase_bars = 4
+        self.vamp2_loop = 1
+        self.vamp2_lastNote = 7
+        
+        self.vamp3_onePhrase_bars = 1
+        self.vamp3_loop = 4
+        self.vamp3_lastNote = 0
 
         self.vamp = melody.Create(self.vamp_onePhrase_bars, self.vamp_loop, self.notePerBar_n, self.vamp_lastNote)
-        self.leadLine = np.r_[self.vamp]
+        self.vamp2 = melody.Create(self.vamp2_onePhrase_bars, self.vamp2_loop, self.notePerBar_n, self.vamp2_lastNote) 
+        self.vamp3 = melody.Create(self.vamp3_onePhrase_bars, self.vamp3_loop, self.notePerBar_n, self.vamp3_lastNote)
+        
+        #merge section
+        self.leadLine = np.r_[self.vamp, self.vamp2, self.vamp3]
 
         #create chordProgeression
         self.chordProgress = hm.Create(self.leadLine, self.noteParChord_n)
