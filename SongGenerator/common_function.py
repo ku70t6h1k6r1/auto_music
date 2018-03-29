@@ -25,7 +25,9 @@ def throwSomeCoins(pOn, n):
     omote = 0
 
     for i in range(n):
-        omote += dice([1 - pOn, pOn ])
+        if dice([1 - pOn, pOn ]) > 1:
+            omote += 1
+            break
 
     if omote > 0:
         return 1
