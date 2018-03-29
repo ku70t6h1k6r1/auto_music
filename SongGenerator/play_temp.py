@@ -52,9 +52,11 @@ o.write_short(0xb3, 10, 90)
 
 #load lead sheet
 leadSheet = ls.SampleComposition()
-rehA_length = leadSheet.vamp_onePhrase_bars * leadSheet.vamp_loop
-rehB_length = leadSheet.vamp2_onePhrase_bars * leadSheet.vamp2_loop
-rehC_length = leadSheet.vamp3_onePhrase_bars * leadSheet.vamp3_loop
+rehA_length = leadSheet.vamp_onePhrase_bars * leadSheet.vamp_loop * leadSheet.notePerBar_n
+rehB_length = leadSheet.vamp2_onePhrase_bars * leadSheet.vamp2_loop * leadSheet.notePerBar_n
+rehC_length = leadSheet.vamp3_onePhrase_bars * leadSheet.vamp3_loop * leadSheet.notePerBar_n
+start_rehC = rehA_length + rehB_length
+end_reh = rehA_length + rehB_length + rehC_length + 1
 
 # parse section
 melody = leadSheet.leadLine[0:rehA_length]
@@ -66,31 +68,32 @@ sDr = leadSheet.perc2[0:rehA_length]
 cHH = leadSheet.perc3[0:rehA_length]
 articuration = leadSheet.articuration[0:rehA_length]
 
-sleepTime = np.random.normal(0.10,0.04)
-    
+sleepTime = np.random.normal(0.08,0.04)
+
+
+flg = True
+leadFlg = 3
+leadFlg2 = -1
+chordsFlg = -1
+drFlg = -1
+drFlg2 = -1
+drFlg3 = -1
+baFlg = -1
+seqObj = seq.Sequencer()
+seqObj.crateStepSequence()
+sequence = seqObj.sequence
+
+
 for section_n in range(3):
     i = 0
+
     flg = True
-    leadFlg = 3
-    leadFlg2 = -1
-    chordsFlg = -1
-    drFlg = -1
-    drFlg2 = -1
-    drFlg3 = -1
-    baFlg = -1
-
-    seqObj = seq.Sequencer()
-    seqObj.crateStepSequence()
-    sequence = seqObj.sequence
     lead = seqObj.update(melody, leadFlg)
-
-
     cds = np.full(len(melody), -1)
     bass = np.full(len(melody), -1)
     hh = np.full(len(melody), -1)
     sn = np.full(len(melody), -1)
     bd = np.full(len(melody), -1)
-
 
     cnt = 0
     while flg:
@@ -114,7 +117,7 @@ for section_n in range(3):
             o.note_on(func.dice([1 - sn[i] , sn[i] ]) * 39,80,9)
 
         if hh[i] != -1 :
-            o.note_on(func.throwSomeCoins(hh[i],20) * 42, int(70*articuration[i]) , 9)
+            o.note_on(func.throwSomeCoins(hh[i],12) * 42, int(70*articuration[i]) , 9)
 
         #Ba
         if bd[i] != -1 :
@@ -164,27 +167,41 @@ for section_n in range(3):
         end = time.time()
 
         sleep(sleepTime - (end - start))
-       
+
     # parse section
+    print("NEXT SECTION")
     if section_n == 1:
-        melody = leadSheet.leadLine[rehA_length:rehB_length]
-        chords = leadSheet.chordProgress[rehA_length:rehB_length]
+        leadFlg = 0
+        leadFlg2 = -1
+        chordsFlg = -1
+        drFlg = -1
+        drFlg2 = -1
+        drFlg3 = -1
+        baFlg = 2
+        melody = leadSheet.leadLine[rehA_length:start_rehC]
+        chords = leadSheet.chordProgress[rehA_length:start_rehC]
         chordObj = cv.Chord()
-        ba = leadSheet.perc4[rehA_length:rehB_length]
-        bDr = leadSheet.perc1[rehA_length:rehB_length]
-        sDr = leadSheet.perc2[rehA_length:rehB_length]
-        cHH = leadSheet.perc3[rehA_length:rehB_length]
-        articuration = leadSheet.articuration[rehA_length:rehB_length]
+        ba = leadSheet.perc4[rehA_length:start_rehC]
+        bDr = leadSheet.perc1[rehA_length:start_rehC]
+        sDr = leadSheet.perc2[rehA_length:start_rehC]
+        cHH = leadSheet.perc3[rehA_length:start_rehC]
+        articuration = leadSheet.articuration[rehA_length:start_rehC]
     else:
-        start_rehC = rehA_length + rehB_length
-        melody = leadSheet.leadLine[start_rehC:rehC_length]
-        chords = leadSheet.chordProgress[start_rehC:rehC_length]
+        leadFlg = -1
+        leadFlg2 = -1
+        chordsFlg = -1
+        drFlg = 0
+        drFlg2 = -1
+        drFlg3 = -1
+        baFlg = -1
+        melody = leadSheet.leadLine[start_rehC:end_reh]
+        chords = leadSheet.chordProgress[start_rehC:end_reh]
         chordObj = cv.Chord()
-        ba = leadSheet.perc4[start_rehC:rehC_length]
-        bDr = leadSheet.perc1[start_rehC:rehC_length]
-        sDr = leadSheet.perc2[start_rehC:rehC_length]
-        cHH = leadSheet.perc3[start_rehC:rehC_length]
-        articuration = leadSheet.articuration[start_rehC:rehC_length]
+        ba = leadSheet.perc4[start_rehC:end_reh]
+        bDr = leadSheet.perc1[start_rehC:end_reh]
+        sDr = leadSheet.perc2[start_rehC:end_reh]
+        cHH = leadSheet.perc3[start_rehC:end_reh]
+        articuration = leadSheet.articuration[start_rehC:end_reh]
 
 ##o.note_on(60 ,60,0)
 #o.note_on(48, 40, 1)
