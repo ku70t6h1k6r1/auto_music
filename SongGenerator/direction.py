@@ -27,111 +27,112 @@ output_id = pygame.midi.get_default_output_id()
 #print("input MIDI:%d" % input_id)
 print("output MIDI:%d" % output_id)
 #input = pygame.midi.Input(input_id)
-o = pygame.midi.Output(3)
+
 #o = pygame.midi.Output(3)
 print ("starting")
 
 
-note_past = 60
-note_past_bs = 60
-note_past_v1 = 60
-note_past_v2 = 60
+class Direction:
+    def __init__(self, o, leadSheet):
+        self.ldch = 0
+        self.ld2ch = 3
+        self.bach = 1
+        self.bkch = 2
+        self.drch = 9
+        
+        self.note_past = 60
+        self.note_past_bs = 60
+        self.note_past_v1 = 60
+        self.note_past_v2 = 60
 
-#set inst
-#o.set_instrument(8,0) #Lead
-#o.set_instrument(4,1) #ba
-#o.set_instrument(4,2) #backing
-#o.set_instrument(53,3) #Lead2
-#o.set_instrument(25,9) #drum
+        #set inst
+        #o.set_instrument(8,0) #Lead
+        #o.set_instrument(4,1) #ba
+        #o.set_instrument(4,2) #backing
+        #o.set_instrument(53,3) #Lead2
+        #o.set_instrument(25,9) #drum
 
-#control change
-o.write_short(0xb0, 10, 42)
-o.write_short(0xb1, 10, 54)
-o.write_short(0xb2, 10, 74)
-o.write_short(0xb3, 10, 90)
+        #control change
+        o.write_short(0xb0 + self.ldch, 10, 42)
+        o.write_short(0xb0 + self.bach, 10, 54)
+        o.write_short(0xb0 + self.bkch, 10, 74)
+        o.write_short(0xb0 + self.ld2ch, 10, 90)
 
-#load lead sheet
-leadSheet = ls.SampleComposition()
-rehA_length = leadSheet.vamp_onePhrase_bars * leadSheet.vamp_loop
-rehB_length = leadSheet.vamp2_onePhrase_bars * leadSheet.vamp2_loop
-rehC_length = leadSheet.vamp3_onePhrase_bars * leadSheet.vamp3_loop
+        #load lead sheet
+        #leadSheet = ls.SampleComposition()
 
-# parse section
-melody = leadSheet.leadLine[0:rehA_length]
-chords = leadSheet.chordProgress[0:rehA_length]
-chordObj = cv.Chord()
-ba = leadSheet.perc4[0:rehA_length]
-bDr = leadSheet.perc1[0:rehA_length]
-sDr = leadSheet.perc2[0:rehA_length]
-cHH = leadSheet.perc3[0:rehA_length]
-articuration = leadSheet.articuration[0:rehA_length]
-
-sleepTime = np.random.normal(0.10,0.04)
+        # parse section
+        self.melody = leadSheet.leadLine
+        self.chords = leadSheet.chordProgress
+        self.chordObj = cv.Chord()
+        self.ba = leadSheet.perc4
+        self.bDr = leadSheet.perc1
+        self.sDr = leadSheet.perc2
+        self.cHH = leadSheet.perc3
+        self.articuration = leadSheet.articuration
     
-for section_n in range(3):
-    i = 0
-    flg = True
-    leadFlg = 3
-    leadFlg2 = -1
-    chordsFlg = -1
-    drFlg = -1
-    drFlg2 = -1
-    drFlg3 = -1
-    baFlg = -1
+        #set sequencer
+        self.seqObj = seq.Sequencer()
+        self.seqObj.crateStepSequence()
+        self.sequence = self.seqObj.sequence
+    
+        self.flg = False
+        self.leadFlg = 3
+        self.leadFlg2 = -1
+        self.chordsFlg = -1
+        self.drFlg = -1
+        self.drFlg2 = -1
+        self.drFlg3 = -1
+        self.baFlg = -1
 
-    seqObj = seq.Sequencer()
-    seqObj.crateStepSequence()
-    sequence = seqObj.sequence
-    lead = seqObj.update(melody, leadFlg)
+        self.lead = self.seqObj.update(self.melody, self.leadFlg)
+        self.cds = np.full(len(self.melody), -1)
+        self.bass = np.full(len(self.melody), -1)
+        self.hh = np.full(len(self.melody), -1)
+        self.sn = np.full(len(self.melody), -1)
+        self.bd = np.full(len(self.melody), -1)
+        
+    def sendMsg(self, o, i, cnt):
+        
+        if self.flg:
+            #Lead
+            if self.lead[i] != -1 :
+                fixedNote = smoothing(self.lead[i]  + 60, self.note_past)
+                
+                #part1
+                o.note_off(self.note_past, 60, self.ldch)
+                o.note_on(fixedNote, int(95*self.articuration[i]) ,self.ldch)
+                #part1
+                o.note_off(self.note_past + 12, 60, self.ld2ch)
+                o.note_on(fixedNote + 12, int(51*self.articuration[i]) ,self.ld2ch)
 
+                self.note_past = fixedNote
+            #Dr
+            if self.bd[i] != -1 :
+                o.note_on(func.dice([1 - self.bd[i] , self.bd[i] ]) * 36, 80, self.drch)
 
-    cds = np.full(len(melody), -1)
-    bass = np.full(len(melody), -1)
-    hh = np.full(len(melody), -1)
-    sn = np.full(len(melody), -1)
-    bd = np.full(len(melody), -1)
+            if self.sn[i] != -1 :
+                o.note_on(func.dice([1 - self.sn[i] , self.sn[i] ]) * 39, 80, self.drch)
 
-
-    cnt = 0
-    while flg:
-        start = time.time()
-
-        #Lead
-        if lead[i] != -1 :
-            o.note_off(note_past, 60, 0)
-            fixedNote = smoothing(lead[i]  + 60, note_past)
-            o.note_on(fixedNote, int(95*articuration[i]) ,0)
-
-            o.note_off(note_past + 12, 60, 3)
-            o.note_on(fixedNote + 12, int(51*articuration[i]) ,3)
-
-            note_past = fixedNote
-        #Dr
-        if bd[i] != -1 :
-            o.note_on(func.dice([1 - bd[i] , bd[i] ]) * 36,80,9)
-
-        if sn[i] != -1 :
-            o.note_on(func.dice([1 - sn[i] , sn[i] ]) * 39,80,9)
-
-        if hh[i] != -1 :
-            o.note_on(func.throwSomeCoins(hh[i],20) * 42, int(70*articuration[i]) , 9)
+            if self.hh[i] != -1 :
+                o.note_on(func.throwSomeCoins(self.hh[i],20) * 42, int(70*self.articuration[i]), self.drch)
 
         #Ba
         if bd[i] != -1 :
             baOn = func.throwSomeCoins(bass[i],4)
 
             if baOn > 0 :
-                o.note_off(note_past_bs,60, 1)
-                o.note_on(chordObj.tones[int(cds[i] * 1.0 / 8)][cds[i]  % 8][0] + 36 , int(85*articuration[i]), 1)
+                o.note_off(note_past_bs,60, self.bach)
+                o.note_on(chordObj.tones[int(cds[i] * 1.0 / 8)][cds[i]  % 8][0] + 36 , int(85*articuration[i]), self.bach)
                 note_past_bs = chordObj.tones[int(cds[i] * 1.0 / 8)][cds[i]  % 8][0] + 36
 
             if baOn > 0 :
-                o.note_off(note_past_v1,60, 2)
-                o.note_on(chordObj.tones[int(cds[i] * 1.0 / 8)][cds[i]  % 8][1] + 48 , int(30*articuration[i]), 2)
+                o.note_off(note_past_v1,60, self.bkch)
+                o.note_on(chordObj.tones[int(cds[i] * 1.0 / 8)][cds[i]  % 8][1] + 48 , int(30*articuration[i]), self.bkch)
                 note_past_v1 = chordObj.tones[int(cds[i] * 1.0 / 8)][cds[i]  % 8][1] + 48
 
-                o.note_off(note_past_v2,60, 2)
-                o.note_on(chordObj.tones[int(cds[i] * 1.0 / 8)][cds[i]  % 8][2] + 48 , int(30*articuration[i]), 2)
+                o.note_off(note_past_v2,60, self.bkch)
+                o.note_on(chordObj.tones[int(cds[i] * 1.0 / 8)][cds[i]  % 8][2] + 48 , int(30*articuration[i]), self.bkch)
                 note_past_v2 = chordObj.tones[int(cds[i] * 1.0 / 8)][cds[i]  % 8][2] + 48
 
         if i % 64 == 63 :
@@ -154,38 +155,14 @@ for section_n in range(3):
                 bd = seqObj.update(bDr, drFlg3)
 
 
-            i = 0
-            cnt += 1
-            if cnt == len(sequence):
-                flg = False
+            #i = 0
+            #cnt += 1
+            #if cnt == len(sequence):
+            #    flg = False
         else  :
-            i += 1
+            #i += 1
 
-        end = time.time()
-
-        sleep(sleepTime - (end - start))
        
-    # parse section
-    if section_n == 1:
-        melody = leadSheet.leadLine[rehA_length:rehB_length]
-        chords = leadSheet.chordProgress[rehA_length:rehB_length]
-        chordObj = cv.Chord()
-        ba = leadSheet.perc4[rehA_length:rehB_length]
-        bDr = leadSheet.perc1[rehA_length:rehB_length]
-        sDr = leadSheet.perc2[rehA_length:rehB_length]
-        cHH = leadSheet.perc3[rehA_length:rehB_length]
-        articuration = leadSheet.articuration[rehA_length:rehB_length]
-    else:
-        start_rehC = rehA_length + rehB_length
-        melody = leadSheet.leadLine[start_rehC:rehC_length]
-        chords = leadSheet.chordProgress[start_rehC:rehC_length]
-        chordObj = cv.Chord()
-        ba = leadSheet.perc4[start_rehC:rehC_length]
-        bDr = leadSheet.perc1[start_rehC:rehC_length]
-        sDr = leadSheet.perc2[start_rehC:rehC_length]
-        cHH = leadSheet.perc3[start_rehC:rehC_length]
-        articuration = leadSheet.articuration[start_rehC:rehC_length]
-
 ##o.note_on(60 ,60,0)
 #o.note_on(48, 40, 1)
 sleep(6)
