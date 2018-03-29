@@ -21,15 +21,12 @@ def dice(pkIn):
     custm = stats.rv_discrete(name='custm', values=(xk, pk))
     return (custm.rvs(size=1))[0]
 
-def throwSomeCoins(pOn, n):
-    omote = 0
-
-    for i in range(n):
-        if dice([1 - pOn, pOn ]) > 1:
-            omote += 1
-            break
-
-    if omote > 0:
+def throwSomeCoins(pOn, n):    
+    pOn = pOn * n
+    
+    if pOn > 1 :
+        return 1    
+    elif dice([1 - pOn, pOn ]) > 1 :
         return 1
     else :
         return 0
