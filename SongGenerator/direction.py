@@ -117,23 +117,23 @@ class Direction:
             if self.hh[i] != -1 :
                 o.note_on(func.throwSomeCoins(self.hh[i],20) * 42, int(70*self.articuration[i]), self.drch)
 
-        #Ba
-        if bd[i] != -1 :
-            baOn = func.throwSomeCoins(bass[i],4)
+            #Ba
+            if self.bass[i] != -1 :
+                baOn = func.throwSomeCoins(self.bass[i],4)
 
-            if baOn > 0 :
-                o.note_off(note_past_bs,60, self.bach)
-                o.note_on(chordObj.tones[int(cds[i] * 1.0 / 8)][cds[i]  % 8][0] + 36 , int(85*articuration[i]), self.bach)
-                note_past_bs = chordObj.tones[int(cds[i] * 1.0 / 8)][cds[i]  % 8][0] + 36
+                if baOn > 0 :
+                    o.note_off(note_past_bs,60, self.bach)
+                    o.note_on(chordObj.tones[int(cds[i] * 1.0 / 8)][cds[i]  % 8][0] + 36 , int(85*articuration[i]), self.bach)
+                    note_past_bs = chordObj.tones[int(cds[i] * 1.0 / 8)][cds[i]  % 8][0] + 36
 
-            if baOn > 0 :
-                o.note_off(note_past_v1,60, self.bkch)
-                o.note_on(chordObj.tones[int(cds[i] * 1.0 / 8)][cds[i]  % 8][1] + 48 , int(30*articuration[i]), self.bkch)
-                note_past_v1 = chordObj.tones[int(cds[i] * 1.0 / 8)][cds[i]  % 8][1] + 48
+                if baOn > 0 :
+                    o.note_off(note_past_v1,60, self.bkch)
+                    o.note_on(chordObj.tones[int(cds[i] * 1.0 / 8)][cds[i]  % 8][1] + 48 , int(30*articuration[i]), self.bkch)
+                    note_past_v1 = chordObj.tones[int(cds[i] * 1.0 / 8)][cds[i]  % 8][1] + 48
 
-                o.note_off(note_past_v2,60, self.bkch)
-                o.note_on(chordObj.tones[int(cds[i] * 1.0 / 8)][cds[i]  % 8][2] + 48 , int(30*articuration[i]), self.bkch)
-                note_past_v2 = chordObj.tones[int(cds[i] * 1.0 / 8)][cds[i]  % 8][2] + 48
+                    o.note_off(note_past_v2,60, self.bkch)
+                    o.note_on(chordObj.tones[int(cds[i] * 1.0 / 8)][cds[i]  % 8][2] + 48 , int(30*articuration[i]), self.bkch)
+                    note_past_v2 = chordObj.tones[int(cds[i] * 1.0 / 8)][cds[i]  % 8][2] + 48
 
         if i % 64 == 63 :
             if sequence[cnt] == 0:
