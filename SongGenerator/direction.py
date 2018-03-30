@@ -18,20 +18,6 @@ def smoothing(note, pastNote, lowestPitch = 60, highestPitch = 80):
 
     return int(note)
 
-
-
-pygame.init()
-pygame.midi.init()
-#input_id = pygame.midi.get_default_input_id()
-output_id = pygame.midi.get_default_output_id()
-#print("input MIDI:%d" % input_id)
-print("output MIDI:%d" % output_id)
-#input = pygame.midi.Input(input_id)
-
-#o = pygame.midi.Output(3)
-print ("starting")
-
-
 class Direction:
     def __init__(self, o, leadSheet):
         self.ldch = 0
@@ -58,9 +44,6 @@ class Direction:
         o.write_short(0xb0 + self.bkch, 10, 74)
         o.write_short(0xb0 + self.ld2ch, 10, 90)
 
-        #load lead sheet
-        #leadSheet = ls.SampleComposition()
-
         # parse section
         self.melody = leadSheet.leadLine
         self.chords = leadSheet.chordProgress
@@ -75,6 +58,7 @@ class Direction:
         self.seqObj = seq.Sequencer()
         self.seqObj.crateStepSequence()
         self.sequence = self.seqObj.sequence
+        self.sequence_l = len(self.sequence)
     
         self.flg = False
         self.leadFlg = 3
@@ -92,7 +76,7 @@ class Direction:
         self.sn = np.full(len(self.melody), -1)
         self.bd = np.full(len(self.melody), -1)
         
-    def sendMsg(self, o, i, cnt):
+    def sendMsg(self, o, i, cnt): #cnt <= self.sequence_l
         
         if self.flg:
             #Lead
@@ -123,52 +107,36 @@ class Direction:
 
                 if baOn > 0 :
                     o.note_off(note_past_bs,60, self.bach)
-                    o.note_on(chordObj.tones[int(cds[i] * 1.0 / 8)][cds[i]  % 8][0] + 36 , int(85*articuration[i]), self.bach)
-                    note_past_bs = chordObj.tones[int(cds[i] * 1.0 / 8)][cds[i]  % 8][0] + 36
+                    o.note_on(self.chordObj.tones[int(self.cds[i] * 1.0 / 8)][self.cds[i]  % 8][0] + 36 , int(85*self.articuration[i]), self.bach)
+                    note_past_bs = self.chordObj.tones[int(self.cds[i] * 1.0 / 8)][self.cds[i]  % 8][0] + 36
 
                 if baOn > 0 :
                     o.note_off(note_past_v1,60, self.bkch)
-                    o.note_on(chordObj.tones[int(cds[i] * 1.0 / 8)][cds[i]  % 8][1] + 48 , int(30*articuration[i]), self.bkch)
-                    note_past_v1 = chordObj.tones[int(cds[i] * 1.0 / 8)][cds[i]  % 8][1] + 48
+                    o.note_on(self.chordObj.tones[int(self.cds[i] * 1.0 / 8)][self.cds[i]  % 8][1] + 48 , int(30*self.articuration[i]), self.bkch)
+                    note_past_v1 = self.chordObj.tones[int(self.cds[i] * 1.0 / 8)][self.cds[i]  % 8][1] + 48
 
                     o.note_off(note_past_v2,60, self.bkch)
-                    o.note_on(chordObj.tones[int(cds[i] * 1.0 / 8)][cds[i]  % 8][2] + 48 , int(30*articuration[i]), self.bkch)
-                    note_past_v2 = chordObj.tones[int(cds[i] * 1.0 / 8)][cds[i]  % 8][2] + 48
+                    o.note_on(self.chordObj.tones[int(self.cds[i] * 1.0 / 8)][self.cds[i]  % 8][2] + 48 , int(30*self.articuration[i]), self.bkch)
+                    note_past_v2 = self.chordObj.tones[int(self.cds[i] * 1.0 / 8)][self.cds[i]  % 8][2] + 48
 
-        if i % 64 == 63 :
-            if sequence[cnt] == 0:
-                leadFlg += 1
-                lead = seqObj.update(melody, leadFlg)
-            elif sequence[cnt] == 2:
-                chordsFlg += 1
-                baFlg += 1
-                cds = seqObj.update(chords, chordsFlg)
-                bass = seqObj.update(ba, baFlg)
-            elif sequence[cnt] == 4:
-                drFlg += 1
-                hh = seqObj.update(cHH, drFlg)
-            elif sequence[cnt] == 5:
-                drFlg2 += 1
-                sn = seqObj.update(sDr, drFlg2)
-            elif sequence[cnt] == 6:
-                drFlg3 += 1
-                bd = seqObj.update(bDr, drFlg3)
+            if i % 64 == 63 :
+                if self.sequence[cnt] == 0:
+                    self.leadFlg += 1
+                    self.lead = self.seqObj.update(self.melody, self.leadFlg)
+                elif self.sequence[cnt] == 2:
+                    self.chordsFlg += 1
+                    self.baFlg += 1
+                    self.cds = self.seqObj.update(self.chords, self.chordsFlg)
+                    self.bass = self.seqObj.update(self.ba, self.baFlg)
+                elif self.sequence[cnt] == 4:
+                    self.drFlg += 1
+                    self.hh = self.seqObj.update(self.cHH, self.drFlg)
+                elif self.sequence[cnt] == 5:
+                    self.drFlg2 += 1
+                    self.sn = self.seqObj.update(self.sDr, self.drFlg2)
+                elif self.sequence[cnt] == 6:
+                    self.drFlg3 += 1
+                    self.bd = self.seqObj.update(self.bDr, self.drFlg3)
 
-
-            #i = 0
-            #cnt += 1
-            #if cnt == len(sequence):
-            #    flg = False
-        else  :
-            #i += 1
-
-       
-##o.note_on(60 ,60,0)
-#o.note_on(48, 40, 1)
-sleep(6)
-
-#input.close()
-o.close()
-pygame.midi.quit()
-pygame.quit()
-exit()
+            if cnt == len(sequence):
+                flg = Fals
