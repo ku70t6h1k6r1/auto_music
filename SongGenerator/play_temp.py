@@ -120,7 +120,7 @@ for section_n in range(3):
             o.note_on(func.throwSomeCoins(hh[i],12) * 42, int(70*articuration[i]) , 9)
 
         #Ba
-        if bd[i] != -1 :
+        if bass[i] != -1 :
             baOn = func.throwSomeCoins(bass[i],4)
 
             if baOn > 0 :
