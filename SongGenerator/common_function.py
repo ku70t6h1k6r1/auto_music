@@ -5,7 +5,7 @@ import numpy as np
 from scipy import stats
 
 def sigmoid(a):
-    return 1.0 / (1.0 + math.exp(-a)) 
+    return 1.0 / (1.0 + math.exp(-a))
 
 def softmax(a, t = 1):
     temp = np.empty(len(a))
@@ -15,17 +15,20 @@ def softmax(a, t = 1):
 
     return temp / temp.sum()
 
+def simpleStd(a):  
+    return a / a.sum()
+
 def dice(pkIn):
     xk = np.arange(len(pkIn))
     pk = (pkIn)
     custm = stats.rv_discrete(name='custm', values=(xk, pk))
     return (custm.rvs(size=1))[0]
 
-def throwSomeCoins(pOn, n):    
+def throwSomeCoins(pOn, n):
     pOn = pOn * n
-    
+
     if pOn > 1 :
-        return 1    
+        return 1
     elif dice([1 - pOn, pOn ]) > 1 :
         return 1
     else :
