@@ -2,7 +2,8 @@
 import numpy as np
 import createLeadSheet_temp as ls
 import common_function as func
-import chord_voices as cv
+#import chord_voices as cv
+import harmonize_tf as hm
 import part_weight as seq
 import pygame.midi
 from time import sleep
@@ -61,7 +62,8 @@ end_reh = rehA_length + rehB_length + rehC_length + 1
 # parse section
 melody = leadSheet.leadLine[0:rehA_length]
 chords = leadSheet.chordProgress[0:rehA_length]
-chordObj = cv.Chord()
+#chordObj = cv.Chord()
+chordObj = hm.Dataset()
 ba = leadSheet.perc4[0:rehA_length]
 bDr = leadSheet.perc1[0:rehA_length]
 sDr = leadSheet.perc2[0:rehA_length]
@@ -78,7 +80,7 @@ chordsFlg = -1
 drFlg = -1
 drFlg2 = -1
 drFlg3 = -1
-baFlg = -1
+baFlg = 1
 seqObj = seq.Sequencer()
 seqObj.crateStepSequence()
 sequence = seqObj.sequence
@@ -125,17 +127,17 @@ for section_n in range(3):
 
             if baOn > 0 :
                 o.note_off(note_past_bs,60, 1)
-                o.note_on(chordObj.tones[int(cds[i] * 1.0 / 8)][cds[i]  % 8][0] + 36 , int(85*articuration[i]), 1)
-                note_past_bs = chordObj.tones[int(cds[i] * 1.0 / 8)][cds[i]  % 8][0] + 36
+                #o.note_on(chordObj.tones[int(cds[i] * 1.0 / 8)][cds[i]  % 8][0] + 36 , int(85*articuration[i]), 1)
+                o.note_on(chordObj.tones[cds[i]][0] + 36 , int(85*articuration[i]), 1)
+                note_past_bs = chordObj.tones[cds[i]][0] + 36
 
             if baOn > 0 :
                 o.note_off(note_past_v1,60, 2)
-                o.note_on(chordObj.tones[int(cds[i] * 1.0 / 8)][cds[i]  % 8][1] + 48 , int(30*articuration[i]), 2)
-                note_past_v1 = chordObj.tones[int(cds[i] * 1.0 / 8)][cds[i]  % 8][1] + 48
-
+                o.note_on(chordObj.tones[cds[i]][1] + 48 , int(30*articuration[i]), 2)
+                note_past_v1 = chordObj.tones[cds[i]][1] + 48
                 o.note_off(note_past_v2,60, 2)
-                o.note_on(chordObj.tones[int(cds[i] * 1.0 / 8)][cds[i]  % 8][2] + 48 , int(30*articuration[i]), 2)
-                note_past_v2 = chordObj.tones[int(cds[i] * 1.0 / 8)][cds[i]  % 8][2] + 48
+                o.note_on(chordObj.tones[cds[i]][1] + 48 , int(30*articuration[i]), 2)
+                note_past_v2 = chordObj.tones[cds[i]][1] + + 48
 
         if i % 64 == 63 :
             if sequence[cnt] == 0:
@@ -180,7 +182,8 @@ for section_n in range(3):
         baFlg = 2
         melody = leadSheet.leadLine[rehA_length:start_rehC]
         chords = leadSheet.chordProgress[rehA_length:start_rehC]
-        chordObj = cv.Chord()
+        #chordObj = cv.Chord()
+        chordObj = hm.Dataset()
         ba = leadSheet.perc4[rehA_length:start_rehC]
         bDr = leadSheet.perc1[rehA_length:start_rehC]
         sDr = leadSheet.perc2[rehA_length:start_rehC]
@@ -196,7 +199,8 @@ for section_n in range(3):
         baFlg = -1
         melody = leadSheet.leadLine[start_rehC:end_reh]
         chords = leadSheet.chordProgress[start_rehC:end_reh]
-        chordObj = cv.Chord()
+        #chordObj = cv.Chord()
+        chordObj = hm.Dataset()
         ba = leadSheet.perc4[start_rehC:end_reh]
         bDr = leadSheet.perc1[start_rehC:end_reh]
         sDr = leadSheet.perc2[start_rehC:end_reh]

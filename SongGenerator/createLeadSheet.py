@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 import mergeMelodyAndRythm as melody
 import createPercussion as perc
-import harmonize as hm
+#import harmonize as hm
+import harmonize_tf as hm
 import numpy as np
 import createArticulation as ac
 

@@ -6,6 +6,10 @@ import chord_voices as cv
 import pygame.midi
 from time import sleep
 
+import playWav as wav
+
+player1 = wav.AudioPlayer(r'C:\\work\\ai_music\\freesound\\test3.wav')
+
 def smoothing(note, pastNote, lowestPitch = 60, highestPitch = 80):
     if (note - pastNote) > 5  and note > lowestPitch:
         note = note - 12
@@ -77,6 +81,8 @@ for note in melody:
     #if i % leadSheet.notePerBar_n == 0:
     if i % leadSheet.notePerBar_n == 0 or i % leadSheet.notePerBar_n == 4 or i % leadSheet.notePerBar_n == 8 or i % leadSheet.notePerBar_n == 12 :
         o.note_on(36, 50, 9)
+        player1.stop()
+        player1.play()
     else:
         o.note_on(func.dice([1 - bDr[i] , bDr[i] ]) * 36,50,9)
         o.note_on(func.dice([1 - sDr[i] , sDr[i] ]) * 39,50,9)

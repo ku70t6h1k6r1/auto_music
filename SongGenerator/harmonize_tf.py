@@ -86,6 +86,14 @@ class Dataset:
 
         self.rootSymbol = ["C","Db","D","Eb","E","F","Gb","G","Ab","A","Bb","B"]
         self.chordSymbol = [" ","m","sus2","sus4","aug","dim"]
+        self.tones = {}
+        self.setTones(self.chords_dic1)
+
+    def setTones(self, chords_dic):
+        for i in range(12 * len(chords_dic)):
+            self.tones[i] = np.array(chords_dic[i % len(chords_dic)]) + int(i / len(chords_dic))
+            for j in range(len(self.tones[i])):
+                self.tones[i][j] = self.clip1oct(self.tones[i][j])
 
     def convertIndexToSymbol(self, idx, rootSymbol, chordSymbol):
         root = rootSymbol[math.floor(idx / len(chordSymbol))]
@@ -115,6 +123,14 @@ class Dataset:
         else:
             return note
 
+    def translateMelody(self, melody, t = 0.5):
+        output = []
+        oneNote = np.zeros(12)
+        for i in range(len(melody)):
+            if melody[i] != -1:
+                oneNote[melody[i]] = oneNote[melody[i]]  + 1
+        return func.softmax(oneNote,t = t)
+
 class createHarmoniseNNW:
     def __init__(self):
         self.chordObj = Dataset()
@@ -143,7 +159,20 @@ class createHarmoniseNNW:
         output = self.nnw.sess.run(self.nnw.output, feed_dict={self.nnw.X: input})
         return func.dice(func.softmax(np.array(output[0,]), t = 0.1 ))
 
-#
+#実行用コード
+def Create(melody, noteParChord_n = 16): #8か12か16でしょう。
+    harmonizeNW = createHarmoniseNNW()
+    chordObj = Dataset()
+    chords = np.full(len(melody), -1)
+
+    for i in range(int(len(melody)/noteParChord_n)):
+        noteFreq = chordObj.translateMelody(melody[i*noteParChord_n : (i+1)*noteParChord_n])
+        predictChord = harmonizeNW.restore(input = noteFreq)
+        chords[i*noteParChord_n : (i+1)*noteParChord_n] = predictChord
+
+    return chords
+
+#以下、学習と確認用
 #execObj = createHarmoniseNNW()
 ##execObj.learn(100000)
 #chordObj = Dataset()
@@ -154,3 +183,7 @@ class createHarmoniseNNW:
 #    trueChord = func.dice(func.softmax(trainData[1], t = 0.1))
 #    print("chord is ",chordObj.convertIndexToSymbol(trueChord, chordObj.rootSymbol, chordObj.chordSymbol) )
 #    print("predict is ",chordObj.convertIndexToSymbol(predictChord, chordObj.rootSymbol, chordObj.chordSymbol) )
+
+#以下、そのほか
+#chordObj = Dataset()
+#print(chordObj.tones)

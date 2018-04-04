@@ -38,14 +38,14 @@ class Sequencer:
 
     def update(self, msg, update_n):
         if update_n % 5 == 0:
-            return np.tile(msg[0:4], len(msg)/4 )
+            return np.tile(msg[0:4], int(len(msg)/4) )
         elif update_n % 5 == 1:
-            return np.tile(msg[0:8], len(msg)/8 )
+            return np.tile(msg[0:8], int(len(msg)/8) )
         elif update_n % 5 == 2:
-            return np.tile(msg[0:16], len(msg)/16 )
+            return np.tile(msg[0:16], int(len(msg)/16) )
         elif update_n % 5 == 3:
-            return np.tile(msg[0:32], len(msg)/32 )
+            return np.tile(msg[0:32], int(len(msg)/32) )
         elif update_n % 5 == 4:
-            return np.tile(msg[0:64], len(msg)/64 )
+            return np.tile(msg[0:64], int(len(msg)/64) )
         else:
-            return np.full(len(msg), -1)
+            return np.full(int(len(msg)), -1)
