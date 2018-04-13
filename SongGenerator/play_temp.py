@@ -9,6 +9,25 @@ import pygame.midi
 from time import sleep
 import time
 
+"""for wav file
+START
+"""
+
+import playWav as wav
+import calculateBpm as bpm
+
+wav_dir = r'C:\\work\\ai_music\\freesound\\en_jp.wav'
+bpmObj = bpm.calBpm(wav_dir)
+pos = bpmObj[2][0]
+player1 = wav.AudioPlayer(wav_dir, 0) #この第二引数なんだ
+list = bpmObj[2][0]
+pitch_list = bpmObj[4]
+
+wav_i = 0
+"""for wav file
+END
+"""
+
 def smoothing(note, pastNote, lowestPitch = 60, highestPitch = 80):
     if (note - pastNote) > 5  and note > lowestPitch:
         note = note - 12
@@ -28,8 +47,8 @@ output_id = pygame.midi.get_default_output_id()
 #print("input MIDI:%d" % input_id)
 print("output MIDI:%d" % output_id)
 #input = pygame.midi.Input(input_id)
-o = pygame.midi.Output(3)
 #o = pygame.midi.Output(3)
+o = pygame.midi.Output(1)
 print ("starting")
 
 
@@ -70,8 +89,8 @@ sDr = leadSheet.perc2[0:rehA_length]
 cHH = leadSheet.perc3[0:rehA_length]
 articuration = leadSheet.articuration[0:rehA_length]
 
-sleepTime = np.random.normal(0.08,0.04)
-
+#sleepTime = np.random.normal(0.08,0.04)
+sleepTime = 0.18
 
 flg = True
 leadFlg = 3
@@ -84,6 +103,17 @@ baFlg = 1
 seqObj = seq.Sequencer()
 seqObj.crateStepSequence()
 sequence = seqObj.sequence
+
+"""for wav file
+START
+"""
+player1.play()
+sleep(4)
+player1.stop()
+sleep(2)
+"""for wav file
+END
+"""
 
 
 for section_n in range(3):
@@ -118,8 +148,10 @@ for section_n in range(3):
         if sn[i] != -1 :
             o.note_on(func.dice([1 - sn[i] , sn[i] ]) * 39,80,9)
 
+        """MSGMだとなんかエラーになる。
         if hh[i] != -1 :
             o.note_on(func.throwSomeCoins(hh[i],12) * 42, int(70*articuration[i]) , 9)
+        """
 
         #Ba
         if bass[i] != -1 :
@@ -158,13 +190,21 @@ for section_n in range(3):
                 drFlg3 += 1
                 bd = seqObj.update(bDr, drFlg3)
 
-
+            wav_i += 1 #for_WAV
             i = 0
             cnt += 1
             if cnt == len(sequence):
                 flg = False
+
+        elif i % 16 == 0 : #for_WAV
+            player1.stop()
+            player1.setPos(list[wav_i])
+            player1.play()
+            i += 1
+
         else  :
             i += 1
+
 
         end = time.time()
 
@@ -210,7 +250,7 @@ for section_n in range(3):
 ##o.note_on(60 ,60,0)
 #o.note_on(48, 40, 1)
 sleep(6)
-
+player1.stop() #for_WAV
 #input.close()
 o.close()
 pygame.midi.quit()

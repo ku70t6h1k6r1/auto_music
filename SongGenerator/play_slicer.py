@@ -10,7 +10,7 @@ import time
 import playWav as wav
 import calculateBpm as bpm
 
-wav_dir = r'C:\\work\\ai_music\\freesound\\MIC-2012-05-04_10h59m29s.wav'
+wav_dir = r'C:\\work\\ai_music\\freesound\\en_jp.wav'
 bpmObj = bpm.calBpm(wav_dir)
 pos = bpmObj[2][0]
 #player1 = wav.AudioPlayer(wav_dir, bpmObj[1])
@@ -48,7 +48,7 @@ note_past_v1 = 60
 note_past_v2 = 60
 
 #set inst
-o.set_instrument(1,0) #Lead
+o.set_instrument(13,0) #Lead
 o.set_instrument(13,1) #ba
 o.set_instrument(13,2) #backing
 o.set_instrument(53,3) #Lead2
@@ -60,6 +60,7 @@ o.write_short(0xb1, 10, 54)
 o.write_short(0xb2, 10, 74)
 o.write_short(0xb3, 10, 90)
 
+"""
 #load part
 leadSheet = ls.SampleComposition()
 melody = leadSheet.leadLine
@@ -73,39 +74,53 @@ cHH = leadSheet.perc3
 articuration = leadSheet.articuration
 
 #sleepTime = np.random.normal(0.15,0.1)
+"""
 
 try:
     #sleepTime = 60 / bpmObj[0] /4 *2
 
-    list = bpmObj[2][0] /44100
+    list = bpmObj[2][0]
     pitch_list = bpmObj[4]
     #print(list)
     #print(sleepTime)
-    player1.stop()
-
-    start = time.time()
     player1.play()
+    sleep(2)
+    player1.stop()
+    sleep(2)
+
+    #player1.play()
     #for note in melody:
 
     i = 0
+    j = 0
     past_note = 32
     while True:
-        now = time.time() - start
-        if(now >= list[i]) :
-            o.note_off(past_note , 120, 0)
-            #o.note_off(past_note - 1, 120, 1)
-            #o.note_off(past_note + 7, 120, 2)
-            note = pitch_list[i]
-            past_note = smoothing(note, past_note)
-            o.note_on(past_note , 120, 0)
-            #o.note_on(past_note - 1, 120, 1)
-            #o.note_on(past_note + 7, 120, 2)
+        start = time.time()
+
+        player1.stop()
+        player1.setPos(list[i])
+        player1.play()
+
+        #if(now >= list[i]) :
+        #    o.note_off(past_note, 120, 0)
+        #    note = pitch_list[i]
+        #    past_note = smoothing(note, past_note)
+        #    o.note_on(past_note, 120, 0)
             #o.note_on(42, 120, 9)
             #o.note_on(36, 120, 9)
+
+        if j  < 16 :
+            j += 1
+        else:
+            j = 0
             i += 1
 
-        if i >= len(list) - 1: #pitch_list ひとつたりないから
+        if i > 4: #pitch_list ひとつたりないから
             break
+
+        end = time.time()
+
+        sleep(0.16 - (end - start))
 
     #for j in  list: #pre_f_dur
     #    sleep(j/44100) #最初に休まないと
@@ -177,10 +192,11 @@ except KeyboardInterrupt:
 
     ##o.note_on(60 ,60,0)
     #o.note_on(48, 40, 1)
-    #sleep(6)
+    sleep(6)
     player1.stop()
 
-#input.close()
+
+player1.stop()
 o.close()
 pygame.midi.quit()
 pygame.quit()

@@ -4,16 +4,25 @@ import pyaudio
 import wave
 import threading
 from time import sleep
+#for test
+import calculateBpm as bpm
+import sys
 
-CHUNK = 1024
+CHUNK = 512
 
 
 class AudioPlayer(object):
     """ A Class For Playing Audio """
 
-    def __init__(self, audio_file):
+    def __init__(self, audio_file, start_frame_idx): #setPosあるからいらんかも
         self.audio_file = audio_file
+        self.s_f_idx = start_frame_idx
         self.playing = threading.Event()    # 再生中フラグ
+
+    def callback(self, in_data, frame_count, time_info, status):
+        print(frame_count)
+        data = self.wf.readframes(frame_count)
+        return (data, pyaudio.paContinue)
 
     def run(self):
         """ Play audio in a sub-thread """
@@ -22,8 +31,10 @@ class AudioPlayer(object):
         output = audio.open(format=audio.get_format_from_width(input.getsampwidth()),
                             channels=input.getnchannels(),
                             rate=input.getframerate(),
+                            #stream_callback=self.callback, #test
                             output=True)
 
+        input.setpos(self.s_f_idx)
         while self.playing.is_set():
             data = input.readframes(CHUNK)
             if len(data) > 0:
@@ -58,11 +69,25 @@ class AudioPlayer(object):
             self.playing.clear()
             self.thread.join()
 
-if __name__ == "__main__":
-    player1 = AudioPlayer(r'C:\\work\\ai_music\\freesound\\test3.wav')
+    def setPos(self, start_frame_idx):
+        self.s_f_idx = start_frame_idx
 
-    for i in range(10):
+if __name__ == "__main__":
+    #for test part
+    bpmObj =  bpm.calBpm(r'C:\\work\\ai_music\\freesound\\yukio_mishima_l.wav')
+    player1 = AudioPlayer(r'C:\\work\\ai_music\\freesound\\yukio_mishima_l.wav',0)
+
+    temp = 0
+    pos = bpmObj[2][0]
+    try:
+        for i in pos:
+            player1.stop()
+            player1.setPos(i)
+            player1.play()
+            sleep(1)
+            print(i - temp)
+            temp = i
         player1.stop()
-        player1.play()
-        sleep(0.14)
-        print(i)
+    except KeyboardInterrupt:
+        player1.stop()
+        sys.exit
