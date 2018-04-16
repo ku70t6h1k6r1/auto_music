@@ -11,7 +11,7 @@ import time
 
 """for wav file
 START
-"""
+
 
 import playWav as wav
 import calculateBpm as bpm
@@ -24,7 +24,7 @@ list = bpmObj[2][0]
 pitch_list = bpmObj[4]
 
 wav_i = 0
-"""for wav file
+for wav file
 END
 """
 
@@ -56,6 +56,7 @@ note_past = 60
 note_past_bs = 60
 note_past_v1 = 60
 note_past_v2 = 60
+note_past_cMel = 60
 
 #set inst
 #o.set_instrument(8,0) #Lead
@@ -81,7 +82,7 @@ end_reh = rehA_length + rehB_length + rehC_length + 1
 # parse section
 melody = leadSheet.leadLine[0:rehA_length]
 chords = leadSheet.chordProgress[0:rehA_length]
-#chordObj = cv.Chord()
+counterMelody = leadSheet.counterMelody[0:rehA_length]
 chordObj = hm.Dataset()
 ba = leadSheet.perc4[0:rehA_length]
 bDr = leadSheet.perc1[0:rehA_length]
@@ -96,6 +97,7 @@ flg = True
 leadFlg = 3
 leadFlg2 = -1
 chordsFlg = -1
+counterMelodyFlg = -1
 drFlg = -1
 drFlg2 = -1
 drFlg3 = -1
@@ -106,12 +108,12 @@ sequence = seqObj.sequence
 
 """for wav file
 START
-"""
+
 player1.play()
 sleep(4)
 player1.stop()
 sleep(2)
-"""for wav file
+for wav file
 END
 """
 
@@ -137,8 +139,8 @@ for section_n in range(3):
             fixedNote = smoothing(lead[i]  + 60, note_past)
             o.note_on(fixedNote, int(95*articuration[i]) ,0)
 
-            o.note_off(note_past + 12, 60, 3)
-            o.note_on(fixedNote + 12, int(51*articuration[i]) ,3)
+            #o.note_off(note_past + 12, 60, 3)
+            #o.note_on(fixedNote + 12, int(51*articuration[i]) ,3)
 
             note_past = fixedNote
         #Dr
@@ -163,13 +165,20 @@ for section_n in range(3):
                 o.note_on(chordObj.tones[cds[i]][0] + 36 , int(85*articuration[i]), 1)
                 note_past_bs = chordObj.tones[cds[i]][0] + 36
 
-            if baOn > 0 :
+            #if baOn > 0 :
                 o.note_off(note_past_v1,60, 2)
                 o.note_on(chordObj.tones[cds[i]][1] + 48 , int(30*articuration[i]), 2)
                 note_past_v1 = chordObj.tones[cds[i]][1] + 48
                 o.note_off(note_past_v2,60, 2)
-                o.note_on(chordObj.tones[cds[i]][1] + 48 , int(30*articuration[i]), 2)
-                note_past_v2 = chordObj.tones[cds[i]][1] + + 48
+                o.note_on(chordObj.tones[cds[i]][2] + 48 , int(30*articuration[i]), 2)
+                note_past_v2 = chordObj.tones[cds[i]][2]  + 48
+
+                #Counter Melody
+                o.note_off(note_past_cMel, 60, 3)
+                note_past_cMel = smoothing(counterMelody[i] + 60, note_past_cMel)
+                o.note_on(note_past_cMel, int(51*articuration[i]) ,3)
+
+                note_past = fixedNote
 
         if i % 64 == 63 :
             if sequence[cnt] == 0:
@@ -178,8 +187,10 @@ for section_n in range(3):
             elif sequence[cnt] == 2:
                 chordsFlg += 1
                 baFlg += 1
+                counterMelodyFlg += 1
                 cds = seqObj.update(chords, chordsFlg)
                 bass = seqObj.update(ba, baFlg)
+                counterMelody = seqObj.update(counterMelody, baFlg)
             elif sequence[cnt] == 4:
                 drFlg += 1
                 hh = seqObj.update(cHH, drFlg)
@@ -190,17 +201,19 @@ for section_n in range(3):
                 drFlg3 += 1
                 bd = seqObj.update(bDr, drFlg3)
 
-            wav_i += 1 #for_WAV
+            #wav_i += 1 #for_WAV
             i = 0
             cnt += 1
             if cnt == len(sequence):
                 flg = False
 
+
         elif i % 16 == 0 : #for_WAV
-            player1.stop()
-            player1.setPos(list[wav_i])
-            player1.play()
+            #player1.stop()
+            #player1.setPos(list[wav_i])
+            #player1.play()
             i += 1
+
 
         else  :
             i += 1
@@ -216,12 +229,14 @@ for section_n in range(3):
         leadFlg = 0
         leadFlg2 = -1
         chordsFlg = -1
+        counterMelodyFlg = -1
         drFlg = -1
         drFlg2 = -1
         drFlg3 = -1
         baFlg = 2
         melody = leadSheet.leadLine[rehA_length:start_rehC]
         chords = leadSheet.chordProgress[rehA_length:start_rehC]
+        counterMelody = leadSheet.counterMelody[rehA_length:start_rehC]
         #chordObj = cv.Chord()
         chordObj = hm.Dataset()
         ba = leadSheet.perc4[rehA_length:start_rehC]
@@ -233,12 +248,14 @@ for section_n in range(3):
         leadFlg = -1
         leadFlg2 = -1
         chordsFlg = -1
+        counterMelodyFlg = -1
         drFlg = 0
         drFlg2 = -1
         drFlg3 = -1
         baFlg = -1
         melody = leadSheet.leadLine[start_rehC:end_reh]
         chords = leadSheet.chordProgress[start_rehC:end_reh]
+        counterMelody = leadSheet.counterMelody[start_rehC:end_reh]
         #chordObj = cv.Chord()
         chordObj = hm.Dataset()
         ba = leadSheet.perc4[start_rehC:end_reh]
@@ -250,7 +267,7 @@ for section_n in range(3):
 ##o.note_on(60 ,60,0)
 #o.note_on(48, 40, 1)
 sleep(6)
-player1.stop() #for_WAV
+#player1.stop() #for_WAV
 #input.close()
 o.close()
 pygame.midi.quit()

@@ -5,6 +5,7 @@ import createPercussion as perc
 import harmonize_tf as hm
 import numpy as np
 import createArticulation as ac
+import improvise as counterMelody
 
 class SampleComposition:
     def __init__(self):
@@ -37,5 +38,16 @@ class SampleComposition:
         self.perc3 = perc.Create(self.leadLine , temperature = 0.01)
         self.perc4 = perc.Create(self.leadLine , temperature = 0.0004)
 
+        #create counter melody FUNCTIONとして切り出す？
+        self.counterMelody = np.zeros(0)
+        for i in range(int(len(self.chordProgress) / self.noteParChord_n)):
+            chord_index = self.chordProgress[i * self.noteParChord_n]
+            tempCounterMelody = counterMelody.Create(chord_index, self.leadLine[int(i*16) : int(i*16 + 16)], int(1*self.noteParChord_n/self.notePerBar_n) )
+            self.counterMelody = np.r_[self.counterMelody, tempCounterMelody ]
+
         #create articuration
         self.articuration = ac.Create(self.leadLine, notePerBar_n = self.notePerBar_n, r = 0.96)
+
+if __name__ == '__main__':
+    obj = SampleComposition()
+    print(obj.counterMelody)

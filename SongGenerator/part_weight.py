@@ -4,7 +4,7 @@ import numpy as np
 
 class Sequencer:
     def __init__(self):
-        self.master = func.softmax([0.45 ,0.01 ,0.3 ,0.3, 0.5, 0.4, 0.2])
+        self.master = func.softmax([0.1 ,0.1 ,0.1 ,0.15,0.1, 0.01, 0.01])
 
         self.noteWeight = {}
         self.sequence = np.zeros(0)

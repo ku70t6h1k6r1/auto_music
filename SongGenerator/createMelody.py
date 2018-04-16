@@ -22,7 +22,7 @@ def Create(bars_n, notePerBar_n = 16, mergin_n = 16, std_f = 'softmax', pwObj = 
     #prevNote = func.dice(pwObj.pitchWeight)
     prevNote = 0
 
-    for i in range( notePerBar_n  * bars_n + mergin_n ):
+    for i in range( int(notePerBar_n  * bars_n + mergin_n )):
         pwObj.updateDW((notePerBar_n * bars_n) * 1.0 / (i+1))
         pwObj.updateRelPW(prevNote, std_f = std_f)
         prevNote = func.dice(pwObj.relPitchWeight)

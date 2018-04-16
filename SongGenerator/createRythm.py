@@ -20,7 +20,7 @@ def Create(bars_n, notePerBar_n = 16):
             rythmLine = np.r_[rythmLine,rwObj.noteLength[noteDuration]]
         else:
             noteDuration = func.dice(rwObj.noteWeightMaster)
-    return rythmLine[:notePerBar_n  * bars_n]
+    return rythmLine[:int(notePerBar_n  * bars_n)]
 
 #TEST
 #test = Create(4,16)

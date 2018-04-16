@@ -34,7 +34,7 @@ def Create(chord_idx, melody, bars_n, notePerBar_n = 16, ct_w = 1.5):
     #create rythm
     improvise_rythm = rythm.Create(bars_n, notePerBar_n = notePerBar_n )
 
-    return mergeMelodyAndRythm.Merge(improvise_rythm, improvise_melody, bars_n, 1, notePerBar_n, lastNote = 0)
+    return mergeMelodyAndRythm.Merge(improvise_rythm, improvise_melody, bars_n, 1, notePerBar_n, lastNote = chord_tone[0])
 
 
 
