@@ -1,0 +1,2 @@
+activate tensorFlow
+python  C:\Users\hikari.kubota\Documents\GitHub\auto_music\SongGenerator\play.py
