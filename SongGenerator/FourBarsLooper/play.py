@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import numpy as np
-import createLeadSheet_temp as ls
+import createLeadSheet as ls
 import common_function as func
 #import chord_voices as cv
 import harmonize_tf as hm
