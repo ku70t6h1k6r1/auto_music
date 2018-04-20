@@ -8,7 +8,7 @@ def pickUpAccent(melody, notePerBar_n = 16):
 
     for j in range(int(len(melody)/notePerBar_n)):
         for i in range(notePerBar_n):
-            if melody[notePerBar_n*j + i] != -1:
+            if melody[notePerBar_n*j + i] > -1:
                 oneBar[notePerBar_n*j + i] = oneBar[notePerBar_n*j + i]  + 1
     output = np.r_[output, func.softmax(oneBar)]
     return output
@@ -20,7 +20,7 @@ def pickUpSectionAccent(melody, notePerBar_n = 16, barsPerOneSection = 4):
     # minimum beat length sixteen-beat and then 16
     for j in range(int(len(melody)/notePerBar_n)):
         for i in range(notePerBar_n):
-            if melody[j*notePerBar_n + i] != -1:
+            if melody[j*notePerBar_n + i] > -1:
                 oneBar[i] = oneBar[i]  + 1
         if j % barsPerOneSection == barsPerOneSection - 1:
             for k in range(barsPerOneSection):
@@ -41,7 +41,21 @@ def Create(melody, notePerBar_n = 16, barsPerOneSection = 4, temperature = 0.000
         oneBar = np.zeros(notePerBar_n )
     return output
 
+def tranBinary(probArray, tryN = 1):
+    output = np.full(len(probArray), -1)
 
+    for i, p in enumerate(probArray):
+        output[i] = func.throwSomeCoins(p,tryN)
+
+    return output
 #print "#############"
 #melody = create()
 #merge(pickUpAccent(melody), pickUpSecAccent(melody))
+
+if __name__ == '__main__':
+    melody = [1,-1,-1,-1, 1,-1,-1,-1, 1,-1,-1,-1, 1,-1,-1,-1,
+              1,-1,-1,-1, 1,-1,-1,-1, 1,-1,-1,-1, 1,-1,-1,-1]
+
+    prob = Create(melody, barsPerOneSection = 1, temperature = 0.5)
+    print(prob)
+    print(tranBinary(prob, 12))

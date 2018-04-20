@@ -15,7 +15,7 @@ def softmax(a, t = 1):
 
     return temp / temp.sum()
 
-def simpleStd(a):  
+def simpleStd(a):
     return a / a.sum()
 
 def dice(pkIn):
@@ -29,7 +29,23 @@ def throwSomeCoins(pOn, n):
 
     if pOn > 1 :
         return 1
-    elif dice([1 - pOn, pOn ]) > 1 :
+    elif dice([1 - pOn, pOn ]) > 0 :
         return 1
     else :
         return 0
+
+def smoothing(note, pastNote, lowestPitch = 60, highestPitch = 84):
+    if (note - pastNote) > 5  and note -12 > lowestPitch:
+        note = note - 12
+    elif (note - pastNote) < -6 and note + 12 < highestPitch:
+        note = note + 12
+    elif note <  lowestPitch :
+        note + 12
+    elif note > highestPitch :
+        note - 12
+    else:
+        note = note
+
+    return int(note)
+
+#if __name__ == '__main__':

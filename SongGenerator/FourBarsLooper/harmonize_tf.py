@@ -127,8 +127,8 @@ class Dataset:
         output = []
         oneNote = np.zeros(12)
         for i in range(len(melody)):
-            if melody[i] != -1:
-                oneNote[melody[i]] = oneNote[melody[i]]  + 1
+            if melody[i] > -1:
+                oneNote[melody[i]%12] = oneNote[melody[i]%12]  + 1
         return func.softmax(oneNote,t = t)
 
 class createHarmoniseNNW:

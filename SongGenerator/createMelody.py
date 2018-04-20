@@ -12,7 +12,7 @@ import pitch_weight as pw
 #        melody.append(func.dice(pwObj.pitchWeight))
 #    return np.array(melody)
 
-def Create(bars_n, notePerBar_n = 16, mergin_n = 16, std_f = 'softmax', pwObj = pw.PitchWeight()):
+def Create(bars_n, notePerBar_n = 16, mergin_n = 100, std_f = 'softmax', pwObj = pw.PitchWeight()):
     """
     pwObj = pw.PitchWeight()はカスタマイズする必要がある時だけ引数にいれる。
     """
