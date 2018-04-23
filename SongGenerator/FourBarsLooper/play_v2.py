@@ -40,6 +40,9 @@ if __name__ == '__main__':
     start_rehC = rehA_length + rehB_length
     end_rehC = rehA_length + rehB_length + rehC_length + 1
 
+    # articulation
+    articuration = leadSheet.articuration #[0:rehA_length]
+
     # parse section
     melody = leadSheet.leadLine #[0:rehA_length]
     chords = leadSheet.chordProgress #[0:rehA_length]
@@ -51,13 +54,24 @@ if __name__ == '__main__':
     v2 = leadSheet.v2 #[0:rehA_length]
 
     bDr = leadSheet.baDrum #[0:rehA_length]
-    print(bDr )
     sDr = leadSheet.snare #[0:rehA_length]
-    print(sDr )
     cHH = leadSheet.hiHat #[0:rehA_length]
-    print(cHH )
 
-    articuration = leadSheet.articuration #[0:rehA_length]
+    #Make Each Channel
+    melody = np.stack([melody], axis = -1)
+    mel_articulation = np.stack([articuration *100], axis = -1)
+
+    ba = np.stack([ba], axis = -1)
+    ba_articulation  = np.stack([articuration *80], axis = -1)
+
+    vc = np.stack([v1, v2 ], axis = -1)
+    vc_articuration = np.stack([articuration*80 ,articuration*80], axis = -1)
+
+    dr = np.stack([cHH, sDr ,bDr], axis = -1)
+    dr_articuration = np.stack([articuration*90, articuration*80 ,articuration*80], axis = -1)
+
+
+
 
     # multiprocessing setting
     timeSeriesObj = mltPrcss.TimeSeries()
@@ -66,27 +80,15 @@ if __name__ == '__main__':
     timeSeriesObj.setStartTime(time.time())
     #device = 3 #microX
     device = 0
-    sp_melody =  mltPrcss.ChildProcessHomo(device, 0, 1, np.stack([melody], axis = -1), np.stack([articuration *100], axis = -1), timeSeriesObj)
-    sp_ba =  mltPrcss.ChildProcess(device, 1, 5, ba, articuration*80, timeSeriesObj)
-    sp_v1 =  mltPrcss.ChildProcess(device, 2, 5, v1, articuration*80, timeSeriesObj)
-    sp_v2 =  mltPrcss.ChildProcess(device, 2, 5, v2, articuration*80, timeSeriesObj)
-    sp_bDr =  mltPrcss.ChildProcess(device, 9, 0, bDr, articuration*40, timeSeriesObj)
-    sp_sDr =  mltPrcss.ChildProcess(device, 9, 0, sDr, articuration*30, timeSeriesObj)
-    sp_cHH =  mltPrcss.ChildProcess(device, 9, 0, cHH, articuration*90, timeSeriesObj)
-
-    dr_articuration = np.stack([articuration*90, articuration*80 ,articuration*80], axis = -1)
-    dr = np.stack([cHH, sDr ,bDr], axis = -1)
+    sp_melody =  mltPrcss.ChildProcessHomo(device, 0, 1, melody, mel_articulation, timeSeriesObj)
+    sp_ba =  mltPrcss.ChildProcessHomo(device, 1, 5, ba, ba_articulation, timeSeriesObj)
+    sp_vc =  mltPrcss.ChildProcessHomo(device, 2, 5, vc, vc_articuration, timeSeriesObj)
     sp_dr = mltPrcss.ChildProcessHomo(device, 9, 0, dr, dr_articuration, timeSeriesObj)
 
     #execute
     p1 = mltPrcss.Process(target = sp_melody.execute)
     p2 = mltPrcss.Process(target = sp_ba.execute)
-    p3 = mltPrcss.Process(target = sp_v1.execute)
-    p4 = mltPrcss.Process(target = sp_v2.execute)
-    p5 = mltPrcss.Process(target = sp_bDr.execute)
-    p6 = mltPrcss.Process(target = sp_sDr.execute)
-    p7 = mltPrcss.Process(target = sp_cHH.execute)
-
+    p3 = mltPrcss.Process(target = sp_vc.execute)
     p8 = mltPrcss.Process(target = sp_dr.execute)
 
 
