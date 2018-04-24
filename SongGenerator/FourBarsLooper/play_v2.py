@@ -41,21 +41,21 @@ if __name__ == '__main__':
     end_rehC = rehA_length + rehB_length + rehC_length + 1
 
     # articulation
-    articuration = leadSheet.articuration #[0:rehA_length]
+    articuration = leadSheet.articuration[0:rehA_length]
 
     # parse section
-    melody = leadSheet.leadLine #[0:rehA_length]
-    chords = leadSheet.chordProgress #[0:rehA_length]
-    counterMelody = leadSheet.counterMelody #[0:rehA_length]
+    melody = leadSheet.leadLine[0:rehA_length]
+    chords = leadSheet.chordProgress[0:rehA_length]
+    counterMelody = leadSheet.counterMelody[0:rehA_length]
     #chordObj = hm.Dataset()
 
-    ba = leadSheet.ba #[0:rehA_length]
-    v1 = leadSheet.v1 #[0:rehA_length]
-    v2 = leadSheet.v2 #[0:rehA_length]
+    ba = leadSheet.ba[0:rehA_length]
+    v1 = leadSheet.v1[0:rehA_length]
+    v2 = leadSheet.v2 [0:rehA_length]
 
-    bDr = leadSheet.baDrum #[0:rehA_length]
-    sDr = leadSheet.snare #[0:rehA_length]
-    cHH = leadSheet.hiHat #[0:rehA_length]
+    bDr = leadSheet.baDrum[0:rehA_length]
+    sDr = leadSheet.snare[0:rehA_length]
+    cHH = leadSheet.hiHat[0:rehA_length]
 
     #Make Each Channel
     melody = np.stack([melody], axis = -1)
@@ -69,10 +69,7 @@ if __name__ == '__main__':
 
     dr = np.stack([cHH, sDr ,bDr], axis = -1)
     dr_articuration = np.stack([articuration*90, articuration*80 ,articuration*80], axis = -1)
-
-
-
-
+    
     # multiprocessing setting
     timeSeriesObj = mltPrcss.TimeSeries()
     timeSeriesObj.setBpm(140)
@@ -80,17 +77,16 @@ if __name__ == '__main__':
     timeSeriesObj.setStartTime(time.time())
     #device = 3 #microX
     device = 0
-    sp_melody =  mltPrcss.ChildProcessHomo(device, 0, 1, melody, mel_articulation, timeSeriesObj)
-    sp_ba =  mltPrcss.ChildProcessHomo(device, 1, 5, ba, ba_articulation, timeSeriesObj)
-    sp_vc =  mltPrcss.ChildProcessHomo(device, 2, 5, vc, vc_articuration, timeSeriesObj)
-    sp_dr = mltPrcss.ChildProcessHomo(device, 9, 0, dr, dr_articuration, timeSeriesObj)
+    sp_melody =  mltPrcss.ChildProcess(device, 0, 1, melody, mel_articulation, timeSeriesObj)
+    sp_ba =  mltPrcss.ChildProcess(device, 1, 5, ba, ba_articulation, timeSeriesObj)
+    sp_vc =  mltPrcss.ChildProcess(device, 2, 5, vc, vc_articuration, timeSeriesObj)
+    sp_dr = mltPrcss.ChildProcess(device, 9, 0, dr, dr_articuration, timeSeriesObj)
 
     #execute
     p1 = mltPrcss.Process(target = sp_melody.execute)
     p2 = mltPrcss.Process(target = sp_ba.execute)
     p3 = mltPrcss.Process(target = sp_vc.execute)
     p8 = mltPrcss.Process(target = sp_dr.execute)
-
 
     #MAX 4process
     print("p1 START")

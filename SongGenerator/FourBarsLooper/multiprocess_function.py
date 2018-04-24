@@ -14,7 +14,7 @@ class TimeSeries:
     For 16beat * 4 Bars
     """
 
-    def setBpm(self, bpm, max_length = 600):
+    def setBpm(self, bpm, max_length = 100):
         self.bpm = bpm
         self.max_length = max_length
         self.dist_time_16 = 60 / self.bpm / 4
@@ -26,7 +26,7 @@ class TimeSeries:
             self.time_series[i] = self.dist_time_16 * i
         self.abs_time_series =  self.time_series
 
-    def setStartTime(self, start_time, latency = 25):
+    def setStartTime(self, start_time, latency = 5):
         self.abs_time_series =  self.time_series + start_time + latency
 
 class MidiOut:
@@ -50,12 +50,18 @@ class MidiOut:
     def setTimeSeriesObj(self, TimeSeriesObj):
         self.tsObj = TimeSeriesObj
 
-    def setSequence(self, setPointer, loopFlg, length_16beat): #setPointer is the position of 16beat IDX, length_16beat 16 x 1 OR 2 OR 4
-        self.preparedScore = np.full(16 * 4, -1) #16beat * 4bars
+    def setSequence(self, pointer, loopFlg, length_16beat): #setPointer is the position of 16beat IDX, length_16beat 16 x 1 OR 2 OR 4
+        self.preparedScore = np.full(16 * 4 * len(self.score[0]), -1 ) #16beat * 4bars
+        self.preparedScore =  np.reshape(self.preparedScore, (16 * 4 , len(self.score[0])))
+
+        print(self.score)
+        print(self.preparedScore)
         if loopFlg :
-            self.preparedScore = np.tile(self.score[setPointer : setPointer + length_16beat], lenth(self.preparedScore ) / length_16beat )
+            #ちゃんと修正
+            self.preparedScore = np.tile(self.score[pointer.value : pointer.value + length_16beat], lenth(self.preparedScore ) / length_16beat )
         else:
-            self.preparedScore[0:length_16beat] = self.score[setPointer : setPointer + length_16beat]
+            self.preparedScore[0:length_16beat] = self.score[pointer.value : pointer.value + length_16beat]
+        print(self.preparedScore)
 
     def setControlChange(self, no, value):
         self.o.write_short(0xb0 + self.ch, no, value)
@@ -63,88 +69,34 @@ class MidiOut:
     def setInstrument(self):
         self.o.set_instrument(self.inst_no, self.ch)
 
-    def play(self, past_note = 0, nowBeat = 0):
+    def play(self, pointer, currentBeat, playFlg) : #nowBeat = 0):
         """
         16 * 4 実行しっぱなし
         """
-        nowBeat = nowBeat #共有メモリで実装？
-        lastBeat = nowBeat  + 16*96 #これで変更
-        preNote = past_note
-
-        self.setInstrument() #ここでいいの？
-
-        while True:
-            nowTime = time.time()
-            if nowTime >= self.tsObj.abs_time_series[lastBeat]:
-                self.o.note_off(preNote, 100, self.ch)
-                break
-            elif nowTime >= self.tsObj.abs_time_series[nowBeat] :
-                note = self.score[nowBeat]
-                if note > -1 :
-                    self.o.note_off(preNote, 100, self.ch)
-                    self.o.note_on(note, int(self.articuration[nowBeat]) ,self.ch)
-                    preNote = note
-                nowBeat += 1
-
-class MidiOutHomo:
-    """
-    For Use pygame.midi
-    """
-    def __init__(self, ch, inst_no, score, articuration, TimeSeriesObj ,o):
-        self.ch = ch
-        self.inst_no = inst_no
-        self.o = o
-        self.score = score
-        self.articuration = articuration
-        self.tsObj = TimeSeriesObj
-
-    def setScore(self, score):
-        self.score = score
-
-    def setArticuration(self, articuration):
-        self.articuration = articuration
-
-    def setTimeSeriesObj(self, TimeSeriesObj):
-        self.tsObj = TimeSeriesObj
-
-    #def setSequence(self, setPointer, loopFlg, length_16beat): #setPointer is the position of 16beat IDX, length_16beat 16 x 1 OR 2 OR 4
-    #    self.preparedScore = np.full(16 * 4, -1) #16beat * 4bars
-    #    if loopFlg :
-    #        #ちゃんと修正
-    #        self.preparedScore = np.tile(self.score[setPointer : setPointer + length_16beat], lenth(self.preparedScore ) / length_16beat )
-    #    else:
-    #        self.preparedScore[0:length_16beat] = self.score[setPointer : setPointer + length_16beat]
-
-    def setControlChange(self, no, value):
-        self.o.write_short(0xb0 + self.ch, no, value)
-
-    def setInstrument(self):
-        self.o.set_instrument(self.inst_no, self.ch)
-
-    def play(self, past_note = 0, nowBeat = 0):
-        """
-        16 * 4 実行しっぱなし
-        """
-        nowBeat = nowBeat #共有メモリで実装？
-        lastBeat = nowBeat  + 16*96 #これで変更
+        nowBeat = 0 #共有メモリで実装？
+        lastBeat = 655 #これで変更
         preNote = np.full(len(self.score[0]), 0)  #past_note
 
         self.setInstrument() #ここでいいの？
 
         while True:
             nowTime = time.time()
-            if nowTime >= self.tsObj.abs_time_series[lastBeat] or nowBeat >= len(self.score) :  #あとで要調整
+
+            if playFlg.value == 0 or pointer.value >= len(self.score) :  #あとで要調整
                 for note in preNote:
                     self.o.note_off(note, 100, self.ch)
                 break
-            elif nowTime >= self.tsObj.abs_time_series[nowBeat] :
-                notes = self.score[nowBeat]
+            elif nowTime >= self.tsObj.abs_time_series[currentBeat.value] :
+                print("LINE:90",currentBeat.value)
+                print("LINE:91",pointer.value)
+                notes = self.score[pointer.value]
+                #notes = self.preparedScore[pointer.value]
                 for v, note in enumerate(notes):
                     if note > -1:
                         self.o.note_off(preNote[v], 100, self.ch)
-                        self.o.note_on(note, int(self.articuration[nowBeat][v]) ,self.ch)
+                        self.o.note_on(note, int(self.articuration[pointer.value][v]) ,self.ch)
                         preNote[v] = note
-                nowBeat += 1
+                #nowBeat += 1
 
 class WaveOut:
     """
@@ -214,23 +166,26 @@ class ChildProcessWave:
         self.play()
 
 class ChildProcess:
-    def __init__(self, device_no, ch, inst_no, score, articuration, timeSeriesObj ):
+    def __init__(self, device_no, ch, inst_no, pointer, currentBeat, score, articuration, timeSeriesObj, playFlg):
         self.device_no = device_no
         self.ch = ch
         self.inst_no = inst_no
+        self.pointer = pointer
+        self.currentBeat = currentBeat
         self.score  = score
         self.articuration = articuration
         self.timeSeriesObj = timeSeriesObj
+        self.playFlg = playFlg
 
     def defaultSet(self):
         pygame.init()
         pygame.midi.init()
         self.o = pygame.midi.Output(self.device_no)
         self.midi = MidiOut(self.ch, self.inst_no, self.score, self.articuration, self.timeSeriesObj, self.o)
-        self.midi.setSequence(0, False, 16*1)#これも変数に
+        #self.midi.setSequence(self.pointer, False, 1*16)#これも変数に
 
     def play(self):
-        self.midi.play(0,0) #これも変数に
+        self.midi.play(self.pointer,self.currentBeat,self.playFlg) #これも変数に
         self.o.close()
         pygame.midi.quit()
         pygame.quit()
@@ -240,33 +195,33 @@ class ChildProcess:
         self.defaultSet()
         self.play()
 
-class ChildProcessHomo:
-    def __init__(self, device_no, ch, inst_no, score, articuration, timeSeriesObj ):
-        self.device_no = device_no
-        self.ch = ch
-        self.inst_no = inst_no
-        self.score  = score
-        self.articuration = articuration
-        self.timeSeriesObj = timeSeriesObj
+class StepSequencer:
+    def __init__(self, pointer_a, sequencer, playFlg_a):
+        self.playFlg_a = playFlg_a
+        self.pointer_a = pointer_a
+        self.sequencer = sequencer
 
-    def defaultSet(self):
-        pygame.init()
-        pygame.midi.init()
-        self.o = pygame.midi.Output(self.device_no)
-        self.midi = MidiOutHomo(self.ch, self.inst_no, self.score, self.articuration, self.timeSeriesObj, self.o)
-        #self.midi.setSequence(0, False, 16*1)#これも変数に
 
-    def play(self):
-        self.midi.play(0,0) #これも変数に
-        self.o.close()
-        pygame.midi.quit()
-        pygame.quit()
-        exit()
+    def execute(self, timeSeriesObj, currentBeat):
+        self.tsObj = timeSeriesObj
 
-    def execute(self):
-        self.defaultSet()
-        self.play()
+        while True:
+            nowTime = time.time()
+            if  currentBeat.value >= len(self.sequencer) :  #今はいい感じに動いているけど、更新がすべてのパートに先行して行われることを担保する必要がある。
+                for playFlg in self.playFlg_a:
+                    playFlg.value = 0
+                break
+            elif nowTime >= self.tsObj.abs_time_series[currentBeat.value] :
+                directions = self.sequencer[currentBeat.value]
+                for v, direction in enumerate(directions):
+                    if  direction > -1:
+                        self.pointer_a[v].value = 0
+                    else:
+                        self.pointer_a[v].value  += 1
 
+                currentBeat.value += 1
+
+"""
 class ParentProcess:
     def __init__(self):
         self.score = np.full(16*40, 36)
@@ -301,28 +256,59 @@ class ParentProcess:
         #pWave2.start()
         #pWave.join()
         #pWave2.join()
+"""
 
 if __name__ == '__main__':
-    #pprocess = ParentProcess()
-    #pprocess.execute()
-
-
     # multiprocessing setting
     timeSeriesObj = TimeSeries()
-    timeSeriesObj.setBpm(180)
+    timeSeriesObj.setBpm(100)
     print("SET START TIME")
     timeSeriesObj.setStartTime(time.time())
     device = 0
-    artculation = np.array([1 ,1, 1, 1,  1 ,1, 1, 1,  2 ,2, 2, 2,  2 ,2, 2, 2])
-    artculation2 = np.array([2 ,2, 2, 2,  1 ,1, 1, 1,  1 ,1, 1, 1,  1 ,1, 1, 1])
-    art = np.stack([artculation * 50], axis = -1)
 
-    cHH = np.array([1 ,1, 1, 1,  1 ,1, 1, 1,  1 ,1, 1, 1,  1 ,1, 1, 1])
-    bDr = np.array([1 ,1, 1, 1,  1 ,1, 1, 1,  1 ,1, 1, 1,  1 ,1, 1, 1])
+    #Rythm Section
+    artculation = np.array([2,2,2,2, 2,2,2,2, 2,2,2,2, 2,2,2,2    ,2,2,2,2, 2,2,2,2, 2,2,2,2, 2,2,2,2    ,2,2,2,2, 2,2,2,2, 2,2,2,2, 2,2,2,2    ,2,2,2,2, 2,2,2,2, 2,2,2,2, 2,2,2,2])
+    art = np.stack([artculation * 50], axis = -1)
+    cHH = np.array([1,1,1,1,  1,1,1,1,  1,1,1,1,  1,-1,-1,1    ,1,-1,1,-1,  1,-1,1,-1,  1,-1,1,-1,  1,-1,1,-1    ,1,-1,-1,1,  1,-1,-1,1,  1,-1,-1,1,  1,-1,-1,1    ,1,-1,1,1,  1,-1,1,1,  1,-1,1,1,  1,-1,1,1])
     dr = np.stack([cHH * 42], axis = -1)
 
-    sp_Dr =  ChildProcessHomo(device, 9, 0, dr, art, timeSeriesObj)
+    #Harmoney Section
+    melody = np.array([2,0,4,5,  7,9,11,12,  0,2,4,5,  7,9,11,12     ,0,2,0,2,  0,4,0,4,  0,5,0,5,  0,7,0,7    ,0,-1,-1,-1,  2,-1,-1,-1,  4,-1,-1,-1,  5,-1,-1,-1    ,0,-1,-1,-1,  2,-1,-1,-1,  4,-1,-1,-1,  5,-1,-1,-1])
+    pf = np.stack([melody+60], axis = -1)
 
+    #For Shared Memory
+    pointer_dr = Value('i', 0)
+    pointer_pf = Value('i', 0)
+    currentBeat = Value('i', 0)
+    playFlg_dr = Value('i', 1)
+    playFlg_pf = Value('i', 1)
+
+    #Create SubProcess
+    sp_Dr =  ChildProcess(device, 9, 0, pointer_dr, currentBeat, dr, art, timeSeriesObj, playFlg_dr)
+    sp_Pf =  ChildProcess(device, 0, 0, pointer_pf, currentBeat, pf, art, timeSeriesObj, playFlg_pf)
+
+    #createSequencer
+
+    rythm_seq = np.array([1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1 \
+                                ,-1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1 \
+                                ,1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1 \
+                                ,1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1 \
+                                ])
+
+    harmony_seq = np.array([1,-1,-1,-1,  1,-1,-1,-1,  1,-1,-1,-1,  1,-1,-1,-1 \
+                                ,-1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1 \
+                                ,1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1 \
+                                ,1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1 \
+                                ])
+
+    seq = StepSequencer( [pointer_dr, pointer_pf], np.stack([rythm_seq, harmony_seq], axis = -1), [playFlg_dr, playFlg_pf])
+    p = Process(target = seq.execute, args=(timeSeriesObj, currentBeat) ) #pointerとflgの整理
     p1 = Process(target = sp_Dr.execute)
+    p2 = Process(target = sp_Pf.execute)
+
+    p.start()
     p1.start()
+    p2.start()
+    p.join()
     p1.join()
+    p2.join()
