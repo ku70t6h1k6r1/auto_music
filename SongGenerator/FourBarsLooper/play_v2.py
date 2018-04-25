@@ -69,26 +69,48 @@ if __name__ == '__main__':
 
     dr = np.stack([cHH, sDr ,bDr], axis = -1)
     dr_articuration = np.stack([articuration*90, articuration*80 ,articuration*80], axis = -1)
-    
+
+    #For Shared Memory
+    pointer_Perc = mltPrcss.Value('i', 0)
+    pointer_Harm = mltPrcss.Value('i', 0)
+    currentBeat = mltPrcss.Value('i', 0)
+    playFlg_Perc = mltPrcss.Value('i', 1)
+    playFlg_Harm = mltPrcss.Value('i', 1)
+    rythm_seq = np.array([0,-1,-1,-1,  0,-1,-1,-1,  0,-1,-1,-1,  0,-1,-1,-1 \
+                                ,16,-1,-1,-1,  16,-1,-1,-1,  16,-1,-1,-1,  16,-1,-1,-1 \
+                                ,0,-1,-1,-1,  0,-1,-1,-1,  0,-1,-1,-1,  0,-1,-1,-1 \
+                                ,16,-1,-1,-1,  16,-1,-1,-1,  16,-1,-1,-1,  16,-1,-1,-1 \
+                                ])
+
+    harmony_seq = np.array([0,-1,-1,-1,  0,-1,-1,-1,  0,-1,-1,-1,  16,-1,-1,-1 \
+                                ,0,-1,-1,-1,  0,-1,-1,-1,  0,-1,-1,-1,  16,-1,-1,-1 \
+                                ,0,-1,-1,-1,  0,-1,-1,-1,  0,-1,-1,-1,  16,-1,-1,-1 \
+                                ,0,-1,-1,-1,  0,-1,-1,-1,  0,-1,-1,-1,  16,-1,-1,-1 \
+                                ])
+    seq = mltPrcss.StepSequencer( [pointer_Perc, pointer_Harm], np.stack([rythm_seq, harmony_seq], axis = -1), [playFlg_Perc, playFlg_Harm])
+
+
     # multiprocessing setting
     timeSeriesObj = mltPrcss.TimeSeries()
     timeSeriesObj.setBpm(140)
     print("SET START TIME")
     timeSeriesObj.setStartTime(time.time())
-    #device = 3 #microX
-    device = 0
-    sp_melody =  mltPrcss.ChildProcess(device, 0, 1, melody, mel_articulation, timeSeriesObj)
-    sp_ba =  mltPrcss.ChildProcess(device, 1, 5, ba, ba_articulation, timeSeriesObj)
-    sp_vc =  mltPrcss.ChildProcess(device, 2, 5, vc, vc_articuration, timeSeriesObj)
-    sp_dr = mltPrcss.ChildProcess(device, 9, 0, dr, dr_articuration, timeSeriesObj)
+    device = 0    #device = 3 #microX
+    sp_melody =  mltPrcss.ChildProcess(device, 0, 1, pointer_Harm, currentBeat, melody, mel_articulation, timeSeriesObj, playFlg_Harm)
+    sp_ba =  mltPrcss.ChildProcess(device, 1, 5, pointer_Harm, currentBeat, ba, ba_articulation, timeSeriesObj, playFlg_Harm)
+    sp_vc =  mltPrcss.ChildProcess(device, 2, 5, pointer_Harm, currentBeat, vc, vc_articuration, timeSeriesObj, playFlg_Harm)
+    sp_dr = mltPrcss.ChildProcess(device, 9, 0, pointer_Perc, currentBeat, dr, dr_articuration, timeSeriesObj, playFlg_Perc)
 
     #execute
+    p_seq =  mltPrcss.Process(target = seq.execute, args=(timeSeriesObj, currentBeat) )
     p1 = mltPrcss.Process(target = sp_melody.execute)
     p2 = mltPrcss.Process(target = sp_ba.execute)
     p3 = mltPrcss.Process(target = sp_vc.execute)
     p8 = mltPrcss.Process(target = sp_dr.execute)
 
     #MAX 4process
+    print("p_seq START")
+    p_seq.start()
     print("p1 START")
     p1.start()
     print("p2 START")
@@ -106,6 +128,7 @@ if __name__ == '__main__':
     print("p8 START")
     p8.start()
 
+    p_seq.join()
     p1.join()
     p2.join()
     p3.join()

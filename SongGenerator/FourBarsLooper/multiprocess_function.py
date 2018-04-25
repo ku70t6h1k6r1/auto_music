@@ -14,7 +14,7 @@ class TimeSeries:
     For 16beat * 4 Bars
     """
 
-    def setBpm(self, bpm, max_length = 100):
+    def setBpm(self, bpm, max_length = 180):
         self.bpm = bpm
         self.max_length = max_length
         self.dist_time_16 = 60 / self.bpm / 4
@@ -26,7 +26,7 @@ class TimeSeries:
             self.time_series[i] = self.dist_time_16 * i
         self.abs_time_series =  self.time_series
 
-    def setStartTime(self, start_time, latency = 5):
+    def setStartTime(self, start_time, latency = 20):
         self.abs_time_series =  self.time_series + start_time + latency
 
 class MidiOut:
@@ -215,7 +215,7 @@ class StepSequencer:
                 directions = self.sequencer[currentBeat.value]
                 for v, direction in enumerate(directions):
                     if  direction > -1:
-                        self.pointer_a[v].value = 0
+                        self.pointer_a[v].value = direction
                     else:
                         self.pointer_a[v].value  += 1
 
@@ -261,7 +261,7 @@ class ParentProcess:
 if __name__ == '__main__':
     # multiprocessing setting
     timeSeriesObj = TimeSeries()
-    timeSeriesObj.setBpm(100)
+    timeSeriesObj.setBpm(140)
     print("SET START TIME")
     timeSeriesObj.setStartTime(time.time())
     device = 0
@@ -288,17 +288,16 @@ if __name__ == '__main__':
     sp_Pf =  ChildProcess(device, 0, 0, pointer_pf, currentBeat, pf, art, timeSeriesObj, playFlg_pf)
 
     #createSequencer
-
-    rythm_seq = np.array([1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1 \
-                                ,-1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1 \
-                                ,1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1 \
-                                ,1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1 \
+    rythm_seq = np.array([0,-1,-1,-1,  0,-1,-1,-1,  0,-1,-1,-1,  0,-1,-1,-1 \
+                                ,16,-1,-1,-1,  16,-1,-1,-1,  16,-1,-1,-1,  16,-1,-1,-1 \
+                                ,0,-1,-1,-1,  0,-1,-1,-1,  0,-1,-1,-1,  0,-1,-1,-1 \
+                                ,16,-1,-1,-1,  16,-1,-1,-1,  16,-1,-1,-1,  16,-1,-1,-1 \
                                 ])
 
-    harmony_seq = np.array([1,-1,-1,-1,  1,-1,-1,-1,  1,-1,-1,-1,  1,-1,-1,-1 \
-                                ,-1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1 \
-                                ,1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1 \
-                                ,1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1 \
+    harmony_seq = np.array([0,-1,-1,-1,  0,-1,-1,-1,  0,-1,-1,-1,  16,-1,-1,-1 \
+                                ,0,-1,-1,-1,  0,-1,-1,-1,  0,-1,-1,-1,  16,-1,-1,-1 \
+                                ,0,-1,-1,-1,  0,-1,-1,-1,  0,-1,-1,-1,  16,-1,-1,-1 \
+                                ,0,-1,-1,-1,  0,-1,-1,-1,  0,-1,-1,-1,  16,-1,-1,-1 \
                                 ])
 
     seq = StepSequencer( [pointer_dr, pointer_pf], np.stack([rythm_seq, harmony_seq], axis = -1), [playFlg_dr, playFlg_pf])
