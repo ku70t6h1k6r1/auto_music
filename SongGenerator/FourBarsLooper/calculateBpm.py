@@ -5,7 +5,7 @@ import wave
 import sys
 import math
 
-CHUNK = 512
+CHUNK = 512*2
 
 def find_peaks(a, amp_thre, local_width=1, min_peak_distance=1):
     """
@@ -89,7 +89,7 @@ def calc_start_idx(data, bpm):
 
 def calc_all_match(data):
     match_list = []
-    bpm_iter   = range(1,200)
+    bpm_iter   = range(40,240)
 
     # 各bpmにおいてmatch度を計算する
     for bpm in bpm_iter:
@@ -98,21 +98,18 @@ def calc_all_match(data):
 
     return match_list
 
-
-
-#if __name__ == '__main__':
 def calBpm(dir):
     # データの読み込み
     if len(sys.argv) > 1:
         src_name = sys.argv[1]
     else:
         src_name = dir
-        #src_name = r'C:\\work\\ai_music\\freesound\\bpm_120_4.wav'
 
     input = wave.open(src_name, "rb")
 
     # データの読み込み
     # WAVファイルの情報を表示（別にいらん）
+    """
     print("filename : ",src_name )
     print("Channel num : ", input.getnchannels())
     print ("Sample size : ", input.getsampwidth())
@@ -120,12 +117,10 @@ def calBpm(dir):
     print ("Frame num : ", input.getnframes())
     print ("Prams : ", input.getparams())
     print ("Sec : ", float(input.getnframes()) / input.getframerate())
-
+    """
 
 
     buf = input.readframes(input.getnframes())
-
-    #print(len(data))
 
     if input.getsampwidth() == 2:
         data = np.frombuffer(buf, dtype='int16')
@@ -147,12 +142,11 @@ def calBpm(dir):
     for i in right:
         dt.append(i)
 
-    dt = np.array(dt) /  32768.0 #(2 ** 8)一旦これでうまくいってた
+    dt = np.array(dt) / (2 ** 8) #一旦これでBPM検出うまくいってた 32768.0
     print("dt size is : ",len(dt))
     input.close()
 
-    # フレームごとの音量データ作成
-    # フレームサイズ分，振幅二乗和を計算，
+    # フレームごとの音量データ作成　フレームサイズ分，振幅二乗和を計算
     frame_size = CHUNK
     sample_total = input.getnframes()
     sample_max = sample_total - (sample_total % frame_size) #余りフレームは切り捨てる
@@ -174,23 +168,23 @@ def calBpm(dir):
     match_list = calc_all_match(amp_diff_list)      # 各bpmのマッチ度を計算
     most_match = match_list.index(max(match_list))  # マッチ度最大のindexを取得
 
-    bpm = most_match + 1
-    #if bpm < 10:
-    #    bpm = 1
-    bpm = 120
+    for i, score in enumerate(match_list):
+        print("bpm:", i+40, score)
 
-    #ピーク位置検出
-    print("bpm: ",bpm)
-    print("min dist : ",60*44100/ bpm /4)
+    bpm = most_match + 40
+
+    #ピーク位置検出　各値は決め打ち。
     peaks_f = find_peaks(dt, max(abs(dt))* 0.2, local_width = int(60*44100/ bpm /4), min_peak_distance = int(60*44100/ bpm /4)) #localwidth は10000がちょうどよい
     peaks_f_dur = []
 
+    #ピーク感幅算出
     pre_f = 0
     for i in peaks_f[0]:
         peaks_f_dur.append( i - pre_f )
         pre_f = i
     peaks_f_dur = np.array(peaks_f_dur)
 
+    #開始位置検出
     idx = calc_start_idx(dt, bpm)
 
     #ピッチ算出
@@ -198,20 +192,24 @@ def calBpm(dir):
 
 
     return bpm, idx, peaks_f, peaks_f_dur, pitch_list
-    #print("BPM : ", most_match + 1)
-
-    #print("START Sec. Is : ",calc_start_sec(dt[0:sample_max] , most_match + 1))
 
 def calcPitch(dt, peak_list, fs = 44100):
     x = dt
     pitch_list = []
-    #print(peak_list)
 
-    for i in range(len(peak_list) -1 ): #最後の処理は？
+    for i in range(len(peak_list)): #最後の処理がださい、エラー出でもおかしくない
         #fft
-        X = np.fft.fft(x[peak_list[i]:peak_list[i + 1]])
-        amplitudeSpectrum = [np.sqrt(c.real ** 2 + c.imag ** 2) for c in X]
-        N = len(x[peak_list[i]:peak_list[i + 1]])   # FFTのサンプル数
+        if i == len(peak_list) - 1 :
+            last_peak_frame = peak_list[i] + int(i + fs*0.13) #最後の処理がださい、エラー出でもおかしくない
+            X = np.fft.fft(x[peak_list[i]:last_peak_frame])
+            amplitudeSpectrum = [np.sqrt(c.real ** 2 + c.imag ** 2) for c in X]
+            N = len(x[peak_list[i]:last_peak_frame])   # FFTのサンプル数
+        else:
+            X = np.fft.fft(x[peak_list[i]:peak_list[i + 1]])
+            amplitudeSpectrum = [np.sqrt(c.real ** 2 + c.imag ** 2) for c in X]
+            N = len(x[peak_list[i]:peak_list[i + 1]])   # FFTのサンプル数
+
+
         freqList = np.fft.fftfreq(N, d=1.0/fs)
         most_match = amplitudeSpectrum.index( max( amplitudeSpectrum[ 0:int(len(amplitudeSpectrum)/2) ] ) )
 
@@ -224,67 +222,45 @@ def convHzToPitch(hz):
             list.append( 27.5 * 2 ** (note  / 12) )
 
         idx = np.abs(np.asarray(list) - hz).argmin()
-        return idx + 21#+ 12
+        return idx + 21
 
-if __name__ == "__main__":
+def calcTimeSeries(bpm ,start_frame = 0, fs = 44100, max_s = 600):
+    """
+    INDEXが16分のひとつひとつに対応
+    """
+    a16beat_disitance_s = 60/bpm/4
+    a16beat_disitance_frame = a16beat_disitance_s * fs
+    timeSeries = np.zeros(int(max_s/a16beat_disitance_s))
+    for idx, value in enumerate(timeSeries):
+        timeSeries[idx] = start_frame + a16beat_disitance_frame*idx
+    return timeSeries
 
-        #print(convHzToPitch(hz = 730))
+def waveToMidi(timeSeries_f, peaks_f, pitch_list):
+    melody = np.full(len(timeSeries_f), -1)
 
-        # データの読み込み
-        if len(sys.argv) > 1:
-            src_name = sys.argv[1]
-        else:
-            #src_name = dir
-            src_name = r'C:\\work\\ai_music\\freesound\\bpm_80_shifted_pitch.wav'
+    for i, value in enumerate(peaks_f):
+        idx = np.abs(np.asarray(timeSeries_f) - value).argmin()
+        print('243:',idx)
+        melody[idx] = pitch_list[i]
 
-        input = wave.open(src_name, "rb")
-
-        # データの読み込み
-        # WAVファイルの情報を表示（別にいらん）
-        print("filename : ",src_name )
-        print("Channel num : ", input.getnchannels())
-        print ("Sample size : ", input.getsampwidth())
-        print ("Sampling rate : ", input.getframerate())
-        print ("Frame num : ", input.getnframes())
-        print ("Prams : ", input.getparams())
-        print ("Sec : ", float(input.getnframes()) / input.getframerate())
+    return melody
 
 
-        buf = input.readframes(input.getnframes())
 
-        if input.getsampwidth() == 2:
-            data = np.frombuffer(buf, dtype='int16')
-        elif input.getsampwidth() == 4:
-            data = np.frombuffer(buf, dtype='int32')
-        elif input.getsampwidth() == 1:
-            data = np.frombuffer(buf, dtype='int8')
 
-        if (input.getnchannels() == 2):
-            # 左チャンネル
-            left = data[::2]
-            # 右チャンネル
-            right = data[1::2]
-            print("stereo")
-        else:
-            right = data[::1]
-            print("mono")
+if __name__ == '__main__':
+    wav_dir = r'C:\\work\\ai_music\\freesound\\oleo_200.wav'
+    #bpm, idx, peaks_f, , pitch_list
 
-        dt = []
+    bpmObj = calBpm(wav_dir)
+    print("IN MAIN")
+    print("bpm : " , bpmObj[0])
+    print("idx : " , bpmObj[1])
+    print("peaks_f : " , bpmObj[2][0])
+    print("peaks_f_dur : " , bpmObj[3])
+    print("pitch_list: " , bpmObj[4])
 
-        for i in right:
-            dt.append(i)
-
-        dt = np.array(dt) /  32768.0 #(2 ** 8)一旦これでうまくいってた
-        print("dt size is : ",len(dt))
-        input.close()
-
-        bpm = 120
-
-        #ピーク位置検出
-        print("bpm: ",bpm)
-        print("min dist : ",60*44100/ bpm /4)
-        peaks_f = find_peaks(dt, max(abs(dt))* 0.2, local_width = int(60*44100/ bpm /4), min_peak_distance = int(60*44100/ bpm /4)) #localwidth は10000がちょうどよい
-
-        pitch = calcPitch(dt, peaks_f[0])
-        for hz in pitch:
-            print(hz)
+    ts = calcTimeSeries(bpmObj[0] ,bpmObj[1], fs = 44100, max_s = 60)
+    print("ts is :",ts)
+    melody = waveToMidi(ts, bpmObj[2][0], bpmObj[4])
+    print(melody)

@@ -10,7 +10,7 @@ import time
 import playWav as wav
 import calculateBpm as bpm
 
-wav_dir = r'C:\\work\\ai_music\\freesound\\en_jp.wav'
+wav_dir = r'C:\\work\\ai_music\\freesound\\oleo_200.wav'
 bpmObj = bpm.calBpm(wav_dir)
 pos = bpmObj[2][0]
 #player1 = wav.AudioPlayer(wav_dir, bpmObj[1])

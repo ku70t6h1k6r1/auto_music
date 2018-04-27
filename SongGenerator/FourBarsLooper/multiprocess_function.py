@@ -14,7 +14,7 @@ class TimeSeries:
     For 16beat * 4 Bars
     """
 
-    def setBpm(self, bpm, max_length = 180):
+    def setBpm(self, bpm, max_length = 600):
         self.bpm = bpm
         self.max_length = max_length
         self.dist_time_16 = 60 / self.bpm / 4
@@ -26,7 +26,7 @@ class TimeSeries:
             self.time_series[i] = self.dist_time_16 * i
         self.abs_time_series =  self.time_series
 
-    def setStartTime(self, start_time, latency = 20):
+    def setStartTime(self, start_time, latency = 40):
         self.abs_time_series =  self.time_series + start_time + latency
 
 class MidiOut:
@@ -69,14 +69,9 @@ class MidiOut:
     def setInstrument(self):
         self.o.set_instrument(self.inst_no, self.ch)
 
-    def play(self, pointer, currentBeat, playFlg) : #nowBeat = 0):
-        """
-        16 * 4 実行しっぱなし
-        """
-        nowBeat = 0 #共有メモリで実装？
-        lastBeat = 655 #これで変更
-        preNote = np.full(len(self.score[0]), 0)  #past_note
+    def play(self, pointer, currentBeat, playFlg) :
 
+        preNote = np.full(len(self.score[0]), 0)  #past_note
         self.setInstrument() #ここでいいの？
 
         while True:
@@ -85,18 +80,14 @@ class MidiOut:
             if playFlg.value == 0 or pointer.value >= len(self.score) :  #あとで要調整
                 for note in preNote:
                     self.o.note_off(note, 100, self.ch)
-                break
+
             elif nowTime >= self.tsObj.abs_time_series[currentBeat.value] :
-                print("LINE:90",currentBeat.value)
-                print("LINE:91",pointer.value)
                 notes = self.score[pointer.value]
-                #notes = self.preparedScore[pointer.value]
                 for v, note in enumerate(notes):
                     if note > -1:
                         self.o.note_off(preNote[v], 100, self.ch)
                         self.o.note_on(note, int(self.articuration[pointer.value][v]) ,self.ch)
                         preNote[v] = note
-                #nowBeat += 1
 
 class WaveOut:
     """
@@ -196,11 +187,11 @@ class ChildProcess:
         self.play()
 
 class StepSequencer:
-    def __init__(self, pointer_a, sequencer, playFlg_a):
+    def __init__(self, pointer_a, sequencer, playFlg_a, sequencer_OnOff):
         self.playFlg_a = playFlg_a
         self.pointer_a = pointer_a
         self.sequencer = sequencer
-
+        self.sequencer_OnOff = sequencer_OnOff
 
     def execute(self, timeSeriesObj, currentBeat):
         self.tsObj = timeSeriesObj
@@ -212,51 +203,20 @@ class StepSequencer:
                     playFlg.value = 0
                 break
             elif nowTime >= self.tsObj.abs_time_series[currentBeat.value] :
-                directions = self.sequencer[currentBeat.value]
+                beat = currentBeat.value #今はいい感じに動いているけど、更新がすべてのパートに先行して行われることを担保する必要がある。これでお茶濁し中。
+                currentBeat.value += 1
+                directions = self.sequencer[beat]
+
                 for v, direction in enumerate(directions):
                     if  direction > -1:
                         self.pointer_a[v].value = direction
                     else:
                         self.pointer_a[v].value  += 1
 
-                currentBeat.value += 1
+                for v2, playFlg in enumerate(self.playFlg_a):
+                    if self.sequencer_OnOff[beat][v2] > -1 :
+                        playFlg.value = self.sequencer_OnOff[beat][v2]
 
-"""
-class ParentProcess:
-    def __init__(self):
-        self.score = np.full(16*40, 36)
-        self.articuration = np.full(16*40, 100)
-        self.timeSeriesObj = TimeSeries()
-        self.timeSeriesObj.setBpm(120)
-        self.timeSeriesObj.setStartTime(time.time())
-        self.cprocess = ChildProcess(1,0, 1, self.score, self.articuration, self.timeSeriesObj)
-
-        #Wav test
-        self.cprocessWave = ChildProcessWave(r'C:\\work\\ai_music\\freesound\\yukio_mishima.wav')
-        self.cprocessWave2 = ChildProcessWave(r'C:\\work\\ai_music\\freesound\\yukio_mishima_l.wav')
-
-    def execute(self):
-        p1 = Process(target = self.cprocess.execute)
-        #p2 = Process(target = self.cprocess.execute, args = (1, 70, self.score, self.articuration, self.timeSeriesObj))
-        p1.start()
-        #p2.start()
-        p1.join()
-        #p2.join()
-
-        #pWave = Process(target = self.cprocessWave.execute)
-        #sleep(3)
-        #pWave2 = Process(target = self.cprocessWave2.execute)
-
-        #print("start")
-        ##    pWave = Process(target = self.cprocessWave.execute)
-        #    pWave.start()
-        #    sleep(1)
-        #    pWave.terminate()
-
-        #pWave2.start()
-        #pWave.join()
-        #pWave2.join()
-"""
 
 if __name__ == '__main__':
     # multiprocessing setting
@@ -300,7 +260,20 @@ if __name__ == '__main__':
                                 ,0,-1,-1,-1,  0,-1,-1,-1,  0,-1,-1,-1,  16,-1,-1,-1 \
                                 ])
 
-    seq = StepSequencer( [pointer_dr, pointer_pf], np.stack([rythm_seq, harmony_seq], axis = -1), [playFlg_dr, playFlg_pf])
+    #createSequencerOnOff
+    rythm_seq_onoff = np.array([1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1 \
+                                ,1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1 \
+                                ,-1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1 \
+                                ,0,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1 \
+                                ])
+
+    harmony_seq_onoff = np.array([1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1 \
+                                ,-1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1 \
+                                ,-1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1 \
+                                ,-1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1 \
+                                ])
+
+    seq = StepSequencer( [pointer_dr, pointer_pf], np.stack([rythm_seq, harmony_seq], axis = -1), [playFlg_dr, playFlg_pf], np.stack([rythm_seq_onoff, harmony_seq_onoff], axis = -1))
     p = Process(target = seq.execute, args=(timeSeriesObj, currentBeat) ) #pointerとflgの整理
     p1 = Process(target = sp_Dr.execute)
     p2 = Process(target = sp_Pf.execute)
@@ -309,5 +282,6 @@ if __name__ == '__main__':
     p1.start()
     p2.start()
     p.join()
-    p1.join()
-    p2.join()
+    sleep(1)
+    p1.terminate()
+    p2.terminate()

@@ -15,11 +15,11 @@ class SampleComposition:
         self.noteParChord_n = 16
 
         #create leadLine
-        self.a_onePhrase_bars = 8
-        self.a_loop = 4
+        self.a_onePhrase_bars = 4
+        self.a_loop = 1
         self.a_lastNote = 0
-        self.b_onePhrase_bars = 8
-        self.b_loop = 4
+        self.b_onePhrase_bars = 4
+        self.b_loop = 1
         self.b_lastNote = 0
         self.vamp_onePhrase_bars = 4
         self.vamp_loop = 4
@@ -42,7 +42,7 @@ class SampleComposition:
         chordObj = hm.Dataset()
         self.chordProgress = hm.Create(self.leadLine, self.noteParChord_n)
         self.bk = perc.Create(self.leadLine , temperature = 0.005)
-        self.bk = perc.tranBinary(self.bk , 15)
+        self.bk = perc.tranBinary(self.bk , 4)
 
         #create Bucking
         self.ba = np.full(len(self.leadLine) ,-1)
@@ -74,8 +74,11 @@ class SampleComposition:
         self.counterMelody = np.zeros(0)
         for i in range(int(len(self.chordProgress) / self.noteParChord_n)):
             chord_index = self.chordProgress[i * self.noteParChord_n]
-            tempCounterMelody = counterMelody.Create(chord_index, self.leadLine[int(i*16) : int(i*16 + 16)], int(1*self.noteParChord_n/self.notePerBar_n) )
+            tempCounterMelody = counterMelody.Create(chord_index, self.leadLine[int(i*16) : int(i*16 + 16)], int(1*self.noteParChord_n/self.notePerBar_n), oct = 60 )
             self.counterMelody = np.r_[self.counterMelody, tempCounterMelody ]
+
+        #floatになっちゃう対策
+        self.counterMelody = self.counterMelody.astype(np.int64)
 
         #create articuration
         self.articuration = ac.Create(self.leadLine, notePerBar_n = self.notePerBar_n, r = 0.96)

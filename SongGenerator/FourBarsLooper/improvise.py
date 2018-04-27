@@ -8,7 +8,7 @@ import createMelody as mel
 import createRythm as rythm
 import mergeMelodyAndRythm
 
-def Create(chord_idx, melody, bars_n, notePerBar_n = 16, ct_w = 1.5):
+def Create(chord_idx, melody, bars_n, oct = 36, notePerBar_n = 16, ct_w = 1.5):
     """
     chordは一つだけ
     ct_w は大きい方がインサイド
@@ -30,13 +30,14 @@ def Create(chord_idx, melody, bars_n, notePerBar_n = 16, ct_w = 1.5):
     pitchObj.updatePW(pitch_weight_a, std_f = 'simpleStd')
 
     improvise_melody  = mel.Create(bars_n, notePerBar_n = notePerBar_n, std_f = 'simpleStd', pwObj = pitchObj)
+    improvise_melody = improvise_melody + oct
 
     #create rythm
     improvise_rythm = rythm.Create(bars_n, notePerBar_n = notePerBar_n )
 
-    return mergeMelodyAndRythm.Merge(improvise_rythm, improvise_melody, bars_n, 1, notePerBar_n, lastNote = chord_tone[0])
+    return mergeMelodyAndRythm.Merge(improvise_rythm, improvise_melody, bars_n, 1, notePerBar_n, lastNote = chord_tone[0]+oct)
 
 
 
 if __name__ == '__main__':
-    print(Create(0, [0,2,4,5,7,9,11,0,2,4,5,7,9,11,0,2,4,5,7,9,11,0,2,4,5,7,9,11],2))
+    print(Create(0, [0,2,4,5,7,9,11,0,2,4,5,7,9,11,0,2,4,5,7,9,11,0,2,4,5,7,9,11],2,48))
