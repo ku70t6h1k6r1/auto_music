@@ -76,8 +76,9 @@ class Sequencer:
 
                 if  self.rythm_off and self.harmony_off:
                     self.etc1_seq_OnOff[beat*16*4]  = 1
-                else:
-                    self.etc1_seq_OnOff[beat*16*4]  = 0
+                #他のが消えた時の保険としてだけ使いたいときは下のを調整
+                #else:
+                #    self.etc1_seq_OnOff[beat*16*4]  = 0 # etc keep alive mode
 
             elif statement  == 2:
                 self.harmony_seq_base.update_Statement()
@@ -92,8 +93,9 @@ class Sequencer:
 
                 if  self.rythm_off and self.harmony_off:
                     self.etc1_seq_OnOff[beat*16*4]  = 1
-                else:
-                    self.etc1_seq_OnOff[beat*16*4]  = 0
+                #他のが消えた時の保険としてだけ使いたいときは下のを調整
+                #else:
+                #    self.etc1_seq_OnOff[beat*16*4]  = 0 # etc keep alive mode
 
             else:
                 self.rythm_seq = np.r_[self.rythm_seq, self.rythm_seq_base.patterns[self.rythm_seq_base.statement]]

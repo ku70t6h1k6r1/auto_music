@@ -168,8 +168,8 @@ def calBpm(dir):
     match_list = calc_all_match(amp_diff_list)      # 各bpmのマッチ度を計算
     most_match = match_list.index(max(match_list))  # マッチ度最大のindexを取得
 
-    for i, score in enumerate(match_list):
-        print("bpm:", i+40, score)
+    #for i, score in enumerate(match_list):
+    #    print("bpm:", i+40, score)
 
     bpm = most_match + 40
 
@@ -177,15 +177,20 @@ def calBpm(dir):
     peaks_f = find_peaks(dt, max(abs(dt))* 0.2, local_width = int(60*44100/ bpm /4), min_peak_distance = int(60*44100/ bpm /4)) #localwidth は10000がちょうどよい
     peaks_f_dur = []
 
-    #ピーク感幅算出
+    #ピーク間幅算出
     pre_f = 0
-    for i in peaks_f[0]:
-        peaks_f_dur.append( i - pre_f )
-        pre_f = i
-    peaks_f_dur = np.array(peaks_f_dur)
+    peaks_f_dur = np.zeros(len(peaks_f[0]), dtype=np.int64)
+    for i, value in enumerate(peaks_f[0]):
+        if i + 1 >= len(peaks_f[0]):
+            peaks_f_dur[i] = 15000 #決め打ちはバグる原因なので対策必要
+        else:
+            peaks_f_dur[i] =  peaks_f[0][i + 1] - value
+
 
     #開始位置検出
-    idx = calc_start_idx(dt, bpm)
+    ##idx = calc_start_idx(dt, bpm)
+    idx = peaks_f[0][0]
+
 
     #ピッチ算出
     pitch_list = calcPitch(dt, peaks_f[0])
@@ -235,21 +240,24 @@ def calcTimeSeries(bpm ,start_frame = 0, fs = 44100, max_s = 600):
         timeSeries[idx] = start_frame + a16beat_disitance_frame*idx
     return timeSeries
 
-def waveToMidi(timeSeries_f, peaks_f, pitch_list):
+def waveToMidi(timeSeries_f, peaks_f, peaks_f_dur, pitch_list):
     melody = np.full(len(timeSeries_f), -1)
+    melody_peak = np.full(len(timeSeries_f), -1)
+    melody_duration = np.full(len(timeSeries_f), -1)
 
     for i, value in enumerate(peaks_f):
         idx = np.abs(np.asarray(timeSeries_f) - value).argmin()
-        print('243:',idx)
         melody[idx] = pitch_list[i]
+        melody_peak[idx] = value
+        melody_duration[idx] = peaks_f_dur[i]
 
-    return melody
+    return melody, melody_peak, melody_duration
 
 
 
 
 if __name__ == '__main__':
-    wav_dir = r'C:\\work\\ai_music\\freesound\\oleo_200.wav'
+    wav_dir = r'C:\\work\\ai_music\\freesound\\newSong_80.wav'
     #bpm, idx, peaks_f, , pitch_list
 
     bpmObj = calBpm(wav_dir)
@@ -262,5 +270,7 @@ if __name__ == '__main__':
 
     ts = calcTimeSeries(bpmObj[0] ,bpmObj[1], fs = 44100, max_s = 60)
     print("ts is :",ts)
-    melody = waveToMidi(ts, bpmObj[2][0], bpmObj[4])
-    print(melody)
+    melody = waveToMidi(ts, bpmObj[2][0], bpmObj[3], bpmObj[4])
+    print(melody[0])
+    print(melody[1])
+    print(melody[2])

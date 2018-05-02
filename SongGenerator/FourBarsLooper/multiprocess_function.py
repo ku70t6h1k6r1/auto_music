@@ -9,6 +9,10 @@ import wave
 #play.py作るならそっち？
 import createSequencer as seq
 
+#FOR MASUDA DAW
+import mido
+from mido.sockets import PortServer, connect
+
 class TimeSeries:
     """
     For 16beat * 4 Bars
@@ -77,58 +81,94 @@ class MidiOut:
         while True:
             nowTime = time.time()
 
-            if playFlg.value == 0 or pointer.value >= len(self.score) :  #あとで要調整
-                for note in preNote:
-                    self.o.note_off(note, 100, self.ch)
-
-            elif nowTime >= self.tsObj.abs_time_series[currentBeat.value] :
-                notes = self.score[pointer.value]
-                for v, note in enumerate(notes):
-                    if note > -1:
-                        self.o.note_off(preNote[v], 100, self.ch)
-                        self.o.note_on(note, int(self.articuration[pointer.value][v]) ,self.ch)
-                        preNote[v] = note
+            if nowTime >= self.tsObj.abs_time_series[currentBeat.value] :
+                if playFlg.value == 0 or pointer.value >= len(self.score)  :  #あとで要調整
+                    for note in preNote:
+                        self.o.note_off(note, 100, self.ch)
+                else :
+                    notes = self.score[pointer.value]
+                    for v, note in enumerate(notes):
+                        if note > -1:
+                            self.o.note_off(preNote[v], 100, self.ch)
+                            self.o.note_on(note, int(self.articuration[pointer.value][v]) ,self.ch)
+                            preNote[v] = note
 
 class WaveOut:
     """
     for use pyaudio
     """
+    #WaveOut(self.i, self.chunk, self.score, self.articulation, self.timeSeriesObj, self.o)
     def __init__(self, i, chunk, score, articuration, TimeSeriesObj ,o):
         self.i = i
         self.o = o
         self.chunk = chunk
-        self.score = score
+        self.score = score #pointの位置の方
         self.articuration = articuration
         self.tsObj = TimeSeriesObj
 
-    def setScore(self, score):
-        self.score = score
+    def play(self, pointer, currentBeat, playFlg) :
+        playing = True #なぜか最初音なっちゃう問題→フラグの初期設定を0にすることで解決
+        while playing :
+            nowTime = time.time()
 
-    def setArticuration(self, articuration):
-        self.articuration = articuration
-
-    def setTimeSeriesObj(self, TimeSeriesObj):
-        self.tsObj = TimeSeriesObj
-
-    def setSequence(self, setPointer, loopFlg, length_16beat): #setPointer is the position of 16beat IDX, length_16beat 16 x 1 OR 2 OR 4
-        self.preparedScore = np.full(16 * 4, -1) #16beat * 4bars
-        if loopFlg :
-            self.preparedScore = np.tile(self.score[setPointer : setPointer + length_16beat], lenth(self.preparedScore ) / length_16beat )
-        else:
-            self.preparedScore[0:length_16beat] = self.score[setPointer : setPointer + length_16beat]
-
-    def play(self, playing = True, nowBeat = 0):
-        self.i.setpos(10000)
-        while playing:
-            data = self.i.readframes(self.chunk)
-            if len(data) > 0:
+            if  playFlg.value == 0: #流しっぱなし問題 とりあえずのpointer固定、chunk変えた方がいいのでは
+                self.i.setpos(0)
+            elif nowTime >= self.tsObj.abs_time_series[currentBeat.value] and self.score[pointer.value][0] > -1:
+                self.i.setpos(self.score[pointer.value][0])
+                data = self.i.readframes(self.chunk[pointer.value] )
                 self.o.write(data)
-            else:
-                self.playing = False
+
+class MasudaDawOut:
+    """
+    for use masuda daw
+    mido
+    """
+    def __init__(self, ch, inst_no, score, articuration, TimeSeriesObj ,o):
+        self.ch = ch
+        self.inst_no = inst_no
+        self.o = o
+        self.score = score
+        self.articuration = articuration
+        self.tsObj = TimeSeriesObj
+
+    def setControlChange(self, no, value):
+        slef.o.send(mido.Message(channel = self.ch, control = no, value = value))
+
+    #def setInstrument(self):
+    #    self.o.set_instrument(self.inst_no, self.ch)
+
+    def play(self, pointer, currentBeat, playFlg) :
+        preNote = np.full(len(self.score[0]), 0)
+
+        while True:
+            nowTime = time.time()
+
+            if nowTime >= self.tsObj.abs_time_series[currentBeat.value]:
+                if playFlg.value == 0 or pointer.value >= len(self.score) :  #あとで要調整
+                    for note in preNote:
+                        msg = mido.Message('note_off', channel = self.ch, velocity = 100, note = note)
+                        self.o.send(msg)
+
+                else  :
+                    notes = self.score[pointer.value]
+                    for v, note in enumerate(notes):
+                        if note > -1:
+                            msgOff = mido.Message('note_off', channel = self.ch, velocity = 100, note = note)
+                            self.o.send(msgOff)
+                            msgOn = mido.Message('note_on', channel = self.ch, velocity = int(self.articuration[pointer.value][v]), note = note)
+                            self.o.send(msgOn)
+                            preNote[v] = note
 
 class ChildProcessWave:
-    def __init__(self, audio_file):
+    def __init__(self, audio_file, chunk, pointer, currentBeat, score, articulation, timeSeriesObj, playFlg):
         self.audio_file = audio_file
+        self.pointer = pointer
+        self.currentBeat = currentBeat
+        self.score  = score
+        self.articulation = articulation
+        self.timeSeriesObj = timeSeriesObj
+        self.playFlg = playFlg
+        self.chunk = chunk
 
     def defaultSet(self):
         self.audio  = pyaudio.PyAudio()
@@ -137,22 +177,16 @@ class ChildProcessWave:
                                 channels=self.i.getnchannels(),
                                 rate=self.i.getframerate(),
                                 output=True)
-        self.i.setpos(10000)
         self.wave = WaveOut(self.i, self.chunk, self.score, self.articulation, self.timeSeriesObj, self.o)
 
     def play(self):
-        self.wave.play()
+        self.wave.play(self.pointer,self.currentBeat,self.playFlg)
         self.o.stop_stream()
         self.o.close()
         self.i.close()
         self.audio.terminate()
 
-    def execute(self, score = 1, articuration = 1, timeSeriesObj = 1):
-        self.chunk = 1024
-        self.playing = True
-        self.score = score
-        self.articulation = articuration
-        self.timeSeriesObj = timeSeriesObj
+    def execute(self):
         self.defaultSet()
         self.play()
 
@@ -181,6 +215,29 @@ class ChildProcess:
         pygame.midi.quit()
         pygame.quit()
         exit()
+
+    def execute(self):
+        self.defaultSet()
+        self.play()
+
+class ChildProcessMasudaDaw:
+    def __init__(self, port, ch, inst_no, pointer, currentBeat, score, articuration, timeSeriesObj, playFlg):
+        self.port = port
+        self.ch = ch
+        self.inst_no = inst_no
+        self.pointer = pointer
+        self.currentBeat = currentBeat
+        self.score  = score
+        self.articuration = articuration
+        self.timeSeriesObj = timeSeriesObj
+        self.playFlg = playFlg
+
+    def defaultSet(self):
+        self.o = connect('localhost', self.port)
+        self.masudaDaw = MasudaDawOut(self.ch, self.inst_no, self.score, self.articuration, self.timeSeriesObj, self.o)
+
+    def play(self):
+        self.masudaDaw.play(self.pointer,self.currentBeat,self.playFlg) #これも変数に
 
     def execute(self):
         self.defaultSet()
@@ -217,8 +274,154 @@ class StepSequencer:
                     if self.sequencer_OnOff[beat][v2] > -1 :
                         playFlg.value = self.sequencer_OnOff[beat][v2]
 
-
 if __name__ == '__main__':
+    # multiprocessing setting
+    timeSeriesObj = TimeSeries()
+    timeSeriesObj.setBpm(140)
+    print("SET START TIME")
+    timeSeriesObj.setStartTime(time.time())
+    port = 3001
+
+    #Rythm Section
+    artculation = np.array([2,2,2,2, 2,2,2,2, 2,2,2,2, 2,2,2,2    ,2,2,2,2, 2,2,2,2, 2,2,2,2, 2,2,2,2    ,2,2,2,2, 2,2,2,2, 2,2,2,2, 2,2,2,2    ,2,2,2,2, 2,2,2,2, 2,2,2,2, 2,2,2,2])
+    art = np.stack([artculation * 50], axis = -1)
+    cHH = np.array([1,1,1,1,  1,1,1,1,  1,1,1,1,  1,-1,-1,1    ,1,-1,1,-1,  1,-1,1,-1,  1,-1,1,-1,  1,-1,1,-1    ,1,-1,-1,1,  1,-1,-1,1,  1,-1,-1,1,  1,-1,-1,1    ,1,-1,1,1,  1,-1,1,1,  1,-1,1,1,  1,-1,1,1])
+    dr = np.stack([cHH * 42], axis = -1)
+
+    #Harmoney Section
+    melody = np.array([2,0,4,5,  7,9,11,12,  0,2,4,5,  7,9,11,12     ,0,2,0,2,  0,4,0,4,  0,5,0,5,  0,7,0,7    ,0,-1,-1,-1,  2,-1,-1,-1,  4,-1,-1,-1,  5,-1,-1,-1    ,0,-1,-1,-1,  2,-1,-1,-1,  4,-1,-1,-1,  5,-1,-1,-1])
+    pf = np.stack([melody+60], axis = -1)
+
+    #For Shared Memory
+    pointer_dr = Value('i', 0)
+    pointer_pf = Value('i', 0)
+    currentBeat = Value('i', 0)
+    playFlg_dr = Value('i', 1)
+    playFlg_pf = Value('i', 1)
+
+    #Create SubProcess
+    sp_Dr =  ChildProcess(0, 9, 0, pointer_dr, currentBeat, dr, art, timeSeriesObj, playFlg_dr)
+    sp_Pf =  ChildProcessMasudaDaw(port, 0, 0, pointer_pf, currentBeat, pf, art, timeSeriesObj, playFlg_pf)
+
+    #createSequencer
+    rythm_seq = np.array([0,-1,-1,-1,  0,-1,-1,-1,  0,-1,-1,-1,  0,-1,-1,-1 \
+                                ,16,-1,-1,-1,  16,-1,-1,-1,  16,-1,-1,-1,  16,-1,-1,-1 \
+                                ,0,-1,-1,-1,  0,-1,-1,-1,  0,-1,-1,-1,  0,-1,-1,-1 \
+                                ,16,-1,-1,-1,  16,-1,-1,-1,  16,-1,-1,-1,  16,-1,-1,-1 \
+                                ])
+
+    harmony_seq = np.array([0,-1,-1,-1,  0,-1,-1,-1,  0,-1,-1,-1,  16,-1,-1,-1 \
+                                ,0,-1,-1,-1,  0,-1,-1,-1,  0,-1,-1,-1,  16,-1,-1,-1 \
+                                ,0,-1,-1,-1,  0,-1,-1,-1,  0,-1,-1,-1,  16,-1,-1,-1 \
+                                ,0,-1,-1,-1,  0,-1,-1,-1,  0,-1,-1,-1,  16,-1,-1,-1 \
+                                ])
+
+    #createSequencerOnOff
+    rythm_seq_onoff = np.array([1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1 \
+                                ,1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1 \
+                                ,-1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1 \
+                                ,0,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1 \
+                                ])
+
+    harmony_seq_onoff = np.array([1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1 \
+                                ,-1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1 \
+                                ,-1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1 \
+                                ,-1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1 \
+                                ])
+
+    seq = StepSequencer( [pointer_dr, pointer_pf], np.stack([rythm_seq, harmony_seq], axis = -1), [playFlg_dr, playFlg_pf], np.stack([rythm_seq_onoff, harmony_seq_onoff], axis = -1))
+    p = Process(target = seq.execute, args=(timeSeriesObj, currentBeat) ) #pointerとflgの整理
+    p1 = Process(target = sp_Dr.execute)
+    p2 = Process(target = sp_Pf.execute)
+
+    p.start()
+    p1.start()
+    p2.start()
+    p.join()
+    sleep(1)
+    p1.terminate()
+    p2.join()
+if __name__ == 'WAVE TEST':
+    import calculateBpm as wav
+
+    CHUNK = 128 *10
+    device = 0
+
+    #Import WAV
+    wav_dir = r'C:\\work\\ai_music\\freesound\\newSong_80.wav'
+    #bpm, idx, peaks_f, , pitch_list
+    bpmObj = wav.calBpm(wav_dir)
+    ts = wav.calcTimeSeries(bpmObj[0] ,bpmObj[1], fs = 44100, max_s = 60)
+    melodyObj = wav.waveToMidi(ts, bpmObj[2][0], bpmObj[4])
+
+    # multiprocessing setting
+    timeSeriesObj = TimeSeries()
+    timeSeriesObj.setBpm(bpmObj[0])
+    print("SET START TIME")
+    timeSeriesObj.setStartTime(time.time())
+
+    #Rythm Section
+    artculation = np.array([2,2,2,2, 2,2,2,2, 2,2,2,2, 2,2,2,2    ,2,2,2,2, 2,2,2,2, 2,2,2,2, 2,2,2,2    ,2,2,2,2, 2,2,2,2, 2,2,2,2, 2,2,2,2    ,2,2,2,2, 2,2,2,2, 2,2,2,2, 2,2,2,2])
+    art = np.stack([artculation * 50], axis = -1)
+    cHH = np.array([1,-1,-1,-1,  1,-1,-1,-1,  1,-1,-1,-1,  1,-1,-1,-1    ,1,-1,-1,-1,  1,-1,-1,-1,  1,-1,-1,-1,  1,-1,-1,-1    ,1,-1,-1,-1,  1,-1,-1,-1,  1,-1,-1,-1,  1,-1,-1,-1    ,1,-1,-1,-1,  1,-1,-1,-1,  1,-1,-1,-1,  1,-1,-1,-1])
+    dr = np.stack([cHH * 42], axis = -1)
+
+    #Harmoney Section
+    pf = np.stack([melodyObj[0]], axis = -1)
+    pf_wav = np.stack([melodyObj[1]], axis = -1)
+
+    #For Shared Memory
+    pointer_dr = Value('i', 0)
+    pointer_pf = Value('i', 0)
+    currentBeat = Value('i', 0)
+    playFlg_dr = Value('i', 0)
+    playFlg_pf = Value('i', 0)
+
+    #Create SubProcess
+    #_ChildProcess_(self, device_no, ch, inst_no, pointer, currentBeat, score, articuration, timeSeriesObj, playFlg):
+    #_ChildProcessWave_(self, audio_file,chunk , pointer, currentBeat, score, articulation, timeSeriesObj, playFlg):
+    sp_Dr =  ChildProcess(device, 9, 0, pointer_dr, currentBeat, dr, art, timeSeriesObj, playFlg_dr)
+    sp_Pf =  ChildProcessWave(wav_dir, bpmObj[3], pointer_pf, currentBeat, pf_wav, art, timeSeriesObj, playFlg_pf)
+
+    #createSequencer
+    rythm_seq = np.array([0,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1 \
+                                ,-1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1 \
+                                ,-1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1 \
+                                ,-1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1 \
+                                ])
+
+    harmony_seq = np.array([0,-1,-1,-1,  0,-1,-1,-1,  0,-1,-1,-1,  0,-1,-1,-1 \
+                                ,0,-1,-1,-1,  0,-1,-1,-1,  0,-1,-1,-1,  0,-1,-1,-1 \
+                                ,0,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1 \
+                                ,0,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1 \
+                                ])
+
+    #createSequencerOnOff
+    rythm_seq_onoff = np.array([1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1 \
+                                ,-1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1 \
+                                ,-1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1 \
+                                ,-1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1 \
+                                ])
+
+    harmony_seq_onoff = np.array([1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1 \
+                                ,-1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1 \
+                                ,-1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1 \
+                                ,-1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1,  -1,-1,-1,-1 \
+                                ])
+
+    seq = StepSequencer( [pointer_dr, pointer_pf], np.stack([rythm_seq, harmony_seq], axis = -1), [playFlg_dr, playFlg_pf], np.stack([rythm_seq_onoff, harmony_seq_onoff], axis = -1))
+    p = Process(target = seq.execute, args=(timeSeriesObj, currentBeat) ) #pointerとflgの整理
+    p1 = Process(target = sp_Dr.execute)
+    p2 = Process(target = sp_Pf.execute)
+
+    p.start()
+    p1.start()
+    p2.start()
+    p.join()
+    sleep(1)
+    p1.terminate()
+    p2.terminate()
+if __name__ == 'MIDI ONLY':
     # multiprocessing setting
     timeSeriesObj = TimeSeries()
     timeSeriesObj.setBpm(140)
