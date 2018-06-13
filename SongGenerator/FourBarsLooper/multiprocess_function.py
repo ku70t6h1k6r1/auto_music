@@ -73,12 +73,12 @@ class MidiOut:
     def setInstrument(self):
         self.o.set_instrument(self.inst_no, self.ch)
 
-    def play(self, pointer, currentBeat, playFlg) :
+    def play(self, pointer, currentBeat, playFlg, goFlg) :
 
         preNote = np.full(len(self.score[0]), 0)  #past_note
         self.setInstrument() #ここでいいの？
 
-        while True:
+        while goFlg.value  == 1:
             nowTime = time.time()
 
             if nowTime >= self.tsObj.abs_time_series[currentBeat.value] :
@@ -106,9 +106,10 @@ class WaveOut:
         self.articuration = articuration
         self.tsObj = TimeSeriesObj
 
-    def play(self, pointer, currentBeat, playFlg) :
-        playing = True #なぜか最初音なっちゃう問題→フラグの初期設定を0にすることで解決
-        while playing :
+    def play(self, pointer, currentBeat, playFlg, goFlg) :
+        #playing = True #なぜか最初音なっちゃう問題→フラグの初期設定を0にすることで解決
+        #while playing :
+        while goFlg.value  == 1:
             nowTime = time.time()
 
             if  playFlg.value == 0: #流しっぱなし問題 とりあえずのpointer固定、chunk変えた方がいいのでは
@@ -137,10 +138,10 @@ class MasudaDawOut:
     #def setInstrument(self):
     #    self.o.set_instrument(self.inst_no, self.ch)
 
-    def play(self, pointer, currentBeat, playFlg) :
-        preNote = np.full(len(self.score[0]), 0)
+    def play(self, pointer, currentBeat, playFlg, goFlg) :
+        preNote = np.full(len(self.score[0]), 36)
 
-        while True:
+        while goFlg.value == 1 :
             nowTime = time.time()
 
             if nowTime >= self.tsObj.abs_time_series[currentBeat.value]:
@@ -148,7 +149,7 @@ class MasudaDawOut:
                     for note in preNote:
                         msg = mido.Message('note_off', channel = self.ch, velocity = 100, note = note)
                         self.o.send(msg)
-
+                        #print(msg)
                 else  :
                     notes = self.score[pointer.value]
                     for v, note in enumerate(notes):
@@ -160,7 +161,7 @@ class MasudaDawOut:
                             preNote[v] = note
 
 class ChildProcessWave:
-    def __init__(self, audio_file, chunk, pointer, currentBeat, score, articulation, timeSeriesObj, playFlg):
+    def __init__(self, audio_file, chunk, pointer, currentBeat, score, articulation, timeSeriesObj, playFlg, goFlg):
         self.audio_file = audio_file
         self.pointer = pointer
         self.currentBeat = currentBeat
@@ -168,6 +169,7 @@ class ChildProcessWave:
         self.articulation = articulation
         self.timeSeriesObj = timeSeriesObj
         self.playFlg = playFlg
+        self.goFlg = goFlg
         self.chunk = chunk
 
     def defaultSet(self):
@@ -180,7 +182,7 @@ class ChildProcessWave:
         self.wave = WaveOut(self.i, self.chunk, self.score, self.articulation, self.timeSeriesObj, self.o)
 
     def play(self):
-        self.wave.play(self.pointer,self.currentBeat,self.playFlg)
+        self.wave.play(self.pointer,self.currentBeat,self.playFlg,self.goFlg)
         self.o.stop_stream()
         self.o.close()
         self.i.close()
@@ -191,7 +193,7 @@ class ChildProcessWave:
         self.play()
 
 class ChildProcess:
-    def __init__(self, device_no, ch, inst_no, pointer, currentBeat, score, articuration, timeSeriesObj, playFlg):
+    def __init__(self, device_no, ch, inst_no, pointer, currentBeat, score, articuration, timeSeriesObj, playFlg, goFlg):
         self.device_no = device_no
         self.ch = ch
         self.inst_no = inst_no
@@ -201,6 +203,7 @@ class ChildProcess:
         self.articuration = articuration
         self.timeSeriesObj = timeSeriesObj
         self.playFlg = playFlg
+        self.goFlg = goFlg
 
     def defaultSet(self):
         pygame.init()
@@ -210,7 +213,7 @@ class ChildProcess:
         #self.midi.setSequence(self.pointer, False, 1*16)#これも変数に
 
     def play(self):
-        self.midi.play(self.pointer,self.currentBeat,self.playFlg) #これも変数に
+        self.midi.play(self.pointer,self.currentBeat,self.playFlg,self.goFlg) #これも変数に
         self.o.close()
         pygame.midi.quit()
         pygame.quit()
@@ -221,7 +224,7 @@ class ChildProcess:
         self.play()
 
 class ChildProcessMasudaDaw:
-    def __init__(self, port, ch, inst_no, pointer, currentBeat, score, articuration, timeSeriesObj, playFlg):
+    def __init__(self, port, ch, inst_no, pointer, currentBeat, score, articuration, timeSeriesObj, playFlg, goFlg):
         self.port = port
         self.ch = ch
         self.inst_no = inst_no
@@ -231,13 +234,14 @@ class ChildProcessMasudaDaw:
         self.articuration = articuration
         self.timeSeriesObj = timeSeriesObj
         self.playFlg = playFlg
+        self.goFlg = goFlg
 
     def defaultSet(self):
         self.o = connect('localhost', self.port)
         self.masudaDaw = MasudaDawOut(self.ch, self.inst_no, self.score, self.articuration, self.timeSeriesObj, self.o)
 
     def play(self):
-        self.masudaDaw.play(self.pointer,self.currentBeat,self.playFlg) #これも変数に
+        self.masudaDaw.play(self.pointer,self.currentBeat,self.playFlg,self.goFlg) #これも変数に
 
     def execute(self):
         self.defaultSet()

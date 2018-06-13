@@ -36,7 +36,7 @@ class RythmWeight:
         self.noteWeight[8] = func.softmax([0.5,0.5]).tolist()
         self.noteWeight[9] = func.softmax([0.5,0.5]).tolist()
 
-        self.noteWeightMaster = func.softmax([6,4,6,7,3,1,1,1.5,1.5,1])
+        self.noteWeightMaster = func.softmax([7,4,6,8,5,1,1,1.5,1.5,1])
 
 
 #TEST

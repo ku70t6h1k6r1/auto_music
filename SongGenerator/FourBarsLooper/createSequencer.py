@@ -23,13 +23,13 @@ class Sequencer:
         rythm = 1
         harmony = 2
         """
-        self.node_prob_control = func.softmax([0.2, 0.2 ,0.2])
+        self.node_prob_control = func.softmax([0.1, 0.1 ,0.2])
 
         # OUT / LOOP
         self.loopWeight = {}
         self.loopWeight[0] = func.softmax([0.8,0.1]).tolist()
-        self.loopWeight[1] = func.softmax([0.4,0.2]).tolist()
-        self.loopWeight[2] = func.softmax([0.4,0.6]).tolist()
+        self.loopWeight[1] = func.softmax([0.8,0.2]).tolist()
+        self.loopWeight[2] = func.softmax([0.0,0.2]).tolist()
 
     def create_stepSequencer(self, startPartIndex, stopPartIdx) :
         self.loopFlg = 1
@@ -48,7 +48,7 @@ class Sequencer:
 
             if part == stopPartIdx:
                 cnt += 1
-                if cnt > 4 :
+                if cnt > 3 : #4だと一つ多く感じた。
                     self.loopFlg = False
         print(self.sequence)
 
@@ -105,7 +105,7 @@ class Sequencer:
         self.rythm_seq = self.rythm_seq.astype(np.int64)
         self.harmony_seq = self.harmony_seq.astype(np.int64)
         self.etc1_seq = self.etc1_seq.astype(np.int64)
-        print("etc1 is ",self.etc1_seq_OnOff)
+        #print("etc1 is ",self.etc1_seq_OnOff)
 
 class base_Patterns:
     def __init__(self, startPointer):
@@ -139,10 +139,10 @@ class Sequencer_OnOff:
 
 if __name__ == '__main__':
     obj = Sequencer(0)
-    obj.create_stepSequencer(2,1)
-    print(len(obj.sequence), obj.sequence)
-    print(len(obj.harmony_seq), obj.harmony_seq)
-    print(len(obj.rythm_seq), obj.rythm_seq)
-    print("###")
-    print(len(obj.harmony_seq_OnOff), obj.harmony_seq_OnOff)
-    print(len(obj.rythm_seq_OnOff), obj.rythm_seq_OnOff)
+    obj.create_stepSequencer(1,2)
+    #print(len(obj.sequence), obj.sequence)
+    #print(len(obj.harmony_seq), obj.harmony_seq)
+    #print(len(obj.rythm_seq), obj.rythm_seq)
+    #print("###")
+    #print(len(obj.harmony_seq_OnOff), obj.harmony_seq_OnOff)
+    #print(len(obj.rythm_seq_OnOff), obj.rythm_seq_OnOff)

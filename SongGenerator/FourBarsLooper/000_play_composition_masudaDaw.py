@@ -52,11 +52,16 @@ if __name__ == '__main__':
     vc = np.stack([v1, v2 ], axis = -1)
     vc_articuration = np.stack([articuration*80 ,articuration*80], axis = -1)
 
-    dr = np.stack([cHH, sDr ,bDr], axis = -1)
-    dr_articuration = np.stack([articuration*90, articuration*80 ,articuration*80], axis = -1)
+    dr = np.stack([sDr ,bDr], axis = -1)
+    #dr = np.stack([bDr], axis = -1)
+    dr_articuration = np.stack([articuration*90, articuration*80], axis = -1)
+    #dr_articuration = np.stack([articuration*90], axis = -1)
 
-    mDr = np.stack([mHH, mSn ,mBD], axis = -1)
-    dr_articuration = np.stack([articuration*90, articuration*80 ,articuration*80], axis = -1)
+    mDr = np.stack([mHH, mSn], axis = -1)
+    dr_articuration = np.stack([articuration*70, articuration*80 ,articuration*80], axis = -1)
+    #mDr = np.stack([mHH, mBD], axis = -1)
+
+
 
     cMelody = np.stack([counterMelody], axis = -1)
     cMel_articuration = np.stack([articuration*70], axis = -1)
@@ -98,15 +103,15 @@ if __name__ == '__main__':
     print(leadSheet.bpm)
     print("SET START TIME")
     timeSeriesObj.setStartTime(time.time())
-    device = 0    #device = 3 #microX
+    device = 3    #device = 3 #microX
     port = 3001 # For Masuda Daw
 
     sp_melody_wav =  mltPrcss.ChildProcessWave(leadSheet.wav_dir, melody_dur, pointer_Harm , currentBeat, melody_wav, mel_articulation, timeSeriesObj, playFlg_mel)
-    sp_cMelody =  mltPrcss.ChildProcess(device, 3, 5, pointer_Harm, currentBeat, cMelody, cMel_articuration, timeSeriesObj, playFlg_cMel)
+    sp_cMelody =  mltPrcss.ChildProcess(device, 0, 5, pointer_Harm, currentBeat, cMelody, cMel_articuration, timeSeriesObj, playFlg_cMel)
     sp_ba =  mltPrcss.ChildProcess(device, 1, 5, pointer_Harm, currentBeat, ba, ba_articulation, timeSeriesObj, playFlg_ba)
     sp_vc =  mltPrcss.ChildProcess(device, 2, 5, pointer_Harm, currentBeat, vc, vc_articuration, timeSeriesObj, playFlg_vc)
     sp_dr = mltPrcss.ChildProcess(device, 9, 0, pointer_Perc, currentBeat, dr, dr_articuration, timeSeriesObj, playFlg_dr)
-    sp_mDr = mltPrcss.ChildProcessMasudaDaw(port, 9, 0, pointer_Perc, currentBeat, dr, dr_articuration, timeSeriesObj, playFlg_dr)
+    sp_mDr = mltPrcss.ChildProcessMasudaDaw(port, 9, 0, pointer_Perc, currentBeat, mDr, dr_articuration, timeSeriesObj, playFlg_dr)
 
 
     #execute
@@ -149,4 +154,4 @@ if __name__ == '__main__':
     """
     p6.join()
     """
-    p8.terminate()
+    #p8.terminate()
