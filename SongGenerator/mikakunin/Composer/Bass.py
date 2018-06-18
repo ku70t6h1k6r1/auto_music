@@ -20,7 +20,7 @@ class Bass:
         self.eightBeat = "eightbeat"
         self.synchroniseKick = "kick"
 
-    def create(self, methodName, scoreObj, range): #melodyName, keyProg, chordProg, range, arg
+    def create(self, scoreObj, methodName, range): #melodyName, keyProg, chordProg, range, arg
         if methodName == self.eightBeat:
             bassLine = self._methodObject.eightBeat( scoreObj.chordProg, range)
             scoreObj.setBassLine(bassLine)

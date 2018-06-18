@@ -27,17 +27,18 @@ class Melody:
     def _setMelodyNameWithoutChord(self):
         return None
 
-    def create(self, melodyName, scoreObj, range, arg):
+    def create(self, scoreObj, melodyName,  range, **arg):
         """
         コード進行とかkey変更される場合はちゃんとscoreObjの中身変更する。
         """
         if melodyName == self.cherryA:
-            melody = self._methodsObject.cherryA( scoreObj.keyProg, scoreObj.chordProg, range, arg[0])
+            melody = self._methodsObject.cherryA( scoreObj.keyProg, scoreObj.chordProg, range, arg['reverce'])
             scoreObj.setMelodyLine(melody[2])
         elif melodyName == self.cherryB:
-            melody = self._methodsObject.cherryB( scoreObj.keyProg, scoreObj.chordProg, range, arg[0])
+            melody = self._methodsObject.cherryB( scoreObj.keyProg, scoreObj.chordProg, range, arg['reverce'])
+            scoreObj.setKeyProg(melody[0])
+            scoreObj.setChordProg(melody[1])
             scoreObj.setMelodyLine(melody[2])
-
 
 class Methods:
     u"""
@@ -160,18 +161,24 @@ class Methods:
             chordProg = trueChordProg
             keyProg = trueKeyProg
 
-
         return keyProg, chordProg, melody
 
-    def _cherryB(self, tempMelody, last_chord_beat, last_key, last_chord, last_chord_tone_degree = 0, range = [69,101]):
+    def _cherryB(self, tempMelody, last_chord_beat, last_key, last_chord, last_chord_tone_degree = 0, range = [69,101], lastFractal = False):
         if self._notePerBar_n == 16:
             if len(tempMelody) < self._notePerBar_n :
                 print("ALERT IN MELODY _cherryB 1 ")
             else :
-                last_melody = self._threeNotesApproach(last_key, last_chord, last_chord_tone_degree)
-                tempMelody[last_chord_beat] = last_melody[3]
-                approach_melody = [last_melody[0],-1,-1,last_melody[1],-1,-1,last_melody[2],-1]
-                tempMelody[last_chord_beat-len(approach_melody) : last_chord_beat] =  approach_melody
+                if lastFractal :
+                    #本当は全体の調性とかちゃんと決めるべき
+                    last_melody = self._threeNotesApproach([0,0], 0, 0)
+                    tempMelody[last_chord_beat] = last_melody[3]
+                    approach_melody = [last_melody[0],-1,-1,last_melody[1],-1,-1,last_melody[2],-1]
+                    tempMelody[last_chord_beat-len(approach_melody) : last_chord_beat] =  approach_melody
+                else :
+                    last_melody = self._threeNotesApproach(last_key, last_chord, last_chord_tone_degree)
+                    tempMelody[last_chord_beat] = last_melody[3]
+                    approach_melody = [last_melody[0],-1,-1,last_melody[1],-1,-1,last_melody[2],-1]
+                    tempMelody[last_chord_beat-len(approach_melody) : last_chord_beat] =  approach_melody
         else:
             print("ALERT IN MELODY 2, Not Prepared")
 
@@ -179,7 +186,8 @@ class Methods:
             if note > -1:
                 tempMelody[beat] = func.clipping(note, range[0], range[1])
 
-        return tempMelody
+        melody = np.array(tempMelody)
+        return melody
 
     def cherryB(self, keyProg, chordProg, range = [69,101], reverseFlg = False):
         tempMelody = np.full(len(chordProg)*self._notePerBar_n, -1)
@@ -187,17 +195,19 @@ class Methods:
         for bar, chords in enumerate(chordProg):
             for beat, chord in enumerate(chords):
                 #issue1
-                tempMelody[int(bar*self._notePerBar_n + beat*self._notePerBar_n/4*2) ] = self._chordIdx.getTonesFromIdx(chord)[np.random.randint(4)]
+                tempMelody[int(bar*self._notePerBar_n + beat*self._notePerBar_n/4*2) ] = self._chordIdx.getTonesFromIdx(chord)[np.random.randint(3)]
                 last_chord_beat = int(bar*self._notePerBar_n + beat*self._notePerBar_n/4*2)
 
-        a = self._cherryB(tempMelody, last_chord_beat, keyProg[-1], chordProg[-1][-1], 2, range)
-        b = self._cherryB(tempMelody, last_chord_beat, keyProg[-1], chordProg[-1][-1], 1, range)
-        bb = self._cherryB(tempMelody, last_chord_beat, keyProg[-1], chordProg[-1][-1], 0, range)
+        a = Methods()._cherryB(tempMelody, last_chord_beat, keyProg[-1], chordProg[-1][-1], 1, range)
+        b = Methods()._cherryB(tempMelody, last_chord_beat, keyProg[-1], chordProg[-1][-1], 2, range)
+        bb = Methods()._cherryB(tempMelody, last_chord_beat, keyProg[-1], chordProg[-1][-1], 0, range, True)
 
-        melody = np.zeros(0)
-        melody = np.r_[a, b, a, bb]
-
-        return np.tile(keyProg,(4,1)), np.tile(chordProg,(4,1)), melody.flatten()
+        melody = np.r_[a,b,a,bb]
+        keyProg = np.tile(keyProg,(4,1))
+        keyProg[-1] = [0,0]
+        chordProg = np.tile(chordProg,(4,1))
+        chordProg[-1][-1] = 0
+        return  keyProg, chordProg , melody.flatten()
 
     #approachノート系
     def _threeNotesApproach(self, key, chord_idx, degree = np.random.randint(3)):

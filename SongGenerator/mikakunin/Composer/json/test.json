@@ -1,0 +1,86 @@
+{
+  "form": {
+    "name":"aaba",
+    "args":["a", "b"]
+    },
+  "a":  {
+      "ChordProgression":
+          {
+            "name":"cherry",
+            "args":{"rotate": -1, "keyMm":[0,1], "chordDeg":[0,4]}
+          },
+
+        "ChordProgressionChild":
+            {
+              "name":"none",
+              "args":{}
+            },
+
+        "Melody":
+          {
+            "name":"cherryA",
+            "range":[69,101],
+            "args":{"reverce":false}
+          },
+
+        "Drums":
+          {
+            "name":"random",
+            "args":{}
+          },
+
+        "Bass":
+          {
+            "name":"eightbeat",
+            "range":[28,60],
+            "args":{}
+          },
+
+        "VoiceProgression":
+          {
+            "name":"powerChord",
+            "range":[45,80],
+            "args": {"subMethodName":"eightBeat"}
+          }
+    },
+  "b":  {
+      "ChordProgression":
+          {
+            "name":"cherry",
+            "args":{"rotate": -1, "keyMm":[0,1], "chordDeg":[0,4]}
+          },
+
+        "ChordProgressionChild":
+            {
+              "name":"cherryB",
+              "args":{}
+            },
+
+        "Melody":
+          {
+            "name":"cherryA",
+            "range":[69,101],
+            "args":{"reverce":false}
+          },
+
+        "Drums":
+          {
+            "name":"random",
+            "args":{}
+          },
+
+        "Bass":
+          {
+            "name":"eightbeat",
+            "range":[28,60],
+            "args":{}
+          },
+
+        "VoiceProgression":
+          {
+            "name":"powerChord",
+            "range":[45,80],
+            "args": {"subMethodName":"eightBeat"}
+          }
+    }
+}

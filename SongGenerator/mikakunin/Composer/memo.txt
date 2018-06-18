@@ -24,3 +24,10 @@
 　基本、関数名、soreObj、引数、レンジ　で調整できそう。
 
 ・各モデルの名前はxmlとかjsonにしたい
+
+・midi2waveで足りなくなる時があるがおそらく(sec*sampling_Rate)で欠損してるため
+
+・create今後は可変引数に
+https://note.nkmk.me/python-argument-expand/
+
+・長さそろわない問題

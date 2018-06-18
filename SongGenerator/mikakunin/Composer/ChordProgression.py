@@ -24,10 +24,11 @@ class ChordProgression:
     def _setChildChangeName(self):
         self.cherryIntro = "cherryIntro" # >4bars
         self.cherryB = "cherryB" # >6bars
+        self.none = "none"
 
-    def create(self, changeName, scoreObj, arg = [-1, [0,1], [0,4]]):
+    def create(self, scoreObj, changeName, **arg): #arg = [-1, [0,1], [0,4]]):
         if changeName == self.cherry:
-            chords = self._methodsObject.cherryChanges(arg[0],arg[1],arg[2])
+            chords = self._methodsObject.cherryChanges(arg['rotate'],arg['keyMm'],arg['chordDeg'])
             harmony = np.full(len(chords[1]) * self._notePerBar_n, -1)
             for bar, chord in enumerate(chords[1]):
                 for beat, idx in enumerate(chord):
@@ -36,26 +37,32 @@ class ChordProgression:
 
             scoreObj.setKeyProg(chords[0])
             scoreObj.setChordProg(chords[1])
+
+    def update(self, scoreObj, changeName): #, keyProgression, chordProgression):
+        if changeName  == self.cherryIntro:
+            chords = self._subMethodsObject.cherryIntro(scoreObj.keyProg, scoreObj.chordProg)
+            harmony = np.full(len(chords[1]) * self._notePerBar_n, -1)
+            for bar, chord in enumerate(chords[1]):
+                for beat, idx in enumerate(chord):
+                    #issue1
+                    harmony[bar*self._notePerBar_n + int(beat*self._notePerBar_n/2) ] =  idx
+            scoreObj.setKeyProg(chords[0])
+            scoreObj.setChordProg(chords[1])
             #return chords[0], chords[1], harmony #key, chord, chord with Rythm
 
-    def createChild(self, changeName, keyProgression, chordProgression):
-        if changeName  == self.cherryIntro:
-            chords = self._subMethodsObject.cherryIntro(keyProgression, chordProgression)
-            harmony = np.full(len(chords[1]) * self._notePerBar_n, -1)
-            for bar, chord in enumerate(chords[1]):
-                for beat, idx in enumerate(chord):
-                    #issue1
-                    harmony[bar*self._notePerBar_n + int(beat*self._notePerBar_n/2) ] =  idx
-            return chords[0], chords[1], harmony #key, chord, chord with Rythm
-
         elif changeName  == self.cherryB:
-            chords = self._subMethodsObject.cherryB(keyProgression, chordProgression)
+            chords = self._subMethodsObject.cherryB(scoreObj.keyProg, scoreObj.chordProg)
             harmony = np.full(len(chords[1]) * self._notePerBar_n, -1)
             for bar, chord in enumerate(chords[1]):
                 for beat, idx in enumerate(chord):
                     #issue1
                     harmony[bar*self._notePerBar_n + int(beat*self._notePerBar_n/2) ] =  idx
-            return chords[0], chords[1], harmony #key, chord, chord with Rythm
+            scoreObj.setKeyProg(chords[0])
+            scoreObj.setChordProg(chords[1])
+            #return chords[0], chords[1], harmony #key, chord, chord with Rythm
+
+        else:
+            scoreObj
 
 
 class Methods:
@@ -64,6 +71,7 @@ class Methods:
     [[C,G],[C],[C,F],[G,F,C,G]]
     -> / C,C,G,G / C,C,C,C / C,C,F,F / G,F,C,G
        ただし　2コード/小節　より多いのは作らない。
+    最低でも8bars 作る
     """
     def __init__(self):
 

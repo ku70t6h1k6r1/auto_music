@@ -1,0 +1,49 @@
+{
+   "ChordProgression":
+   [
+      {
+        "name":"",
+        "args":[]
+      }
+    ],
+
+    "ChordProgressionChild":
+    [
+      {
+        "name":"",
+        "args":[]
+      }
+    ],
+
+    "Melody":
+    [
+      {
+        "name":"",
+        "args":[]
+      }
+    ],
+
+    "Drums":
+    [
+      {
+        "name":"",
+        "args":[]
+      }
+    ],
+
+    "Bass":
+    [
+      {
+        "name":"",
+        "args":[]
+      }
+    ],
+
+    "VoiceProgression":
+    [
+      {
+        "name":"",
+        "args":[]
+      }
+    ]
+}

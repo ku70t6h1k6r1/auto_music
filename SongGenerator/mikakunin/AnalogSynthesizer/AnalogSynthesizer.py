@@ -14,6 +14,7 @@ class Waveform(Enum):
     sine = "sine"
     sawtooth = "sawtooth"
     square = "square"
+    whitenoise = "whitenoise"
 
 class FilterName(Enum):
     bandpass = "bandpass"
@@ -31,14 +32,18 @@ class Oscillator(object):
     def volume(self):
         return self._volume
 
-    @property
-    def _wave_func(self):
+    #@property
+    def _wave_func(self,phases):
         if self._waveform is Waveform.sine:
-            return np.sin
+            return np.sin(phases)
         elif self._waveform is Waveform.sawtooth:
-            return scipy.signal.sawtooth
+            return scipy.signal.sawtooth(phases)
         elif self._waveform is Waveform.square:
-            return scipy.signal.square
+            return scipy.signal.square(phases)
+        elif self._waveform is Waveform.whitenoise:
+            wn = np.random.normal(0, 1, size=len(phases))
+            wn = wn / max(np.absolute(wn))
+            return wn
         raise TypeError("unknown waveform: {}".format(self._waveform))
 
     def generate_wave(self, phases):
@@ -58,8 +63,18 @@ class VCA(object):
         self._r_list = np.linspace(self._s, 0, self._r * self._rate)
 
     def _wave_func(self, wave):
-        self._s_list = np.full(len(wave)-int((self._a+self._d+self._r)*self._rate), self._s)
-        eg = np.r_[self._a_list, self._d_list, self._s_list, self._r_list]
+        #print(u"waveの長さが短くなりすぎて、ADSRに収まらないときあり"）
+        s_length = len(wave)-int((self._a+self._d+self._r)*self._rate)
+        if s_length > 0:
+            self._s_list = np.full(s_length, self._s)
+            eg = np.r_[self._a_list, self._d_list, self._s_list, self._r_list]
+        else:
+            self._s_list = np.full(1000, self._s)
+            eg = np.r_[self._a_list, self._d_list, self._s_list, self._r_list]
+            eg = eg[0:len(wave)]
+
+
+
         return eg
 
     def processing(self, wave):
@@ -160,7 +175,7 @@ class Synthesizer():
         return buf
 
     def soundless(self, length):
-        return np.zeros(length * self._rate)
+        return np.zeros(int(length * self._rate), dtype = 'float')
 
     def toBytes(self, wave):
         return (wave * float(2 ** 15 - 1)).astype(np.int16).tobytes()
@@ -172,6 +187,17 @@ if __name__ == '__main__' :
                                 rate=44100,
                                 output=True)
 
-    synthesizer = Synthesizer([Waveform.sawtooth, Waveform.square], [1.0, 0.3], [1.0, 1.0], FilterName.bandpass, [1,3500], [0.001, 0.02, 0.6, 0.02], 44100)
-    wave = synthesizer.setPitch(110,2)
+    #SNARE?
+    #synthesizer = Synthesizer([Waveform.whitenoise, Waveform.square], [1.0, 0.8], [1.0, 1.0], FilterName.lowpass, [3000], [0.001, 0.02, 0.0001, 0.1], 44100)
+    #wave = synthesizer.setPitch(150,2)
+
+    #KICK?
+    #synthesizer = Synthesizer([Waveform.whitenoise, Waveform.square], [1.0, 0.8], [1.0, 1.0], FilterName.lowpass, [1000], [0.001, 0.02, 0.0001, 0.1], 44100)
+    #wave = synthesizer.setPitch(100,2)
+
+    #HAT?
+    synthesizer = Synthesizer([Waveform.whitenoise], [1.0], [1.0], FilterName.highpass, [7000], [0.0, 0.02, 0.0001, 0.4], 44100)
+    wave = synthesizer.setPitch(100,2)
+
+
     o.write(synthesizer.toBytes(wave))

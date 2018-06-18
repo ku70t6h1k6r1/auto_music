@@ -22,15 +22,15 @@ class VoiceProgression:
         self.synchroniseKick = self._methodsObject.synchroniseKick
         self.synchroniseBass = self._methodsObject.synchroniseBass
 
-    def create(self, voicingName, subMethodName, scoreObj, range):
+    def create(self, scoreObj, voicingName, range, **arg ):
         if voicingName == self.powerChord:
-            voiceProg = self._methodsObject.powerChord(scoreObj.chordProg, scoreObj.drumObj.kick, scoreObj.bassLine, range, subMethodName)
+            voiceProg = self._methodsObject.powerChord(scoreObj.chordProg, scoreObj.drumObj.kick, scoreObj.bassLine, range, arg['subMethodName'])
             scoreObj.setVoiceProg(voiceProg)
         elif voicingName == self.triad:
-            voiceProg = self._methodsObject.triad(scoreObj.chordProg, scoreObj.drumObj.kick, scoreObj.bassLine, range, subMethodName)
+            voiceProg = self._methodsObject.triad(scoreObj.chordProg, scoreObj.drumObj.kick, scoreObj.bassLine, range, arg['subMethodName'])
             scoreObj.setVoiceProg(voiceProg)
         elif voicingName == self.doubleStop:
-            voiceProg = self._methodsObject.doubleStop(scoreObj.chordProg, scoreObj.drumObj.kick, scoreObj.bassLine, range, subMethodName)
+            voiceProg = self._methodsObject.doubleStop(scoreObj.chordProg, scoreObj.drumObj.kick, scoreObj.bassLine, range, arg['subMethodName'])
             scoreObj.setVoiceProg(voiceProg)
 
 class Methods:
@@ -64,7 +64,6 @@ class Methods:
             return None
 
         score = np.full([len(chordProg)*self._notePerBar_n, 2], -1)
-        print(chordScore)
         for i, chord in enumerate(chordScore):
             if chord > -1:
                 score[i][0] = func.clipping(self._chordIdx.getTonesFromIdx(chord)[0], range[0], range[1])
