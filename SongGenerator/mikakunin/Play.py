@@ -6,16 +6,25 @@ from common import function as func
 import pyaudio
 import wave as wv
 from datetime import datetime
+import argparse
 
 class Play:
     def __init__(self):
         self.scoreObj = sc.Score()
         self.audio  = pyaudio.PyAudio()
-        self.o = self.audio.open(format=pyaudio.paInt32, channels=1, rate=44100, output=True)
 
-    def setScore(self, dir):
-        self.scoreDir = dir
-        self.score = self.scoreObj.load(dir)
+        self.format = pyaudio.paInt32
+        self.sampwidth = 4 #formatが16だと2
+        self.channels = 1
+        self.rate = 44100
+        self.o = self.audio.open(format=self.format, channels=self.channels, rate=self.rate, output=True)
+
+        self.scoreDir = './Composer/score/'
+        self.outputDir = './wav/'
+
+    def setScore(self, name):
+        self.scoreName = name
+        self.score = self.scoreObj.load(self.scoreDir + self.scoreName + '.json')
 
     def setBpm(self, bpm):
         self.bassObj = midiNotesToWave('bass',bpm = bpm)
@@ -37,17 +46,18 @@ class Play:
         #wave = func.add([bass, snare, hihat, voicing], [6, 2, 4, 2])
         wave = func.add([kick, snare, hihat, bass, voicing, melody, melody2], [6.0, 2.0, 2.0, 5.0, 1.0, 1.0, 0.2])
         wave_bin = func.toBytes(wave)
-        #self.o.write(wave_bin)
+
+        if writeStream:
+            self.o.write(wave_bin)
 
         if fileOut:
-            file_name = datetime.now().strftime("demo_%Y%m%d_%H%M.wav")
-            dir = './wav/'
+            dt = datetime.now().strftime("%Y%m%d_%H%M%S")
+            fileName = self.scoreName + '__' + dt + '.wav'
 
-            waveFile = wv.open(dir + file_name , 'wb')
-            waveFile.setnchannels(1)
-            waveFile.setsampwidth(pyaudio.paInt32)
-            waveFile.setframerate(44100)
-            waveFile.setsampwidth(4)
+            waveFile = wv.open(self.outputDir + fileName , 'wb')
+            waveFile.setnchannels(self.channels)
+            waveFile.setsampwidth(self.sampwidth)
+            waveFile.setframerate(self.rate)
             waveFile.writeframes(wave_bin)
             waveFile.close()
 
@@ -134,7 +144,7 @@ class midiNotesToWave:
             wave = self.synthesizer.soundless(sec)
         return wave
 
-if __name__ == '__main__':
+#if __name__ == '__main__':
     #from Composer import Melody as mel
     #methods = mel.Methods()
     #methods._maruBatsu()
@@ -143,8 +153,16 @@ if __name__ == '__main__':
     #scoreObj = sc.Score()
     #scoreObj.create('./Composer/settings/default.json')
 
+if __name__ == '__main__':
+
+    parser = argparse.ArgumentParser(description='MAKE SONG')
+    parser.add_argument('-s', '--score', type=str, default='test')
+    parser.add_argument('-b', '--bpm', type=int, default=120)
+    parser.add_argument('-fo', '--fileout', action='store_true')
+    parser.add_argument('-ws', '--writestream', action='store_true')
+    args = parser.parse_args()
     #play
     playObj = Play()
-    playObj.setScore('./Composer/score/test.json')
-    playObj.setBpm(120)
-    playObj.execute(fileOut =True)
+    playObj.setScore(args.score)
+    playObj.setBpm(args.bpm)
+    playObj.execute(writeStream = args.writestream, fileOut = args.fileout)
