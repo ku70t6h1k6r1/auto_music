@@ -5,33 +5,51 @@ from AnalogSynthesizer import AnalogSynthesizer as aSynthe
 from common import function as func
 import pyaudio
 import wave as wv
+from datetime import datetime
 
 class Play:
     def __init__(self):
         self.scoreObj = sc.Score()
         self.audio  = pyaudio.PyAudio()
-        self.o = self.audio.open(format=self.audio.get_format_from_width(2),channels=1,rate=44100,output=True)
+        self.o = self.audio.open(format=pyaudio.paInt32, channels=1, rate=44100, output=True)
 
-    def setScore(self):
-        self.score = self.scoreObj.load()
+    def setScore(self, dir):
+        self.scoreDir = dir
+        self.score = self.scoreObj.load(dir)
 
     def setBpm(self, bpm):
         self.bassObj = midiNotesToWave('bass',bpm = bpm)
+        self.leadObj = midiNotesToWave('lead',bpm = bpm)
+        self.lead2Obj = midiNotesToWave('lead2',bpm = bpm)
+        self.voiceObj = midiNotesToWave('voice',bpm = bpm)
         self.kickObj = midiNotesToWave('kick',bpm = bpm)
         self.hihatObj = midiNotesToWave('hihat',bpm = bpm)
         self.snareObj = midiNotesToWave('snare',bpm = bpm)
 
     def execute(self, writeStream = True, fileOut = False):
-        melody = self.bassObj.convert(self.score.melodyLine)
+        melody = self.leadObj.convert(self.score.melodyLine)
+        melody2 = self.lead2Obj.convert(self.score.melodyLine)
         bass =  self.bassObj.convert(self.score.bassLine)
-        voicing =  self.bassObj.convertPoly(self.score.voiceProg)
-        kick = self.kickObj.convertPerc(self.score.drumObj.kick, 100)
-        snare =  self.snareObj.convertPerc(self.score.drumObj.snare, 150)
-        hihat =  self.hihatObj.convertPerc(self.score.drumObj.hihat, 100)
-
-        wave = func.add([melody, bass, kick, snare, hihat, voicing], [1.0, 0.8, 1.5, 1, 0.7, 1])
+        voicing =  self.voiceObj.convertPoly(self.score.voiceProg)
+        kick = self.kickObj.convertPerc(self.score.drumObj.kick, 50)
+        snare =  self.snareObj.convertPerc(self.score.drumObj.snare, 40)
+        hihat =  self.hihatObj.convertPerc(self.score.drumObj.hihat, 800)
+        #wave = func.add([bass, snare, hihat, voicing], [6, 2, 4, 2])
+        wave = func.add([kick, snare, hihat, bass, voicing, melody, melody2], [6.0, 2.0, 2.0, 5.0, 1.0, 1.0, 0.2])
         wave_bin = func.toBytes(wave)
-        self.o.write(wave_bin)
+        #self.o.write(wave_bin)
+
+        if fileOut:
+            file_name = datetime.now().strftime("demo_%Y%m%d_%H%M.wav")
+            dir = './wav/'
+
+            waveFile = wv.open(dir + file_name , 'wb')
+            waveFile.setnchannels(1)
+            waveFile.setsampwidth(pyaudio.paInt32)
+            waveFile.setframerate(44100)
+            waveFile.setsampwidth(4)
+            waveFile.writeframes(wave_bin)
+            waveFile.close()
 
 
 class midiNotesToWave:
@@ -41,13 +59,23 @@ class midiNotesToWave:
         self._noteMinLen_sec = func.a16beatToSec(self._bpm)
 
         if instName == 'bass':
-            self.synthesizer = aSynthe.Synthesizer([aSynthe.Waveform.sawtooth, aSynthe.Waveform.square], [1.0, 0.3], [1.0, 1.0], aSynthe.FilterName.bandpass, [1,3500], [0.001, 0.02, 0.6, 0.01], 44100)
+            self.synthesizer = aSynthe.Synthesizer([aSynthe.Waveform.sine, aSynthe.Waveform.sine], [1.0, 0.5], [1.0, 2.0], aSynthe.FilterName.bandpass, [1,9000], [0.001, 0.02, 0.9, 0.01], 44100)
+        if instName == 'lead':
+            #self.synthesizer = aSynthe.Synthesizer([aSynthe.Waveform.sawtooth, aSynthe.Waveform.square], [1.0, 0.8], [1.0, 1.02], aSynthe.FilterName.bandpass, [1000,12000], [0.05, 0.01, 0.4, 0.01], 44100)
+            self.synthesizer = aSynthe.Synthesizer([aSynthe.Waveform.sine, aSynthe.Waveform.square], [1.0, 0.8], [1.0, 1.02], aSynthe.FilterName.bandcut, [5000,12000], [0.03, 0.2, 0.1, 0.01], 44100)
+        if instName == 'lead2':
+            self.synthesizer = aSynthe.Synthesizer([aSynthe.Waveform.sine, aSynthe.Waveform.square], [1.0, 0.8], [1.02, 1.02], aSynthe.FilterName.bandpass, [10000, 12000], [0.05, 0.01, 0.4, 0.01], 44100)
+            #self.synthesizer = aSynthe.Synthesizer([aSynthe.Waveform.sawtooth, aSynthe.Waveform.sine], [1.0, 0.8], [1.0, 1.02], aSynthe.FilterName.bandcut, [5000,12000], [0.03, 0.2, 0.1, 0.01], 44100)
+        #elif instName == 'voice':
+        #    self.synthesizer = aSynthe.Synthesizer([aSynthe.Waveform.sine, aSynthe.Waveform.sawtooth], [1.0, 0.05], [1.0, 0.01], aSynthe.FilterName.bandpass, [10,10000], [0.001, 0.02, 0.6, 0.2], 44100)
+        elif instName == 'voice':
+            self.synthesizer = aSynthe.Synthesizer([aSynthe.Waveform.sine, aSynthe.Waveform.sawtooth], [1.0, 0.8], [1.0, 2.02], aSynthe.FilterName.bandpass, [50,1200], [0.0, 0.1, 0.8, 0.1], 44100)
         elif instName == 'kick':
-            self.synthesizer = aSynthe.Synthesizer([aSynthe.Waveform.whitenoise, aSynthe.Waveform.square], [1.0, 0.8], [1.0, 1.0], aSynthe.FilterName.lowpass, [1000], [0.001, 0.02, 0.0001, 0.1], 44100)
+            self.synthesizer = aSynthe.Synthesizer([aSynthe.Waveform.whitenoise, aSynthe.Waveform.sawtooth], [1.0, 0.8], [1.0, 0.0], aSynthe.FilterName.lowpass, [200], [0.001, 0.02, 0.1 ,0.1], 44100)
         elif instName == 'snare':
-            self.synthesizer = aSynthe.Synthesizer([aSynthe.Waveform.whitenoise, aSynthe.Waveform.square], [1.0, 0.8], [1.0, 1.0], aSynthe.FilterName.lowpass, [3000], [0.001, 0.02, 0.0001, 0.1], 44100)
+            self.synthesizer = aSynthe.Synthesizer([aSynthe.Waveform.whitenoise, aSynthe.Waveform.square], [1.0, 1.0], [1.0, 0.5], aSynthe.FilterName.bandcut, [5,100], [0.0, 0.02, 0.002, 0.1], 44100)
         elif instName == 'hihat':
-            self.synthesizer = aSynthe.Synthesizer([aSynthe.Waveform.whitenoise], [1.0], [1.0], aSynthe.FilterName.highpass, [7000], [0.0, 0.001, 0.0001, 0.01], 44100)
+            self.synthesizer = aSynthe.Synthesizer([aSynthe.Waveform.whitenoise, aSynthe.Waveform.sawtooth], [1.0,0.2], [1.0,0.0], aSynthe.FilterName.highpass, [7000], [0.0, 0.01, 0.001, 0.01], 44100)
 
 
     def convertPerc(self, score, constHz):
@@ -107,20 +135,16 @@ class midiNotesToWave:
         return wave
 
 if __name__ == '__main__':
+    #from Composer import Melody as mel
+    #methods = mel.Methods()
+    #methods._maruBatsu()
 
-    #import json
-    #import os
-    #スクリプトのあるディレクトリの絶対パスを取得
-    #name = os.path.dirname(os.path.abspath(__name__))
-    #joined_path = os.path.join(name, './Composer/json/001_composition.json')
-    #data_path = os.path.normpath(joined_path)
 
-    #jsonFile = json.load(open(data_path, 'r'))
-    #a = jsonFile.a
-    #if a["Melody"][0]["args"][0]["reverce"] :
-    #    print(jsonFile["Melody"][0]["args"][0]["reverce"])
+    #scoreObj = sc.Score()
+    #scoreObj.create('./Composer/settings/default.json')
 
+    #play
     playObj = Play()
-    playObj.setScore()
+    playObj.setScore('./Composer/score/test.json')
     playObj.setBpm(120)
-    playObj.execute()
+    playObj.execute(fileOut =True)

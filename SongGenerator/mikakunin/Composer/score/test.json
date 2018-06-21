@@ -1,13 +1,13 @@
 {
   "form": {
-    "name":"ab",
+    "name":"aaba",
     "args":["a", "b"]
     },
   "a":  {
       "ChordProgression":
           {
             "name":"cherry",
-            "args":{"rotate": -1, "keyMm":[0,1], "chordDeg":[0,4]}
+            "args":{"rotate": -1, "keyMm":[1,0], "chordDeg":[0,2]}
           },
 
         "ChordProgressionChild":
@@ -20,7 +20,7 @@
           {
             "name":"cherryA",
             "range":[72,84],
-            "args":{"reverce":false}
+            "args":{"reverce":true}
           },
 
         "Drums":
@@ -32,22 +32,22 @@
         "Bass":
           {
             "name":"kick",
-            "range":[28,40],
+            "range":[28,60],
             "args":{}
           },
 
-        "VoiceProgression":
-          {
-            "name":"powerChord",
-            "range":[45,80],
-            "args": {"subMethodName":"synchroniseBass"}
-          }
+          "VoiceProgression":
+            {
+              "name":"triad",
+              "range":[48,72],
+              "args": {"subMethodName":"synchroniseBass"}
+            }
     },
   "b":  {
       "ChordProgression":
           {
             "name":"cherry",
-            "args":{"rotate": -1, "keyMm":[0,1], "chordDeg":[0,4]}
+            "args":{"rotate": -1, "keyMm":[1,0], "chordDeg":[0,4]}
           },
 
         "ChordProgressionChild":
@@ -60,7 +60,7 @@
           {
             "name":"cherryB",
             "range":[72,84],
-            "args":{"reverce":false}
+            "args":{"reverce":true}
           },
 
         "Drums":
@@ -72,15 +72,15 @@
         "Bass":
           {
             "name":"kick",
-            "range":[72,84],
+            "range":[28,60],
             "args":{}
           },
 
         "VoiceProgression":
           {
-            "name":"powerChord",
-            "range":[45,80],
-            "args": {"subMethodName":"eightBeat"}
+            "name":"triad",
+            "range":[48,72],
+            "args": {"subMethodName":"synchroniseBass"}
           }
     }
 }

@@ -29,7 +29,7 @@ class Score:
         self._bassObj = bs.Bass()
         self._VoiceProgressionObj = vp.VoiceProgression()
 
-    def load(self, dir = './Composer/json/test.json'):
+    def load(self, dir):
         name = os.path.dirname(os.path.abspath(__name__))
         joined_path = os.path.join(name, dir)
         data_path = os.path.normpath(joined_path)
@@ -52,39 +52,17 @@ class Score:
 
         return masterScoreObj
 
-    def create(self):
-        formObj = self.sctObj.create("ab")
-        for i, scoreObj in enumerate(sorted(set(formObj), key = formObj.index)):
-            if i == 0:
-                self._chordProgressionObj.create(scoreObj, self._chordProgressionObj.cherry, **{'rotate':-1, 'keyMm':[0,1], 'chordDeg':[0,5]})
-                self._melodyObj.create(scoreObj, self._melodyObj.cherryA, range = [69,101],  **{'reverce':False})
-                self._drumObj.create(scoreObj, self._drumObj.random)
-                self._bassObj.create(scoreObj, self._bassObj.synchroniseKick, range = [28,60])
-                self._VoiceProgressionObj.create(scoreObj, self._VoiceProgressionObj.triad, [45,80], **{'subMethodName':self._VoiceProgressionObj.synchroniseBass})
-            else :
-                self._chordProgressionObj.create(scoreObj, self._chordProgressionObj.cherry, **{'rotate':-1, 'keyMm':[1,0], 'chordDeg':[0,4]})
-                self._chordProgressionObj.update(scoreObj, self._chordProgressionObj.cherryB)
-                self._melodyObj.create(scoreObj, self._melodyObj.cherryB, range = [69,93],  **{'reverce':True})
-                self._drumObj.create(scoreObj, self._drumObj.random)
-                self._bassObj.create(scoreObj, self._bassObj.eightBeat, range = [28,40])
-                self._VoiceProgressionObj.create(scoreObj, self._VoiceProgressionObj.powerChord, [45,80], **{'subMethodName':self._VoiceProgressionObj.eightBeat})
+    def create(self, settingsDir):
+        name = os.path.dirname(os.path.abspath(__name__))
+        joined_path = os.path.join(name, settingsDir)
+        data_path = os.path.normpath(joined_path)
+        settings = json.load(open(data_path, 'r'))
 
-        masterScoreObj = cs.Score()
-        for i, scoreObj in enumerate(formObj):
-            masterScoreObj.addScoreObj(scoreObj)
+        ChordProgression = {}
+        for element in settings["ChordProgression"]:
+            print(element["name"])
 
-        return masterScoreObj
 
 if __name__ == '__main__':
-    sectionObj = sct.Section()
-    song = sectionObj.create(sectionObj.defaultChoise)
-    print(song.chordProg)
-    print(song.melodyLine)
-    print(song.voiceProg)
-    print(song.bassLine)
-
-    #DRUM
-    print("DRUM")
-    print(song.drumObj.hihat)
-    print(song.drumObj.snare)
-    print(song.drumObj.kick)
+    scoreObj = Score()
+    scoreObj.create('./Composer/settings/default.json')

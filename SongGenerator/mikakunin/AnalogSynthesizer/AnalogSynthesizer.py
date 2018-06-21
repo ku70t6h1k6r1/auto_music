@@ -73,8 +73,6 @@ class VCA(object):
             eg = np.r_[self._a_list, self._d_list, self._s_list, self._r_list]
             eg = eg[0:len(wave)]
 
-
-
         return eg
 
     def processing(self, wave):
@@ -149,6 +147,13 @@ class VCO(object):
         phases = np.cumsum(2.0 * np.pi * frequency / self._rate * np.ones(int(self._rate * float(length))))
         return self._generate_wave(phases)
 
+class Amp(object):
+    def maxStd(self, wave):
+        return wave /max(abs(wave))
+
+#class Distortion(object):
+
+
 class Synthesizer():
     def __init__(self, waveform, volume, freqtranspose, filterName ,frequency ,adsr, rate):
         self._waveform = waveform #[seine, saw]
@@ -166,11 +171,14 @@ class Synthesizer():
 
         self._vcf = VCF(self._filterName, self._frequency, self._rate)
         self._vca = VCA(self._adsr[0], self._adsr[1], self._adsr[2], self._adsr[3], self._rate)
+        self._amp = Amp()
+
 
     def setPitch(self, frequency, length):
         buf = self._vco.generate_constant_wave(frequency, length) #length is sec
         buf = self._vcf.processing(buf)
         buf = self._vca.processing(buf)
+        buf = self._amp.maxStd(buf)
         #buf = (buf * float(2 ** 15 - 1)).astype(np.int16).tobytes()
         return buf
 
@@ -178,7 +186,7 @@ class Synthesizer():
         return np.zeros(int(length * self._rate), dtype = 'float')
 
     def toBytes(self, wave):
-        return (wave * float(2 ** 15 - 1)).astype(np.int16).tobytes()
+        return (wave * float(2 ** 8 - 1)).astype(np.int24).tobytes()
 
 if __name__ == '__main__' :
     audio  = pyaudio.PyAudio()
@@ -196,8 +204,18 @@ if __name__ == '__main__' :
     #wave = synthesizer.setPitch(100,2)
 
     #HAT?
-    synthesizer = Synthesizer([Waveform.whitenoise], [1.0], [1.0], FilterName.highpass, [7000], [0.0, 0.02, 0.0001, 0.4], 44100)
-    wave = synthesizer.setPitch(100,2)
+    #synthesizer = Synthesizer([Waveform.whitenoise], [1.0], [1.0], FilterName.highpass, [7000], [0.0, 0.02, 0.0001, 0.4], 44100)
+    #wave = synthesizer.setPitch(100,2)
+
+    #Synthe
+    #synthesizer = Synthesizer([Waveform.sine, Waveform.sawtooth], [1.0, 0.2], [1.0, 1.005], FilterName.bandpass, [500,5000], [0.01, 0.02, 0.6, 0.2], 44100)
+
+    #Bass
+    synthesizer = Synthesizer([Waveform.sine, Waveform.sine], [1.0, 0.1], [1.0, 1.09], FilterName.bandpass, [2,2000], [0.01, 0.02, 0.6, 0.2], 44100)
+
+
+    for i in range(10):
+        wave = synthesizer.setPitch(50,1)
 
 
     o.write(synthesizer.toBytes(wave))

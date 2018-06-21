@@ -34,15 +34,13 @@ def throwSomeCoins(pOn, n):
     else :
         return 0
 
-def smoothing(note, pastNote, lowestPitch = 60, highestPitch = 84):
-    if (note - pastNote) > 5  and note -12 > lowestPitch:
-        note = note - 12
-    elif (note - pastNote) < -6 and note + 12 < highestPitch:
-        note = note + 12
-    elif note <  lowestPitch :
-        note + 12
-    elif note > highestPitch :
-        note - 12
+def smoothing(note, pastNote):
+    dif  = note - pastNote
+    octs =  int(dif / 12) + 1
+    if dif > 6:
+        note -= 12
+    elif dif < -6 :
+        note += 12
     else:
         note = note
 
@@ -61,5 +59,18 @@ def clipping(note, lowestPitch = 60, highestPitch = 84):
             note -= 12
 
     return note
+
+def processing(melody, range):
+    for beat, note in enumerate(melody):
+        if note > -1:
+            if beat > 0:
+                melody[beat] = clipping(note, range[0], range[1])
+                melody[beat] = smoothing(melody[beat], pastNote)
+                pastNote = melody[beat]
+            else:
+                melody[beat] = clipping(note, range[0], range[1])
+                pastNote = melody[beat]
+
+    return melody
 
 #if __name__ == '__main__':

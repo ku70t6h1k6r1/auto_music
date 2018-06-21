@@ -6,7 +6,9 @@ import numpy as np
 from Composer import ChordSet as cs
 from Composer import DiatonicSet as ds
 from Composer import CommonFunction as func
-from Composer import ChordProgression as cp
+from Composer import _MelodicRhythmPatterns as _rp
+import random
+
 
 class Melody:
     def __init__(self, notePerBar_n = 16):
@@ -21,8 +23,9 @@ class Melody:
         self._setMelodyNameWithoutChord()
 
     def _setMelodyNameWithChord(self):
-        self.cherryA = "cherryA" # >2bars only even
+        self.cherryA = "cherryA" # >2bars even
         self.cherryB = "cherryB" # >1bars ただし4回繰り返すからあまり多すぎる小節もどうかと
+        self.oxgame = "oxgame" # >0bars　ただし転調しまくるコード進行に対しては多分ひどいことになる
 
     def _setMelodyNameWithoutChord(self):
         return None
@@ -36,6 +39,11 @@ class Melody:
             scoreObj.setMelodyLine(melody[2])
         elif melodyName == self.cherryB:
             melody = self._methodsObject.cherryB( scoreObj.keyProg, scoreObj.chordProg, range, arg['reverce'])
+            scoreObj.setKeyProg(melody[0])
+            scoreObj.setChordProg(melody[1])
+            scoreObj.setMelodyLine(melody[2])
+        elif melodyName == self.oxgame:
+            melody = self._methodsObject.oxgame( scoreObj.keyProg, scoreObj.chordProg, range)
             scoreObj.setKeyProg(melody[0])
             scoreObj.setChordProg(melody[1])
             scoreObj.setMelodyLine(melody[2])
@@ -68,6 +76,10 @@ class Methods:
         self._minorScale = self._minorScaleObj.scale
         self._majorDiatonicChords = self._majorScaleObj.diatonicIdx
         self._minorDiatonicChords = self._minorScaleObj.diatonicIdx
+
+        #SET Rhythm Patterns
+        self._rhythmPattersObj = _rp.Patterns()
+        self._rhythmPatters = self._rhythmPattersObj.list
 
     def _cherryA(self, keyProg, chordProg, range):
         """
@@ -132,9 +144,7 @@ class Methods:
         else:
             print("ALERT IN MELODY 2, Not Prepared")
 
-        for beat, note in enumerate(melody):
-            if note > -1:
-                melody[beat] = func.clipping(note, range[0], range[1])
+        melody = func.processing(melody, range)
         return melody
 
     def cherryA(self, keyProg, chordProg, range = [69,101], reverseFlg = False):
@@ -164,27 +174,45 @@ class Methods:
         return keyProg, chordProg, melody
 
     def _cherryB(self, tempMelody, last_chord_beat, last_key, last_chord, last_chord_tone_degree = 0, range = [69,101], lastFractal = False):
+        rythm_dict = [\
+                        [0,-1,-1,1, -1,-1,2,-1], \
+                        [0,-1,1,-1, -1,-1,2,-1], \
+                        [0,-1,-1,-1, 1,-1,2,-1], \
+                        [0,-1,1,-1, 2,-1,-1,-1], \
+                        [0,-1,1,-1, 2,-1,-1,-1], \
+                        [0,-1,-1,-1, 1,2,-1,-1]\
+                        ]
+
         if self._notePerBar_n == 16:
             if len(tempMelody) < self._notePerBar_n :
                 print("ALERT IN MELODY _cherryB 1 ")
             else :
+                rythm = rythm_dict[np.random.randint(len(rythm_dict))]
                 if lastFractal :
                     #本当は全体の調性とかちゃんと決めるべき
                     last_melody = self._threeNotesApproach([0,0], 0, 0)
+                    #last_melody = self._threeNotesApproach(last_key, last_chord, last_chord_tone_degree)
                     tempMelody[last_chord_beat] = last_melody[3]
-                    approach_melody = [last_melody[0],-1,-1,last_melody[1],-1,-1,last_melody[2],-1]
+
+                    approach_melody = np.full(8, -1)
+                    for idx, val in enumerate(rythm):
+                        if val > -1 :
+                            approach_melody[idx] = last_melody[val]
+
                     tempMelody[last_chord_beat-len(approach_melody) : last_chord_beat] =  approach_melody
                 else :
                     last_melody = self._threeNotesApproach(last_key, last_chord, last_chord_tone_degree)
                     tempMelody[last_chord_beat] = last_melody[3]
-                    approach_melody = [last_melody[0],-1,-1,last_melody[1],-1,-1,last_melody[2],-1]
+
+                    approach_melody = np.full(8, -1)
+                    for idx, val in enumerate(rythm):
+                        if val > -1 :
+                            approach_melody[idx] = last_melody[val]
                     tempMelody[last_chord_beat-len(approach_melody) : last_chord_beat] =  approach_melody
         else:
             print("ALERT IN MELODY 2, Not Prepared")
 
-        for beat, note in enumerate(tempMelody):
-            if note > -1:
-                tempMelody[beat] = func.clipping(note, range[0], range[1])
+        melody = func.processing(tempMelody, range)
 
         melody = np.array(tempMelody)
         return melody
@@ -209,6 +237,96 @@ class Methods:
         chordProg[-1][-1] = 0
         return  keyProg, chordProg , melody.flatten()
 
+    def _oxgame(self, key, oneBar, range, otherNoteDegree, lastNoteDegree):
+        if key[1] == 0:
+            scale = self._majorScale+key[0]
+            scale = func.clipping(scale[0]) -scale[0] + scale
+            scale = [scale[0], scale[1] , scale[2], scale[3], scale[4]-12, scale[5]-12, scale[6]-12]
+            penta = [scale[0], scale[1] , scale[2], scale[4], scale[5]]
+
+        elif key[1] == 1:
+            scale = self._minorScale +key[0]
+            scale = func.clipping(scale[0]) -scale[0] + scale
+            scale = [scale[0], scale[1] , scale[2], scale[3], scale[4]-12, scale[5]-12, scale[6]-12]
+            penta =  [scale[0], scale[2] , scale[3], scale[4], scale[6]]
+
+        noteOnIndicies = []
+        for idx, note in enumerate(oneBar):
+            if note > -1:
+                #全て置換
+                oneBar[idx] = scale[otherNoteDegree]
+                noteOnIndicies.append(idx)
+
+        #最後の音置換
+        oneBar[noteOnIndicies[-1]] = scale[lastNoteDegree]
+
+        if len(noteOnIndicies) > 2:
+            midIndicies = np.arange(1,len(noteOnIndicies)-1)
+            idx = noteOnIndicies[midIndicies[np.random.randint(len(midIndicies))]]
+            oneBar[idx] =  penta[np.random.randint(len(penta))]
+
+        return oneBar
+
+    def oxgame(self, keyProg=None, chordProg=None, range = [69,101]):
+        grp_name, patterns = random.choice(list(self._rhythmPatters.items()))
+
+        """
+        とりあえず
+        [A, B, A, B,    D, E, D, F]
+        Keyをはじめの小節に固定しているので変だったら変更してみて。
+        """
+
+        if len(keyProg) >= 8:
+            a = patterns[np.random.randint(len(patterns))]
+            bar1 = self._oxgame(keyProg[0], a, range, 0, 4)
+            bar3 = bar1
+
+            b = patterns[np.random.randint(len(patterns))]
+            bar4 = self._oxgame(keyProg[0], b, range, 2, 2)
+            bar2 = self._oxgame(keyProg[0], b, range, 0, 0)
+
+            c = patterns[np.random.randint(len(patterns))]
+            bar5 = self._oxgame(keyProg[0], c, range, 0, 0)
+            bar7 = self._oxgame(keyProg[0], c, range, 0, 4)
+
+            d = patterns[np.random.randint(len(patterns))]
+            bar6 = self._oxgame(keyProg[0], d, range, 0, 0)
+
+            f = patterns[np.random.randint(len(patterns))]
+            bar8 = self._oxgame(keyProg[0], f, range, 0, 0)
+
+            melody = np.array([bar1, bar2, bar3, bar4,   bar5, bar6, bar7, bar8]).flatten()
+            key = keyProg[0:8]
+            chord = chordProg[0:8]
+
+
+        elif len(keyProg) >= 4:
+            a = patterns[np.random.randint(len(patterns))]
+            bar1 = self._oxgame(keyProg[0], a, range, 0, 4)
+            bar3 = bar1
+
+            b = patterns[np.random.randint(len(patterns))]
+            bar2 = self._oxgame(keyProg[0], b, range, 0, 0)
+            bar4 = self._oxgame(keyProg[0], b, range, 2, 2)
+
+            melody = np.array([bar1, bar2, bar3, bar4] * 2).flatten()
+            key = np.append(keyProg[0:4], keyProg[0:4] , axis = 0)
+            chord = np.append(chordProg[0:4], chordProg[0:4], axis = 0)
+
+        elif len(keyProg) >= 2:
+            a = patterns[np.random.randint(len(patterns))]
+            b = patterns[np.random.randint(len(patterns))]
+            bar1 = self._oxgame(keyProg[0], a, range, 0, 4)
+            bar2 = self._oxgame(keyProg[0], b, range, 0, 0)
+
+            melody = np.array([bar1, bar2] * 4).flatten()
+            key = np.append(keyProg[0:2], keyProg[0:2] , axis = 0)
+            key = np.append(key, key , axis = 0)
+            chord = np.append(chordProg[0:2], chordProg[0:2], axis = 0)
+            chord = np.append(chord, chord, axis = 0)
+
+        return key, chord, melody
+
     #approachノート系
     def _threeNotesApproach(self, key, chord_idx, degree = np.random.randint(3)):
         u"""
@@ -221,7 +339,11 @@ class Methods:
                         [-3,-2,-1,0], \
                         [3,2,1,0], \
                         [1,0,1,0], \
-                        [-1,0,-1,0] \
+                        [-1,0,-1,0], \
+                        [-1,2,1,0], \
+                        [1,-2,-1,0], \
+                        [-2,-1,1,0], \
+                        [2,1,-1,0] \
                         ]
 
         melody = []

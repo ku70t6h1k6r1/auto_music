@@ -9,7 +9,7 @@ def a16beatToSec( bpm):
     return 60/bpm/4
 
 def toBytes(wave):
-    return (wave * float(2 ** 15 - 1)).astype(np.int16).tobytes()
+    return (wave * float(2 ** (32 - 1) ) ).astype(np.int32).tobytes()
 
 def add(wav_list, w_list):
     len_list = []
