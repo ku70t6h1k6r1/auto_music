@@ -3,14 +3,11 @@
     "name":"aaba",
     "args":["a", "b"]
     },
-  "mix": {
-    "name":"pattern1"
-    },
   "a":  {
       "ChordProgression":
           {
-            "name":"cherry",
-            "args":{"rotate": -1, "keyMm":[1,0], "chordDeg":[0,2]}
+            "name":"punk",
+            "args":{"is_Maj": true, "chord_per_1bar":2}
           },
 
         "ChordProgressionChild":
@@ -21,9 +18,9 @@
 
         "Melody":
           {
-            "name":"cherryA",
+            "name":"oxgame",
             "range":[72,84],
-            "args":{"reverce":true}
+            "args":{}
           },
 
         "Drums":
@@ -43,32 +40,32 @@
             {
               "name":"triad",
               "range":[48,72],
-              "args": {"subMethodName":"synchroniseBass"}
+              "args": {"subMethodName":"synchroniseKick"}
             },
             "Effects":
               {
                 "name":"accentRandom",
-                "args": {"temperature":{"melody":0.0005, "hihat":0.0005, "snare":0.0005, "kick":0.001}, "tryN":{"melody":1, "hihat":1, "snare":1, "kick":0}}
+                "args": {"temperature":{"melody":0.0005, "hihat":0.0005, "snare":0.0005, "kick":0.001}, "tryN":{"melody":1, "hihat":1, "snare":1, "kick":16}}
               }
     },
   "b":  {
-      "ChordProgression":
-          {
-            "name":"cherry",
-            "args":{"rotate": -1, "keyMm":[1,0], "chordDeg":[0,4]}
-          },
+        "ChordProgression":
+            {
+              "name":"cherry",
+              "args":{"rotate": -1, "keyMm":[0,1], "chordDeg":[0,4]}
+            },
 
         "ChordProgressionChild":
-            {
-              "name":"cherryB",
-              "args":{}
-            },
+        {
+          "name":"cherryB",
+          "args":{}
+        },
 
         "Melody":
           {
-            "name":"cherryB",
-            "range":[72,84],
-            "args":{"reverce":true}
+            "name":"oxgame",
+            "range":[66,78],
+            "args":{}
           },
 
         "Drums":
@@ -93,7 +90,7 @@
           "Effects":
             {
               "name":"accentRandom",
-              "args": {"temperature":{"melody":0.0005, "hihat":0.0005, "snare":0.0005, "kick":0.001}, "tryN":{"melody":1, "hihat":1, "snare":1, "kick":1}}
+              "args": {"temperature":{"melody":0.0005, "hihat":0.0005, "snare":0.0005, "kick":0.001}, "tryN":{"melody":1, "hihat":1, "snare":1, "kick":16}}
             }
     }
 }

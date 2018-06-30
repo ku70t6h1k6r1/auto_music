@@ -39,6 +39,7 @@ class Score:
         self.bassLine = None
         self.voiceProg = None
         self.drumObj = Drums() #Drumの中身どうしよう
+        self.effectsObj = Effects()
 
     def setKeyProg(self, keyProg):
         self.keyProg = keyProg
@@ -58,13 +59,45 @@ class Score:
     def setDrumObj(self, drumObj):
         self.drumObj = drumObj
 
-    def addScoreObj(self, scoreObj):
+    def setEffectsObj(self, effectsObj):
+        self.effectsObj = effectsObj
+
+    def _addScoreObj(self, scoreObj):#old
         self.keyProg  = self._appendPoly(self.keyProg, scoreObj.keyProg)
         self.chordProg  = self._appendPoly(self.chordProg, scoreObj.chordProg)
         self.melodyLine  = self._append(self.melodyLine, scoreObj.melodyLine)
         self.bassLine  = self._append(self.bassLine, scoreObj.bassLine)
         self.voiceProg  = self._appendPoly(self.voiceProg, scoreObj.voiceProg)
         self.drumObj._append(scoreObj.drumObj)
+        self.effectsObj._append(scoreObj.effectsObj)
+
+    def addScoreObj(self, scoreObj, useable_Part_list={'melodyLine':False, 'bassLine':False, 'voiceProg':False, 'drums':False}):
+        self.keyProg  = self._appendPoly(self.keyProg, scoreObj.keyProg)
+        self.chordProg  = self._appendPoly(self.chordProg, scoreObj.chordProg)
+
+        if not useable_Part_list['melodyLine']:
+            off_sounds = np.full(len(scoreObj.melodyLine), -1)
+            off_sounds[0] = -2
+            self.melodyLine  = self._append(self.melodyLine, off_sounds)
+        else:
+            self.melodyLine  = self._append(self.melodyLine, scoreObj.melodyLine)
+
+        if not useable_Part_list['bassLine']:
+            off_sounds = np.full(len(scoreObj.bassLine), -1)
+            off_sounds[0] = -2
+            self.bassLine  = self._append(self.bassLine, off_sounds)
+        else:
+            self.bassLine  = self._append(self.bassLine, scoreObj.bassLine)
+
+        if not useable_Part_list['voiceProg']:
+            off_sounds = np.full( (len(scoreObj.voiceProg[:,0]), 1), tuple([-1]*1) )
+            off_sounds[0,0] = -2
+            self.voiceProg  = self._appendPoly(self.voiceProg, off_sounds)
+        else:
+            self.voiceProg  = self._appendPoly(self.voiceProg, scoreObj.voiceProg)
+
+        self.drumObj._append(scoreObj.drumObj, useable_Part_list['drums'])
+        self.effectsObj._append(scoreObj.effectsObj)
 
     def _append(self, scoreProp, score):
         if scoreProp is None:
@@ -79,10 +112,12 @@ class Score:
             dif = len(scoreProp[0,:]) - len(score[0,:])
             if dif > 0 :
                 default = np.full( (len(score[:,0]), dif), tuple([-1]*dif ))
+                default[0,:] = [-2]*dif
                 score = np.append(score, default, axis = 1)
 
             elif dif < 0 :
                 default = np.full( (len(scoreProp[:,0]), -dif), tuple([-1]*-dif) )
+                default[0,:] = [-2]*-dif
                 scoreProp = np.append(scoreProp, default, axis = 1)
 
             return np.append(scoreProp, score, axis = 0)
@@ -117,12 +152,66 @@ class Drums:
         else:
             self.hihat = array
 
-    def _append(self, drumObj):
+    def _append(self, drumObj, is_useable):
         if self.kick is None and self.snare is None and self.hihat is None :
-            self.kick = drumObj.kick
-            self.snare= drumObj.snare
-            self.hihat = drumObj.hihat
+            off_sounds = np.full(len(drumObj.kick), -1)
+            off_sounds[0] = -2
+            self.kick = drumObj.kick if is_useable else off_sounds
+            self.snare= drumObj.snare if is_useable else off_sounds
+            self.hihat = drumObj.hihat if is_useable else off_sounds
         else:
-            self.kick = np.append(self.kick, drumObj.kick)
-            self.snare = np.append(self.snare, drumObj.snare)
-            self.hihat = np.append(self.hihat, drumObj.hihat)
+            off_sounds = np.full(len(drumObj.kick), -1)
+            off_sounds[0] = -2
+            self.kick = np.append(self.kick, drumObj.kick) if is_useable else np.append(self.kick, off_sounds)
+            self.snare = np.append(self.snare, drumObj.snare) if is_useable else np.append(self.snare, off_sounds)
+            self.hihat = np.append(self.hihat, drumObj.hihat) if is_useable else np.append(self.hihat, off_sounds) 
+
+class Effects:
+    def __init__(self):
+        self.pt1 = None
+        self.pt2 = None
+        self.pt3 = None
+        self.pt4 = None
+        #self._setInstrumentName()
+
+#    def _setInstrumentName(self):
+#        self.hihatName = "hihat"
+#        self.snareName = "snare"
+#        self.kickName = "kick"
+
+    def setPt1(self, array, is_default = False):
+        if is_default :
+            self.pt1  = array[0:notePerBar_n]
+        else:
+            self.pt1 = array
+
+    def setPt2(self, array, is_default = False):
+        if is_default :
+            self.pt2  = array[0:notePerBar_n]
+        else:
+            self.pt2 = array
+
+    def setPt3(self, array, is_default = False):
+        if is_default :
+            self.pt3  = array[0:notePerBar_n]
+        else:
+            self.pt3 = array
+
+    def setPt4(self, array, is_default = False):
+        if is_default :
+            self.pt4  = array[0:notePerBar_n]
+        else:
+            self.pt4 = array
+
+    def _append(self, effectsObj):
+        if self.pt1 is None and self.pt2 is None and self.pt3 is None and self.pt4 is None :
+            self.pt1 = effectsObj.pt1
+            self.pt2 = effectsObj.pt2
+            self.pt3 = effectsObj.pt3
+            self.pt4 = effectsObj.pt4
+
+        else:
+            self.pt1 = np.append(self.pt1, effectsObj.pt1)
+            self.pt2 = np.append(self.pt2, effectsObj.pt2)
+            self.pt3 = np.append(self.pt3, effectsObj.pt3)
+            self.pt4 = np.append(self.pt4, effectsObj.pt4)

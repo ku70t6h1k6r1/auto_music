@@ -1,0 +1,187 @@
+{
+  "form": {
+    "name":"piaabbi",
+    "args":["p","i","a", "b"]
+    },
+  "mix": {
+    "name":"demo20180702"
+    },
+  "p":  {
+        "ChordProgression":
+            {
+              "name":"punk",
+              "args":{"is_Maj": true, "chord_per_1bar":1}
+            },
+        "ChordProgressionChild":
+            {
+              "name":"none",
+              "args":{}
+            },
+
+          "Melody":
+            {
+              "name":"oxgame",
+              "range":[60,72],
+              "args":{}
+            },
+
+        "Drums":
+          {
+            "name":"random",
+            "args":{}
+          },
+
+        "Bass":
+          {
+            "name":"eightbeat",
+            "range":[28,60],
+            "args":{}
+          },
+
+          "VoiceProgression":
+            {
+              "name":"triad",
+              "range":[60,75],
+              "args": {"subMethodName":"synchroniseKick"}
+            },
+            "Effects":
+              {
+                "name":"accentRandom",
+                "args": {"temperature":{"melody":0.001, "hihat":0.001, "snare":0.001, "kick":0.001}, "tryN":{"melody":1, "hihat":1, "snare":0, "kick":1}}
+              }
+    },
+  "i":  {
+        "ChordProgression":
+            {
+              "name":"punk",
+              "args":{"is_Maj": true, "chord_per_1bar":1}
+            },
+        "ChordProgressionChild":
+            {
+              "name":"none",
+              "args":{}
+            },
+
+          "Melody":
+            {
+              "name":"oxgame",
+              "range":[60,72],
+              "args":{}
+            },
+
+        "Drums":
+          {
+            "name":"random",
+            "args":{}
+          },
+
+        "Bass":
+          {
+            "name":"eightbeat",
+            "range":[28,60],
+            "args":{}
+          },
+
+          "VoiceProgression":
+            {
+              "name":"triad",
+              "range":[60,75],
+              "args": {"subMethodName":"synchroniseKick"}
+            },
+            "Effects":
+              {
+                "name":"accentRandom",
+                "args": {"temperature":{"melody":0.0005, "hihat":0.0005, "snare":0.0005, "kick":0.001}, "tryN":{"melody":1, "hihat":1, "snare":0, "kick":2}}
+              }
+    },
+  "a":  {
+      "ChordProgression":
+          {
+            "name":"cherry",
+            "args":{"rotate": -1, "keyMm":[1,0], "chordDeg":[0,2]}
+          },
+
+        "ChordProgressionChild":
+            {
+              "name":"none",
+              "args":{}
+            },
+
+        "Melody":
+          {
+            "name":"oxgame",
+            "range":[60,72],
+            "args":{}
+          },
+
+        "Drums":
+          {
+            "name":"random",
+            "args":{}
+          },
+
+        "Bass":
+          {
+            "name":"kick",
+            "range":[28,60],
+            "args":{}
+          },
+
+          "VoiceProgression":
+            {
+              "name":"triad",
+              "range":[60,75],
+              "args": {"subMethodName":"synchroniseBass"}
+            },
+            "Effects":
+              {
+                "name":"accentRandom",
+                "args": {"temperature":{"melody":0.0005, "hihat":0.0005, "snare":0.0005, "kick":0.001}, "tryN":{"melody":1, "hihat":1, "snare":0, "kick":1}}
+              }
+    },
+  "b":  {
+      "ChordProgression":
+          {
+            "name":"cherry",
+            "args":{"rotate": -1, "keyMm":[0,1], "chordDeg":[0,6]}
+          },
+
+        "ChordProgressionChild":
+            {
+              "name":"none",
+              "args":{}
+            },
+
+          "Melody":
+            {
+              "name":"oxgame",
+              "range":[72,84],
+              "args":{}
+            },
+
+        "Drums":
+          {
+            "name":"random",
+            "args":{}
+          },
+
+        "Bass":
+          {
+            "name":"eightbeat",
+            "range":[28,60],
+            "args":{}
+          },
+
+        "VoiceProgression":
+          {
+            "name":"triad",
+            "range":[60,75],
+            "args": {"subMethodName":"synchroniseKick"}
+          },
+          "Effects":
+            {
+              "name":"accentRandom",
+              "args": {"temperature":{"melody":0.0001, "hihat":0.0005, "snare":0.0005, "kick":0.001}, "tryN":{"melody":3, "hihat":1, "snare":2, "kick":1}}
+            }
+    }
+}

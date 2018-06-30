@@ -1,0 +1,54 @@
+{
+  "form": {
+    "name":"a",
+    "args":["a"]
+    },
+    "mix": {
+      "name":"pattern1"
+      },
+  "a":  {
+      "ChordProgression":
+          {
+            "name":"cherry",
+            "args":{"rotate": -1, "keyMm":[1,0], "chordDeg":[0,6]}
+          },
+
+        "ChordProgressionChild":
+            {
+              "name":"none",
+              "args":{}
+            },
+
+        "Melody":
+          {
+            "name":"cherryA",
+            "range":[65,77],
+            "args":{"reverce":true}
+          },
+
+        "Drums":
+          {
+            "name":"random",
+            "args":{}
+          },
+
+        "Bass":
+          {
+            "name":"kick",
+            "range":[28,60],
+            "args":{}
+          },
+
+          "VoiceProgression":
+            {
+              "name":"triad",
+              "range":[53,72],
+              "args": {"subMethodName":"synchroniseBass"}
+            },
+            "Effects":
+              {
+                "name":"accentRandom",
+                "args": {"temperature":{"melody":0.0005, "hihat":0.0005, "snare":0.0005, "kick":0.001}, "tryN":{"melody":1, "hihat":1, "snare":1, "kick":16}}
+              }
+    }
+}

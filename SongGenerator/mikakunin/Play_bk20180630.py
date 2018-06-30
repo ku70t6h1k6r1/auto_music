@@ -38,23 +38,21 @@ class Play:
         self.score = self.scoreObj.load(self.scoreDir + self.scoreName + '.json')
 
     def setBpm(self, bpm):
-        #Score
         self.bpm = bpm
         self.bassObj = midiNotesToWave('bass',bpm = self.bpm)
         self.leadObj = midiNotesToWave('lead',bpm = self.bpm)
         self.lead2Obj = midiNotesToWave('lead2',bpm = self.bpm)
         self.voiceObj = midiNotesToWave('voice',bpm = self.bpm)
-        self.kickObj = midiNotesToWave('kick',bpm = self.bpm)
-        self.kick2Obj = midiNotesToWave_Sampler('kick',bpm = self.bpm)
+        #self.kickObj = midiNotesToWave('kick',bpm = self.bpm)
+        self.kickObj = midiNotesToWave_Sampler('kick',bpm = self.bpm)
+        self.kick2Obj = midiNotesToWave_Sampler('kick2',bpm = self.bpm)
         self.hihatObj = midiNotesToWave('hihat',bpm = self.bpm)
-        self.hihat2Obj = midiNotesToWave_Sampler('hihat',bpm = self.bpm)
-        self.snareObj = midiNotesToWave('snare',bpm = self.bpm)
-        self.snare2Obj = midiNotesToWave_Sampler('snare',bpm = self.bpm)
+        self.hihat2Obj = midiNotesToWave_Sampler('hihat2',bpm = self.bpm)
+        #self.snareObj = midiNotesToWave('snare',bpm = self.bpm)
+        self.snareObj = midiNotesToWave_Sampler('snare',bpm = self.bpm)
+        self.snare2Obj = midiNotesToWave_Sampler('snare2',bpm = self.bpm)
 
-        #Effects
         self.fx1Obj = midiNotesToWave_Sampler('fx1',bpm = self.bpm)
-        self.fx2Obj = midiNotesToWave_Sampler('fx2',bpm = self.bpm)
-        self.fx3Obj = midiNotesToWave_Sampler('fx3',bpm = self.bpm)
         self.fx4Obj = midiNotesToWave_Sampler('fx4',bpm = self.bpm)
 
     def execute(self, writeStream = True, fileOut = False):
@@ -70,10 +68,12 @@ class Play:
         bass = self.dist.hardClipping(bass,3)
         bass = self.comp.sigmoid(bass,3)
 
+        #voicing2 =  self.voice2Obj.convert(self.score.drumObj.kick)
         voicing =  self.voiceObj.convertPoly(self.score.voiceProg)
         voicing = self.dist.hardClipping(voicing,1)
+        bass = self.comp.sigmoid(bass,1)
 
-        kick = self.kickObj.convertPerc(self.score.drumObj.kick, 50)
+        kick = self.kickObj.convert(self.score.drumObj.kick) #convertPerc(50)
         kick = self.dist.hardClipping(kick,0.2)
         #kick = self.delay.delay(kick)
         kick = self.amp.maxStd(kick)
@@ -83,34 +83,34 @@ class Play:
         #snare =  self.snareObj.convertPerc(self.score.drumObj.snare, 40)
         #snare = self.dist.hardClipping(snare,0.1)
         #snare  = self.amp.maxStd(snare)
-        snare =  self.snareObj.convertPerc(self.score.drumObj.snare, 40)
+        snare =  self.snareObj.convert(self.score.drumObj.snare)
         snare2 =  self.snare2Obj.convert(self.score.drumObj.snare)
-
-        hihat =  self.hihatObj.convertPerc(self.score.drumObj.hihat, 800)
-        hihat2 =  self.hihat2Obj.convert(self.score.drumObj.hihat)
 
         fx1 = self.fx1Obj.convert(self.score.effectsObj.pt1)
         fx1 = self.dist.hardClipping(fx1,4)
         fx1 = self.delay.reverb(fx1, 0.8)
 
-        fx2 = self.fx2Obj.convert(self.score.effectsObj.pt2)
+        fx4 = self.fx4Obj.convert(self.score.effectsObj.pt4)
+        fx4 = self.dist.hardClipping(fx4,4)
+        fx4 = self.delay.reverb(fx4, 0.8)
 
-        fx3 = self.fx3Obj.convert(self.score.effectsObj.pt3)
-        fx3 = self.dist.hardClipping(fx3,4)
-        fx3 = self.delay.reverb(fx3, 0.8)
+        hihat =  self.hihatObj.convertPerc(self.score.drumObj.hihat, 800)
+        hihat2 =  self.hihat2Obj.convert(self.score.drumObj.hihat)
 
-        #fx4 = self.fx4Obj.convert(self.score.effectsObj.pt4)
+        drums = func.add([kick, kick2, fx1, snare, snare2, fx4, hihat, hihat2], [4.0 ,4.0 , 1.0, 1.0/2, 2.0, 1.0, 4.0, 4.0])
 
-        harm = func.add([bass, voicing, melody, melody2], [1.25, 1, 3, 0.8])
-
-        drums = func.add([kick, kick2, snare, snare2, hihat, hihat2], [2.0, 4.0, 1.0, 3.0, 1.0, 2.0])
+        #drums = self.amp.threeSigma(drums, 10)
+        #drums = self.dist.hardClipping(drums,0.4)
         drums = self.comp.sigmoid(drums,2)
+        #drums = self.amp.threeSigma(drums,10)
         drums = self.delay.reverb(drums, 0.3)
         drums = self.comp.sigmoid(drums,1)
+        #drums = self.vcf(drums, aSynthe.FilterName.bandpass, [1,800])
 
-        fx = func.add([fx1, fx2, fx3], [1.0, 1.0, 1.0])
+        #wave = drums
 
-        wave = func.add([harm, drums, fx], [2, 2.1, 1.7])
+        wave = func.add([drums, bass, voicing, melody, melody2], [30.0, 4.0, 5.0, 12, 3.5])
+
         wave_bin = func.toBytes(wave)
 
         if writeStream:
@@ -195,11 +195,11 @@ class midiNotesToWave:
 
         #最初無音から始まる対策
         if score[0] < 0:
-            list.append([-2.0,0.0])
+            list.append([-2.0,0.0]) #元々は[-1.0, 0.0]
 
         #self._notePerBar_nが前提
         for note in score:
-            if note != -1:
+            if note != -1: #-2:無音対策
                 list.append([func.midiNoteToHz(note), self._noteMinLen_sec])
             else:
                 list[-1][1] += self._noteMinLen_sec
@@ -212,28 +212,60 @@ class midiNotesToWave:
             wave = self.synthesizer.soundless(sec)
         return wave
 
+    #def _midiNoteToWave_sampler(self, sec):
+    #    if hz > -1 :
+    #        wave = self.self.sampler.setPitch(sec)
+    #    else :
+    #        wave = self.sampler.soundless(sec)
+    #    return wave
+
 class midiNotesToWave_Sampler:
     def __init__(self, instName, notePerBar_n = 16, bpm = 120):
         self._notePerBar_n = notePerBar_n
         self._bpm = bpm
         self._noteMinLen_sec = func.a16beatToSec(self._bpm)
 
-        if instName == 'kick':
-            self.sampler = samp.Synthesizer("C:/Users/hikari.kubota/Documents/GitHub/auto_music/SongGenerator/mikakunin/wav/sample/box_proc_20180628_174821.wav", samp.FilterName.lowpass, [100], [0.001, 0.02, 0.6, 0.02], 44100)
-        elif instName == 'snare':
-            self.sampler = samp.Synthesizer("C:/Users/hikari.kubota/Documents/GitHub/auto_music/SongGenerator/mikakunin/wav/sample/keyboard_proc_20180628_175123.wav", samp.FilterName.bandcut, [300,8000], [0.001, 0.02, 0.6, 0.02], 44100)
-        elif instName == 'hihat':
-            self.sampler = samp.Synthesizer("C:/Users/hikari.kubota/Documents/GitHub/auto_music/SongGenerator/mikakunin/wav/sample/eSkateBoard_proc_20180628_175042.wav", samp.FilterName.bandpass, [1600,8000], [0.001, 0.02, 0.1, 0.02], 44100)
-        #elif instName == 'snare3':
-        #    self.sampler = samp.Synthesizer("C:/Users/hikari.kubota/Documents/GitHub/auto_music/SongGenerator/mikakunin/wav/sample/rindarinda_proc_20180628_175248.wav", samp.FilterName.bandpass, [300,8000], [0.3, 0.02, 0.3, 0.02], 44100)
+        if instName == 'bass':
+            self.synthesizer = aSynthe.Synthesizer([aSynthe.Waveform.sine, aSynthe.Waveform.sine], [1.0, 0.1], [1.0, 2.0], aSynthe.FilterName.lowpass, [6000], [0.03, 0.02, 0.9, 0.01], 44100)
+        elif instName == 'lead':
+            #self.synthesizer = aSynthe.Synthesizer([aSynthe.Waveform.sawtooth, aSynthe.Waveform.square], [1.0, 0.8], [1.0, 1.02], aSynthe.FilterName.bandpass, [1000,12000], [0.05, 0.01, 0.4, 0.01], 44100)
+            self.synthesizer = aSynthe.Synthesizer([aSynthe.Waveform.sine, aSynthe.Waveform.square], [1.0, 0.8], [1.0, 1.02], aSynthe.FilterName.lowpass, [500], [0.01, 0.01, 0.1, 0.01], 44100)
+        elif instName == 'lead2':
+            self.synthesizer = aSynthe.Synthesizer([aSynthe.Waveform.sine, aSynthe.Waveform.square], [1.0, 0.8], [1.02, 1.02], aSynthe.FilterName.bandpass, [10000, 12000], [0.05, 0.01, 0.4, 0.01], 44100)
+            #self.synthesizer = aSynthe.Synthesizer([aSynthe.Waveform.sawtooth, aSynthe.Waveform.sine], [1.0, 0.8], [1.0, 1.02], aSynthe.FilterName.bandcut, [5000,12000], [0.03, 0.2, 0.1, 0.01], 44100)
+        #elif instName == 'voice':
+        #    self.synthesizer = aSynthe.Synthesizer([aSynthe.Waveform.sine, aSynthe.Waveform.sawtooth], [1.0, 0.05], [1.0, 0.01], aSynthe.FilterName.bandpass, [10,10000], [0.001, 0.02, 0.6, 0.2], 44100)
+        elif instName == 'voice':
+            self.synthesizer = aSynthe.Synthesizer([aSynthe.Waveform.sine, aSynthe.Waveform.square], [1.0, 0.8], [1.0, 2.02], aSynthe.FilterName.bandpass, [50,1200], [0.01, 0.1, 0.8, 0.1], 44100)
         elif instName == 'fx1':
             self.sampler = samp.Synthesizer("C:/Users/hikari.kubota/Documents/GitHub/auto_music/SongGenerator/mikakunin/wav/sample/venova_proc_20180628_175220.wav", samp.FilterName.bandpass, [10,8000], [0.3, 0.02, 0.8, 0.02], 44100)
-        elif instName == 'fx2':
-            self.sampler = samp.Synthesizer("C:/Users/hikari.kubota/Documents/GitHub/auto_music/SongGenerator/mikakunin/wav/sample/eSkateBoard_proc_20180628_175042.wav", samp.FilterName.bandpass, [1600,8000], [0.001, 0.02, 0.1, 0.02], 44100)
-        elif instName == 'fx3':
-            self.sampler = samp.Synthesizer("C:/Users/hikari.kubota/Documents/GitHub/auto_music/SongGenerator/mikakunin/wav/sample/rindarinda_proc_20180628_180349.wav", samp.FilterName.bandpass, [300,8000], [0.3, 0.02, 0.3, 0.02], 44100)
+        elif instName == 'kick':
+            self.sampler = samp.Synthesizer("C:/work/python/kick.wav", samp.FilterName.lowpass, [100], [0.001, 0.02, 0.6, 0.02], 44100)
+        elif instName == 'kick2':
+            self.sampler = samp.Synthesizer("C:/Users/hikari.kubota/Documents/GitHub/auto_music/SongGenerator/mikakunin/wav/sample/box_proc_20180628_174821.wav", samp.FilterName.lowpass, [100], [0.001, 0.02, 0.6, 0.02], 44100)
+        elif instName == 'snare':
+            self.sampler = samp.Synthesizer("C:/work/python/snare.wav", samp.FilterName.bandcut, [100,2000], [0.001, 0.02, 0.6, 0.02], 44100)
+            #self.synthesizer = aSynthe.Synthesizer([aSynthe.Waveform.whitenoise, aSynthe.Waveform.sawtooth], [1.0, 1.0], [1.0, 0.5], aSynthe.FilterName.bandcut, [500,20000], [0.0001, 0.02, 0.02, 0.1], 44100)
+        elif instName == 'snare2':
+            self.sampler = samp.Synthesizer("C:/Users/hikari.kubota/Documents/GitHub/auto_music/SongGenerator/mikakunin/wav/sample/keyboard_proc_20180628_175123.wav", samp.FilterName.bandcut, [300,8000], [0.001, 0.02, 0.6, 0.02], 44100)
+        elif instName == 'snare3':
+            self.sampler = samp.Synthesizer("C:/Users/hikari.kubota/Documents/GitHub/auto_music/SongGenerator/mikakunin/wav/sample/rindarinda_proc_20180628_175248.wav", samp.FilterName.bandpass, [300,8000], [0.3, 0.02, 0.3, 0.02], 44100)
         elif instName == 'fx4':
-            return None
+            self.sampler = samp.Synthesizer("C:/Users/hikari.kubota/Documents/GitHub/auto_music/SongGenerator/mikakunin/wav/sample/rindarinda_proc_20180628_180349.wav", samp.FilterName.bandpass, [300,8000], [0.3, 0.02, 0.3, 0.02], 44100)
+        elif instName == 'hihat':
+            self.synthesizer = aSynthe.Synthesizer([aSynthe.Waveform.whitenoise, aSynthe.Waveform.sawtooth], [1.0,0.2], [1.0,0.0], aSynthe.FilterName.bandpass, [8000,16000], [0.0001, 0.01, 0.001, 0.01], 44100)
+        elif instName == 'hihat2':
+            self.sampler = samp.Synthesizer("C:/Users/hikari.kubota/Documents/GitHub/auto_music/SongGenerator/mikakunin/wav/sample/eSkateBoard_proc_20180628_175042.wav", samp.FilterName.bandpass, [1600,8000], [0.001, 0.02, 0.1, 0.02], 44100)
+
+
+
+    #def convertPerc(self, score):
+    #    list = self._midiNotesToHzAndSec(score)
+    #    wave = np.zeros(0)
+    #    for hz, sec in list:
+    #        wave = np.r_[wave, self._midiNoteToWave(sec)]
+
+    #    return wave
 
     def convertPoly(self, score):
 

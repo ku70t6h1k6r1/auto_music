@@ -13,18 +13,41 @@ class Section:
         self._setMethodName()
 
     def _setMethodName(self):
+        self.piaabbi = "piaabbi"
+        self.iaabbi = "iaabbi"
         self.aaba = "aaba"
         self.ab = "ab"
+        self.a = "a"
 
     def create(self, methodName):
         if methodName == self.aaba:
             return self._methodObject.aaba()
         elif methodName == self.ab:
             return self._methodObject.ab()
+        elif methodName == self.a:
+            return self._methodObject.a()
+        elif methodName == self.iaabbi:
+            return self._methodObject.iaabbi()
+        elif methodName == self.piaabbi:
+            return self._methodObject.piaabbi()
+
 
 class Methods:
     def __init__(self):
         return None
+
+    def piaabbi(self):
+        p = cs.Score()
+        i = cs.Score()
+        a = cs.Score()
+        b = cs.Score()
+        return [p,i,a,a,b,b,i]
+
+    def iaabbi(self):
+        i = cs.Score()
+        a = cs.Score()
+        b = cs.Score()
+        return [i,a,a,b,b,i]
 
     def aaba(self):
         a = cs.Score()
@@ -36,6 +59,9 @@ class Methods:
         b = cs.Score()
         return  [a,b]
 
+    def a(self):
+        a = cs.Score()
+        return [a]
 
 if __name__ == '__main__':
     song = Methods()

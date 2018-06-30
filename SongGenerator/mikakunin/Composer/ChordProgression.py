@@ -184,6 +184,10 @@ class Methods:
         elif chord_per_1bar  == 2:
             return [[prog[0], prog[1]], [prog[2], prog[3]]]
 
+    def gimmeARadio(self, is_Maj = True):
+        #if is_Maj:    
+        return None
+
 class SubMethods:
     def cherryIntro(self, keyProgression, chordProgression):
         """

@@ -7,7 +7,7 @@
       "ChordProgression":
           {
             "name":"punk",
-            "args":{"is_Maj": false, "chord_per_1bar":1}
+            "args":{"is_Maj": true, "chord_per_1bar":2}
           },
 
         "ChordProgressionChild":

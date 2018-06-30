@@ -42,7 +42,13 @@ class Oscillator(object):
             return scipy.signal.square(phases)
         elif self._waveform is Waveform.whitenoise:
             wn = np.random.normal(0, 1, size=len(phases))
-            wn = wn / max(np.absolute(wn))
+            threshold = 1.96
+            for idx, val in enumerate(wn):
+                if val > threshold:
+                    wn[idx] = threshold
+                elif -val >  threshold:
+                    wn[idx] = -threshold
+            wn = wn / max(np.absolute(wn)) if max(np.absolute(wn)) > 0 else wn
             return wn
         raise TypeError("unknown waveform: {}".format(self._waveform))
 
@@ -149,10 +155,69 @@ class VCO(object):
 
 class Amp(object):
     def maxStd(self, wave):
-        return wave /max(abs(wave))
+        #print(max(wave /max(abs(wave))))
+        return wave /max(abs(wave)) if  max(abs(wave)) > 0 else wave
 
-#class Distortion(object):
+    def threeSigma(self, wave, gain):
+        absMax = np.mean(wave) + gain*1.0 * np.std(wave)
+        for idx, val in enumerate(wave):
+            if val > absMax:
+                wave[idx] = absMax
+            elif val <  -absMax:
+                wave[idx] = -absMax
 
+        wave = wave /max(abs(wave)) if max(abs(wave)) > 0 else wave
+        return wave
+
+
+
+#Effector類は基本、bufごとでは使わない。
+class Compressor(object):
+    def sigmoid(self, wave, gain):
+        wave = wave*gain*0.5 /max(abs(wave)) if max(abs(wave)) > 0 else wave
+        wave = np.tanh(wave)
+        return  wave /max(abs(wave)) if max(abs(wave)) > 0 else wave
+
+class Distortion(object):
+    def hardClipping(self, wave, gain): #
+        threshold = np.mean(wave) +  0.5/gain * 3.0 * np.std(wave)
+        for idx, val in enumerate(wave):
+            if val > threshold:
+                wave[idx] = threshold
+            elif -val >  threshold:
+                wave[idx] = -threshold
+        return wave /max(abs(wave))  if max(abs(wave)) > 0 else wave
+
+class Delay(object):
+    def reverb(self, wave, depth):
+        delay = int(0.01 * 44100)
+        wave_output = wave
+
+        n = 0.0
+        while depth**n > 0.00001:
+            sirence = np.array([0]* delay * int(n) )
+            wave_output = wave_output + np.r_[sirence, wave[0:int(len(wave)-delay * n)]*(depth**n) ]
+            n += 1.0
+
+        wave_output = wave_output/max(abs(wave_output)) if max(abs(wave_output)) > 0 else wave_output
+        return wave_output
+
+    def delay(self, data,frame=1500,amp=0.2,repeat=100):
+        out = []
+        amp_list = [amp ** i for i in range(repeat+1)]
+
+        for i in range(len(data)):
+            # y(i)を適宜計算
+            d = 0
+            for j in range(repeat + 1):
+                index = i - frame * j # delay元となるindexを計算
+                if index >= 0:
+                    d += data[index] * amp_list[j]
+                    #d *= 0.7 # 加算しているので適宜クリッピング
+            out.append(d) # y(i)をlistに格納
+
+        out = np.array(out)/max(abs(np.array(out))) if max(abs(np.array(out))) > 0 else np.array(out)
+        return np.array(out)
 
 class Synthesizer():
     def __init__(self, waveform, volume, freqtranspose, filterName ,frequency ,adsr, rate):
@@ -186,7 +251,7 @@ class Synthesizer():
         return np.zeros(int(length * self._rate), dtype = 'float')
 
     def toBytes(self, wave):
-        return (wave * float(2 ** 8 - 1)).astype(np.int24).tobytes()
+        return (wave * float(2 ** (16 - 1) ) ).astype(np.int16).tobytes()
 
 if __name__ == '__main__' :
     audio  = pyaudio.PyAudio()
@@ -195,12 +260,14 @@ if __name__ == '__main__' :
                                 rate=44100,
                                 output=True)
 
+
+
     #SNARE?
     #synthesizer = Synthesizer([Waveform.whitenoise, Waveform.square], [1.0, 0.8], [1.0, 1.0], FilterName.lowpass, [3000], [0.001, 0.02, 0.0001, 0.1], 44100)
     #wave = synthesizer.setPitch(150,2)
 
     #KICK?
-    #synthesizer = Synthesizer([Waveform.whitenoise, Waveform.square], [1.0, 0.8], [1.0, 1.0], FilterName.lowpass, [1000], [0.001, 0.02, 0.0001, 0.1], 44100)
+    synthesizer = Synthesizer([Waveform.whitenoise, Waveform.square], [1.0, 0.8], [1.0, 1.0], FilterName.lowpass, [1000], [0.001, 0.02, 0.0001, 0.1], 44100)
     #wave = synthesizer.setPitch(100,2)
 
     #HAT?
@@ -208,14 +275,19 @@ if __name__ == '__main__' :
     #wave = synthesizer.setPitch(100,2)
 
     #Synthe
-    #synthesizer = Synthesizer([Waveform.sine, Waveform.sawtooth], [1.0, 0.2], [1.0, 1.005], FilterName.bandpass, [500,5000], [0.01, 0.02, 0.6, 0.2], 44100)
+    #synthesizer = Synthesizer([Waveform.sine, Waveform.sine], [1.0, 0.2], [1.0, 1.005], FilterName.bandpass, [500,5000], [0.01, 0.02, 0.9, 0.2], 44100)
 
     #Bass
-    synthesizer = Synthesizer([Waveform.sine, Waveform.sine], [1.0, 0.1], [1.0, 1.09], FilterName.bandpass, [2,2000], [0.01, 0.02, 0.6, 0.2], 44100)
+    #synthesizer = Synthesizer([Waveform.sine, Waveform.sine], [1.0, 0.1], [1.0, 1.09], FilterName.bandpass, [2,2000], [0.01, 0.02, 0.6, 0.2], 44100)
 
 
-    for i in range(10):
-        wave = synthesizer.setPitch(50,1)
+    import time
 
-
-    o.write(synthesizer.toBytes(wave))
+    for i in range(2):
+        wave = synthesizer.setPitch(100,2)
+        dist = Distortion()
+        delay = Delay()
+        wave = dist.hardClipping(wave,2)
+        wave = delay.delay(wave)
+        o.write(synthesizer.toBytes(wave))
+        time.sleep(0.1)

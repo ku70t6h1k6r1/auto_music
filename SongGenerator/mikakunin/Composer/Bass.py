@@ -48,8 +48,9 @@ class Methods:
         for bar, chords in enumerate(chordProg):
             for beat, chord in enumerate(chords):
                 #issue1
-                bassLine[int(bar*self._notePerBar_n + beat*self._notePerBar_n/4*2) : int((bar+1)*self._notePerBar_n)] \
-                = np.full( int(self._notePerBar_n/(beat+1) ) , self._chordIdx.getTonesFromIdx(chord)[0])
+                #bassLine[int(bar*self._notePerBar_n + beat*self._notePerBar_n/4*2) : int((bar+1)*self._notePerBar_n)] \
+                #= np.full( int(self._notePerBar_n/(beat+1) ) , self._chordIdx.getTonesFromIdx(chord)[0])
+                bassLine[int(bar*self._notePerBar_n + beat*self._notePerBar_n/4*2) : int((bar+1)*self._notePerBar_n)] = [self._chordIdx.getTonesFromIdx(chord)[0],-1] * int(8 / (beat + 1))
 
         for beat, note in enumerate(bassLine):
             if note > -1:
