@@ -13,6 +13,7 @@ class Section:
         self._setMethodName()
 
     def _setMethodName(self):
+        self.ppaabbi = "ppaabbi"
         self.piaabbi = "piaabbi"
         self.iaabbi = "iaabbi"
         self.aaba = "aaba"
@@ -30,11 +31,19 @@ class Section:
             return self._methodObject.iaabbi()
         elif methodName == self.piaabbi:
             return self._methodObject.piaabbi()
-
+        elif methodName == self.ppaabbi:
+            return self._methodObject.ppaabbi()
 
 class Methods:
     def __init__(self):
         return None
+
+    def ppaabbi(self):
+        p = cs.Score()
+        i = cs.Score()
+        a = cs.Score()
+        b = cs.Score()
+        return [p,p,a,a,b,b,i]
 
     def piaabbi(self):
         p = cs.Score()

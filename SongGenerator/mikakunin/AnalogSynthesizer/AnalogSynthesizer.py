@@ -219,6 +219,16 @@ class Delay(object):
         out = np.array(out)/max(abs(np.array(out))) if max(abs(np.array(out))) > 0 else np.array(out)
         return np.array(out)
 
+class VolumeController():
+    def ending(self, wave, len_sec):
+        len_frame = int(len_sec *  44100)
+        step = 3.0/len_frame
+        x = np.arange(0, 3, step)
+        x = x[::-1]
+        curve = np.tanh(x)
+        wave[-len(curve):len(wave)] = wave[-len(curve):len(wave)] * curve
+        return wave
+
 class Synthesizer():
     def __init__(self, waveform, volume, freqtranspose, filterName ,frequency ,adsr, rate):
         self._waveform = waveform #[seine, saw]
@@ -261,13 +271,14 @@ if __name__ == '__main__' :
                                 output=True)
 
 
-
+    volObj = VolumeController()
+    volObj.ending([2],2)
     #SNARE?
     #synthesizer = Synthesizer([Waveform.whitenoise, Waveform.square], [1.0, 0.8], [1.0, 1.0], FilterName.lowpass, [3000], [0.001, 0.02, 0.0001, 0.1], 44100)
     #wave = synthesizer.setPitch(150,2)
 
     #KICK?
-    synthesizer = Synthesizer([Waveform.whitenoise, Waveform.square], [1.0, 0.8], [1.0, 1.0], FilterName.lowpass, [1000], [0.001, 0.02, 0.0001, 0.1], 44100)
+    #synthesizer = Synthesizer([Waveform.whitenoise, Waveform.square], [1.0, 0.8], [1.0, 1.0], FilterName.lowpass, [1000], [0.001, 0.02, 0.0001, 0.1], 44100)
     #wave = synthesizer.setPitch(100,2)
 
     #HAT?
@@ -281,13 +292,13 @@ if __name__ == '__main__' :
     #synthesizer = Synthesizer([Waveform.sine, Waveform.sine], [1.0, 0.1], [1.0, 1.09], FilterName.bandpass, [2,2000], [0.01, 0.02, 0.6, 0.2], 44100)
 
 
-    import time
+    #import time
 
-    for i in range(2):
-        wave = synthesizer.setPitch(100,2)
-        dist = Distortion()
-        delay = Delay()
-        wave = dist.hardClipping(wave,2)
-        wave = delay.delay(wave)
-        o.write(synthesizer.toBytes(wave))
-        time.sleep(0.1)
+    #for i in range(2):
+    #    wave = synthesizer.setPitch(100,2)
+    #    dist = Distortion()
+    #    delay = Delay()
+    #    wave = dist.hardClipping(wave,2)
+    #    wave = delay.delay(wave)
+    #    o.write(synthesizer.toBytes(wave))
+    #    time.sleep(0.1)

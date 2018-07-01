@@ -25,7 +25,7 @@ class Methods:
         return None
 
     def default(self, section):
-        all_on = {'melodyLine':True, 'bassLine':True, 'voiceProg':True, 'drums':False}
+        all_on = {'melodyLine':True, 'bassLine':True, 'voiceProg':True, 'drums':False, 'effects':True}
         output = []
         for num in section:
             output.append(all_on)
@@ -33,28 +33,28 @@ class Methods:
         return output
 
     def demo20180702(self, section):
-        all_on = {'melodyLine':True, 'bassLine':True, 'voiceProg':True, 'drums':True}
+        all_on = {'melodyLine':True, 'bassLine':True, 'voiceProg':True, 'drums':True, 'effects':True}
         output = []
         for num in section:
             output.append(all_on)
 
         if len(section) > 3:
-            output[0] = {'melodyLine':False, 'bassLine':False, 'voiceProg':False, 'drums':False}
-            output[1] = {'melodyLine':False, 'bassLine':False, 'voiceProg':False, 'drums':True}
-            output[2] = {'melodyLine':True, 'bassLine':True, 'voiceProg':True, 'drums':True}
-            output[3] = {'melodyLine':False, 'bassLine':True, 'voiceProg':False, 'drums':True}
-            output[-1] = {'melodyLine':False, 'bassLine':False, 'voiceProg':True, 'drums':True}
+            output[0] = {'melodyLine':False, 'bassLine':False, 'voiceProg':False, 'drums':False, 'effects':True}
+            output[1] = {'melodyLine':False, 'bassLine':False, 'voiceProg':False, 'drums':True, 'effects':True}
+            output[2] = {'melodyLine':True, 'bassLine':True, 'voiceProg':True, 'drums':True, 'effects':False}
+            output[3] = {'melodyLine':False, 'bassLine':True, 'voiceProg':False, 'drums':True, 'effects':True}
+            output[-1] = {'melodyLine':False, 'bassLine':False, 'voiceProg':True, 'drums':True, 'effects':True}
         return output
 
     def pattern1(self, section):
-        all_on = {'melodyLine':True, 'bassLine':True, 'voiceProg':True, 'drums':True}
+        all_on = {'melodyLine':True, 'bassLine':True, 'voiceProg':True, 'drums':True, 'effects':True}
         output = []
         for num in section:
             output.append(all_on)
 
         if len(section) > 3:
-            output[0] = {'melodyLine':False, 'bassLine':False, 'voiceProg':False, 'drums':True}
-            output[1] = {'melodyLine':True, 'bassLine':True, 'voiceProg':True, 'drums':True}
-            output[2] = {'melodyLine':True, 'bassLine':True, 'voiceProg':False, 'drums':True}
-            output[-1] = {'melodyLine':False, 'bassLine':False, 'voiceProg':True, 'drums':True}
+            output[0] = {'melodyLine':False, 'bassLine':False, 'voiceProg':False, 'drums':True, 'effects':True}
+            output[1] = {'melodyLine':True, 'bassLine':True, 'voiceProg':True, 'drums':True, 'effects':True}
+            output[2] = {'melodyLine':True, 'bassLine':True, 'voiceProg':False, 'drums':True, 'effects':True}
+            output[-1] = {'melodyLine':False, 'bassLine':False, 'voiceProg':True, 'drums':True, 'effects':True}
         return output

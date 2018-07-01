@@ -21,6 +21,7 @@ class ChordProgression:
     def _setChangeName(self):
         self.cherry = "cherry" # >0bars
         self.punk = "punk" # >0bars
+        self.radioIntro = "radioIntro" # >0bars
 
     def _setChildChangeName(self):
         self.cherryIntro = "cherryIntro" # >4bars
@@ -44,6 +45,11 @@ class ChordProgression:
             scoreObj.setKeyProg(chords[0])
             scoreObj.setChordProg(chords[1])
             #def punkRockChanges(self, is_Maj = True , chord_per_1bar = 1):
+
+        elif changeName == self.radioIntro:
+            chords = self._methodsObject.gimmeARadioIntro(arg['is_Maj'], arg['reptation'])
+            scoreObj.setKeyProg(chords[0])
+            scoreObj.setChordProg(chords[1])
 
     def update(self, scoreObj, changeName): #, keyProgression, chordProgression):
         if changeName  == self.cherryIntro:
@@ -184,9 +190,16 @@ class Methods:
         elif chord_per_1bar  == 2:
             return [[prog[0], prog[1]], [prog[2], prog[3]]]
 
-    def gimmeARadio(self, is_Maj = True):
-        #if is_Maj:    
-        return None
+    def gimmeARadioIntro(self, is_Maj = True, rep = 2):
+        if is_Maj:
+            keyProg = [[0,0]] *  4 * rep #とりあえず4小節を一単位
+            idx = (self._majorDiatonicChords[4] + 5*len(self._chordSymbols)) % (len(self._chordSymbols)*len(self._rootSymbols))
+            chordsProg = [[idx]]  * 4 * rep
+        else:
+            keyProg = [[0,1]] *  4 * rep  #とりあえず4小節を一単位
+            idx = (self._minorDiatonicChords[4] + 5*len(self._chordSymbols)) % (len(self._chordSymbols)*len(self._rootSymbols))
+            chordsProg = [[idx]]  * 4 * rep
+        return np.array(keyProg), np.array(chordsProg)
 
 class SubMethods:
     def cherryIntro(self, keyProgression, chordProgression):

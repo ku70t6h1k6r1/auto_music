@@ -31,7 +31,7 @@ class Play:
         self.delay = aSynthe.Delay()
         self.comp = aSynthe.Compressor()
         self.dist = aSynthe.Distortion()
-
+        self.volCtrl = aSynthe.VolumeController()
 
     def setScore(self, name):
         self.scoreName = name
@@ -102,6 +102,7 @@ class Play:
         #fx4 = self.fx4Obj.convert(self.score.effectsObj.pt4)
 
         harm = func.add([bass, voicing, melody, melody2], [1.25, 1, 3, 0.8])
+        harm  = self.volCtrl.ending(harm , 15)
 
         drums = func.add([kick, kick2, snare, snare2, hihat, hihat2], [2.0, 4.0, 1.0, 3.0, 1.0, 2.0])
         drums = self.comp.sigmoid(drums,2)
