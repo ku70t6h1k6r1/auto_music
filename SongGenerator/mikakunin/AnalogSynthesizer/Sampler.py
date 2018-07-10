@@ -62,13 +62,13 @@ class VCF(object):
 
     def _wave_func(self, wave):
 
-        if FilterName.bandpass == self._filterName :
+        if self._filterName == "bandpass" :
             b = self._bandPass(self._frequency)
-        elif FilterName.bandcut == self._filterName :
+        elif self._filterName == "bandcut" :
             b = self._bandCut(self._frequency)
-        elif FilterName.lowpass == self._filterName :
+        elif self._filterName == "lowpass" :
             b = self._lowPass(self._frequency[0])
-        elif FilterName.highpass == self._filterName :
+        elif self._filterName == "highpass" :
             b = self._highPass(self._frequency[0])
         else:
             b = None

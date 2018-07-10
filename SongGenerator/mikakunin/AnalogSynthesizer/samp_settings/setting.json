@@ -1,0 +1,44 @@
+{
+  "fx1":{
+    "freqFilterName":"bandpass",
+    "freqFilterRange":[10,8000],
+    "adsr": [0.3, 0.02, 0.8, 0.02],
+    "rate":44100
+  },
+  "fx2":{
+    "freqFilterName":"bandpass",
+    "frequenceFilter":[1600,8000],
+    "adsr":[0.001, 0.02, 0.1, 0.02],
+    "rate":44100
+  },
+  "fx3":{
+    "freqFilterName":"bandpass",
+    "frequenceFilter":[300,8000],
+    "adsr":[0.3, 0.02, 0.3, 0.02],
+    "rate":44100
+  },
+  "fx4":{
+    "freqFilterName":"lowpass",
+    "frequenceFilter":[7000],
+    "adsr":[0.01, 0.2, 0.8, 0.1],
+    "rate":44100
+  },
+  "kick":{
+    "freqFilterName":"lowpass",
+    "frequenceFilter":[100],
+    "adsr":[0.001, 0.02, 0.6, 0.02],
+    "rate":44100
+  },
+  "snare":{
+    "freqFilterName":"bandcut",
+    "frequenceFilter":[300,8000],
+    "adsr":[0.001, 0.02, 0.6, 0.02],
+    "rate":44100
+  },
+  "hihat":{
+    "freqFilterName":"bandpass",
+    "frequenceFilter":[1600,8000],
+    "adsr":[0.001, 0.02, 0.1, 0.02],
+    "rate":44100
+  }
+}

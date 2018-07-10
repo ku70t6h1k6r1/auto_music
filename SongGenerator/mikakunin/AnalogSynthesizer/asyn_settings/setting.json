@@ -1,0 +1,65 @@
+{
+  "bass":{
+    "waveForm":["sine", "sawtooth"],
+    "volume":[1.0, 0.2],
+    "transpose":[1.0, 1.0],
+    "freqFilterName":"lowpass",
+    "freqFilterRange":[5000],
+    "adsr":[0.0, 0.05, 0.8, 0.01],
+    "rate":44100
+  },
+  "lead":{
+    "waveForm":["sawtooth", "sawtooth"],
+    "volume":[1.0, 1.5],
+    "transpose":[1.0, 0.02],
+    "freqFilterName":"lowpass",
+    "frequenceFilter":[4000],
+    "adsr":[0.1, 0.1, 0.05, 0.01],
+    "rate":44100
+  },
+  "lead2":{
+    "waveForm":["sine", "whitenoise"],
+    "volume":[1.0, 0.2],
+    "transpose":[1.01, 0.75],
+    "freqFilterName":"bandcut",
+    "frequenceFilter":[10, 10000],
+    "adsr":[0.01, 0.1, 0.05, 0.01],
+    "rate":44100
+  },
+  "voice":{
+    "waveForm":["sine", "sawtooth"],
+    "volume":[1.0, 0.8],
+    "transpose":[1.0, 1.0],
+    "freqFilterName":"lowpass",
+    "frequenceFilter":[7000],
+    "adsr":[0.01, 0.2, 0.8, 0.1],
+    "rate":44100
+  },
+  "kick":{
+    "waveForm":["whitenoise", "sawtooth"],
+    "volume":[0.8, 0.8],
+    "transpose":[1.0, 0.0],
+    "freqFilterName":"lowpass",
+    "frequenceFilter":[60],
+    "adsr":[0.0, 0.04, 0.2 ,0.1],
+    "rate":44100
+  },
+  "snare":{
+    "waveForm":["whitenoise", "sawtooth"],
+    "volume":[1.0, 1.0],
+    "transpose":[1.0, 0.5],
+    "freqFilterName":"bandcut",
+    "frequenceFilter":[500, 20000],
+    "adsr":[0.0001, 0.02, 0.02, 0.1],
+    "rate":44100
+  },
+  "hihat":{
+    "waveForm":["whitenoise", "sawtooth"],
+    "volume":[1.0, 0.2],
+    "transpose":[1.0, 0.0],
+    "freqFilterName":"bandcut",
+    "frequenceFilter":[10,16000],
+    "adsr":[0.0001, 0.01, 0.001, 0.01],
+    "rate":44100
+  }
+}

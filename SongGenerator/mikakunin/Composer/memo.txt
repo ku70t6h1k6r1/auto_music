@@ -5,13 +5,12 @@
   楽譜は基本Cで作って最後の最後で転調
   Set系は _~Setにする。
 
-・作曲プロセス
-　コード→メロディ→アクセント→（ドラム）
 
 ・score系データ
   最小単位（notePerBar_n）をindexに
   np.array型
   -1はHOLD
+  -2は消音
 
 ・コード進行形
 　コードはMaxで1小節2コード　→ issue1
@@ -30,4 +29,12 @@
 ・create今後は可変引数に
 https://note.nkmk.me/python-argument-expand/
 
-・長さそろわない問題
+・長さそろわない問題→？
+
+To Do
+・pyaudio廃止、ないしは隔離。
+・KEY設定
+・各モデルの名前、引数をjson
+・CherryBの長くなり過ぎちゃう対策
+・メロデイリズムパターン制覇
+・各エフェクターの有効範囲を調整、確認

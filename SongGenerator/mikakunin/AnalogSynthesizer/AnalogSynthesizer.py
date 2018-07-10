@@ -3,12 +3,17 @@
 import numpy as np
 
 #option
-import pygame
 import pyaudio
 import wave as wv
 import struct
 import scipy.signal
+import math
 from enum import Enum
+
+"""
+TODO:
+エフェクターっぽいのは消す。Effector.pyに移行。
+"""
 
 class Waveform(Enum):
     sine = "sine"
@@ -34,13 +39,13 @@ class Oscillator(object):
 
     #@property
     def _wave_func(self,phases):
-        if self._waveform is Waveform.sine:
+        if self._waveform == "sine":
             return np.sin(phases)
-        elif self._waveform is Waveform.sawtooth:
+        elif self._waveform == "sawtooth":
             return scipy.signal.sawtooth(phases)
-        elif self._waveform is Waveform.square:
+        elif self._waveform == "square":
             return scipy.signal.square(phases)
-        elif self._waveform is Waveform.whitenoise:
+        elif self._waveform == "whitenoise":
             wn = np.random.normal(0, 1, size=len(phases))
             threshold = 1.96
             for idx, val in enumerate(wn):
@@ -50,6 +55,9 @@ class Oscillator(object):
                     wn[idx] = -threshold
             wn = wn / max(np.absolute(wn)) if max(np.absolute(wn)) > 0 else wn
             return wn
+        elif self._waveform == "sine_kick":
+            return np.sin(phases)
+
         raise TypeError("unknown waveform: {}".format(self._waveform))
 
     def generate_wave(self, phases):
@@ -105,15 +113,18 @@ class VCF(object):
     def _bandCut(self, frequency):
         return scipy.signal.firwin(self._numtaps, frequency)
 
+    def _variabeFreq(self, frequency):
+        return None
+
     def _wave_func(self, wave):
 
-        if FilterName.bandpass == self._filterName :
+        if "bandpass" == self._filterName :
             b = self._bandPass(self._frequency)
-        elif FilterName.bandcut == self._filterName :
+        elif "bandcut" == self._filterName :
             b = self._bandCut(self._frequency)
-        elif FilterName.lowpass == self._filterName :
+        elif "lowpass" == self._filterName :
             b = self._lowPass(self._frequency[0])
-        elif FilterName.highpass == self._filterName :
+        elif "highpass" == self._filterName :
             b = self._highPass(self._frequency[0])
         else:
             b = None
@@ -150,8 +161,52 @@ class VCO(object):
         return wave
 
     def generate_constant_wave(self, frequency, length):
-        phases = np.cumsum(2.0 * np.pi * frequency / self._rate * np.ones(int(self._rate * float(length))))
-        return self._generate_wave(phases)
+        if isinstance(frequency, list):
+            phases = self.gererate_shifted_wave(frequency, length)
+            return phases
+
+        else :
+            phases = np.cumsum(2.0 * np.pi * frequency / self._rate * np.ones(int(self._rate * float(length))))
+            return self._generate_wave(phases)
+
+    def gererate_shifted_wave(self, frequency, length):
+        """
+        e^(-5) ≒ 0
+        クリッピングしてる。
+        """
+        if frequency[0] > frequency[1] :
+            freq_list = np.arange(frequency[0] , frequency[1], -1)
+            len_list =  []
+            for freq in freq_list :
+                freq_proc = (freq - frequency[1]) / abs(frequency[0] - frequency[1])
+                len_list.append(math.exp(-5 * freq_proc))
+
+            len_list = np.array(len_list)
+            len_list = len_list * length / np.sum(len_list)
+
+            phases_pre = []
+            for idx, freq in enumerate(freq_list):
+                phases_pre.extend( 2.0 * np.pi * freq / self._rate * np.ones(int(self._rate * float(len_list[idx]))) )
+
+            phases = np.cumsum(phases_pre)
+            return self._generate_wave(phases)
+
+        elif frequency[0] < frequency[1] :
+            freq_list = np.arange(frequency[0] , frequency[1], 1)
+            len_list =  []
+            for freq in freq_list :
+                freq_proc = (freq - frequency[0]) / abs(frequency[0] - frequency[1])
+                len_list.append(math.exp( freq_proc - 5 ))
+
+            len_list = np.array(len_list)
+            len_list = len_list * length / np.sum(len_list)
+
+            phases_pre = []
+            for idx, freq in enumerate(freq_list):
+                phases_pre.extend( 2.0 * np.pi * freq / self._rate * np.ones(int(self._rate * float(len_list[idx]))) )
+
+            phases = np.cumsum(phases_pre)
+            return self._generate_wave(phases)
 
 class Amp(object):
     def maxStd(self, wave):
@@ -172,6 +227,7 @@ class Amp(object):
 
 
 #Effector類は基本、bufごとでは使わない。
+#廃止予定。
 class Compressor(object):
     def sigmoid(self, wave, gain):
         wave = wave*gain*0.5 /max(abs(wave)) if max(abs(wave)) > 0 else wave
@@ -229,6 +285,104 @@ class VolumeController():
         wave[-len(curve):len(wave)] = wave[-len(curve):len(wave)] * curve
         return wave
 
+    def sidechain(self, wave, sec_list_ctrl):
+        bank = 5.0 #3～
+        curve = np.full(0, 0.0)
+        for hz, len_sec in sec_list_ctrl:
+            len_frame = int(len_sec *  44100)
+            if len_frame > 0:
+                step = bank/len_frame
+                x = np.arange(0, bank, step)
+                curve = np.r_[curve, np.tanh(x)]
+        if len(curve) < len(wave):
+            fix = np.zeros(len(wave) - len(curve))
+            curve = np.r_[curve, fix]
+        elif len(curve) > len(wave):
+            curve = curve[0:len(wave)]
+
+        return wave * curve
+
+class Tremolo():
+    '''
+    参考：http://ism1000ch.hatenablog.com/
+    member
+        depth : 変調深度
+        freq  : 変調周波数[hz]
+        rate  : サンプリングレート[hz]
+        n     : 現在フレーム
+    '''
+
+    def am(self, data, depth=0.2, freq=2, rate=44100):
+        self.depth = depth
+        self.freq  = freq
+        self.rate  = rate
+        self.n     = 0
+
+        vfunc = np.vectorize(self.effect)
+        return vfunc(data)
+
+    def effect(self,d):
+        d = d * (1.0 + self.depth * np.sin(self.n * ( 2 * np.pi * self.freq / self.rate)))
+        self.n += 1
+        return d
+
+
+class Vibrato():
+    '''
+    参考：http://ism1000ch.hatenablog.com/
+    member
+        depth : 変調具合[frame]
+        freq  : 変調周波数[hz]
+        rate  : サンプリングレート[hz]
+        n     : 現在フレーム[frame]
+    '''
+
+    def sine(self, data, depth=1, freq=1, rate=44100):
+        self.n = 0
+        self.depth = int(rate * depth / 1000) # input:[ms]
+        self.freq  = freq
+        self.rate  = rate
+
+        # 時間軸をゆがめる
+        frames = self.calc_frames(np.arange(data.size))
+
+        # 対応するシグナルを線形補完する
+        data = self.calc_signal(frames,data)
+        return data
+
+    # 時間軸をゆがめる. N(n)の計算
+    # input  : 時間軸[ 0,   1,   2, 3,..]
+    # output : 時間軸[ 0, 0.5, 2.5, 3,..]
+    def calc_frames(self,frames):
+        vfunc = np.vectorize(self.calc_frame)
+        return vfunc(frames)
+        #return frames
+
+    def calc_frame(self,n):
+        # n = n ~ n + 2*depth
+        n = n + self.depth * (1 + np.sin(self.n * (2 * np.pi * self.freq / self.rate)))
+        self.n += 1
+        return n
+
+    # N(n)を与え，線形補完してy(n)を計算
+    def calc_signal(self,frames,data):
+        # frames: N(n)のリスト
+        # framesのlimit番目以降に対し処理を行う
+        limit = self.depth * 2
+
+        #indexオーバー対策
+        frames_int = np.array(frames, dtype = 'int')
+        frameList = np.where(frames_int < len(data)-2)
+
+        calc_data = [self.calc_interp(frame,data) for frame in frames[limit:np.max(frameList)]]
+        calc_data = np.hstack([data[:limit],calc_data])
+        return np.array(calc_data)
+
+    def calc_interp(self,frame,data):
+        x = int(np.floor(frame))
+        d = np.interp(frame,[x,x+1],data[x:x+2]) #indexオーバーする可能性アリ
+        return d
+
 class Synthesizer():
     def __init__(self, waveform, volume, freqtranspose, filterName ,frequency ,adsr, rate):
         self._waveform = waveform #[seine, saw]
@@ -247,7 +401,6 @@ class Synthesizer():
         self._vcf = VCF(self._filterName, self._frequency, self._rate)
         self._vca = VCA(self._adsr[0], self._adsr[1], self._adsr[2], self._adsr[3], self._rate)
         self._amp = Amp()
-
 
     def setPitch(self, frequency, length):
         buf = self._vco.generate_constant_wave(frequency, length) #length is sec
@@ -271,8 +424,10 @@ if __name__ == '__main__' :
                                 output=True)
 
 
-    volObj = VolumeController()
-    volObj.ending([2],2)
+    vcoObj = VCO('sine', 1, False, 44100)
+    wave = vcoObj.gererate_shifted_wave([100,10], 1)
+    wave_bin = (wave * float(2 ** (16 - 1) ) ).astype(np.int16).tobytes()
+    o.write(wave_bin)
     #SNARE?
     #synthesizer = Synthesizer([Waveform.whitenoise, Waveform.square], [1.0, 0.8], [1.0, 1.0], FilterName.lowpass, [3000], [0.001, 0.02, 0.0001, 0.1], 44100)
     #wave = synthesizer.setPitch(150,2)

@@ -3,28 +3,33 @@ import numpy as np
 from Composer import Score as sc
 from AnalogSynthesizer import AnalogSynthesizer as aSynthe
 from AnalogSynthesizer import Sampler as samp
+from AnalogSynthesizer import Effector  as fxPSs
+
 from common import function as func
 import pyaudio
 import wave as wv
 from datetime import datetime
 import argparse
+import json
 
 class Play:
     def __init__(self):
         #Objects
         self.scoreObj = sc.Score()
+        self.fxObj = fxPSs.Effector()
         self.audio  = pyaudio.PyAudio()
 
         #Output Format
         self.format = pyaudio.paInt32
         self.sampwidth = 4 #formatが16だと2
-        self.channels = 1
+        self.channels = 2
         self.rate = 44100
         self.o = self.audio.open(format=self.format, channels=self.channels, rate=self.rate, output=True)
 
         #Dirs
         self.scoreDir = './Composer/score/'
         self.outputDir = './wav/'
+        self.settingsDir = './AnalogSynthesizer/settings/'
 
         #Effecters
         self.amp = aSynthe.Amp()
@@ -32,86 +37,150 @@ class Play:
         self.comp = aSynthe.Compressor()
         self.dist = aSynthe.Distortion()
         self.volCtrl = aSynthe.VolumeController()
+        self.vib = aSynthe.Vibrato()
+        self.tre = aSynthe.Tremolo()
 
     def setScore(self, name):
         self.scoreName = name
         self.score = self.scoreObj.load(self.scoreDir + self.scoreName + '.json')
 
+    def setAudioParameters(self, name):
+        self.settingName = name
+        self.setting = json.load(open(self.settingsDir + self.settingName + '.json', 'r'))
+        self.setting_asyn = self.setting['AnalogSynthesizer']
+        self.setting_samp = self.setting['Sampler']
+        self.setting_preset = self.setting['Preset']
+        self.volume = self.setting['Volume']
+
     def setBpm(self, bpm):
-        #Score
         self.bpm = bpm
-        self.bassObj = midiNotesToWave('bass',bpm = self.bpm)
-        self.leadObj = midiNotesToWave('lead',bpm = self.bpm)
-        self.lead2Obj = midiNotesToWave('lead2',bpm = self.bpm)
-        self.voiceObj = midiNotesToWave('voice',bpm = self.bpm)
-        self.kickObj = midiNotesToWave('kick',bpm = self.bpm)
-        self.kick2Obj = midiNotesToWave_Sampler('kick',bpm = self.bpm)
-        self.hihatObj = midiNotesToWave('hihat',bpm = self.bpm)
-        self.hihat2Obj = midiNotesToWave_Sampler('hihat',bpm = self.bpm)
-        self.snareObj = midiNotesToWave('snare',bpm = self.bpm)
-        self.snare2Obj = midiNotesToWave_Sampler('snare',bpm = self.bpm)
+
+        #Score
+        self.bassObj = midiNotesToWave(self.setting_asyn["bass"], bpm = self.bpm)
+        self.bass2Obj = midiNotesToWave(self.setting_asyn["bass2"], bpm = self.bpm)
+        self.leadObj = midiNotesToWave(self.setting_asyn["lead"], bpm = self.bpm)
+        self.lead2Obj = midiNotesToWave(self.setting_asyn["lead2"], bpm = self.bpm)
+        self.voiceObj = midiNotesToWave(self.setting_asyn["voice"], bpm = self.bpm)
+        self.voice2Obj = midiNotesToWave(self.setting_asyn["voice2"], bpm = self.bpm)
+        self.kickObj = midiNotesToWave(self.setting_asyn["kick"], bpm = self.bpm)
+        self.kick2Obj = midiNotesToWave_Sampler(self.setting_samp["kick"], bpm = self.bpm)
+        self.hihatObj = midiNotesToWave(self.setting_asyn["hihat"], bpm = self.bpm)
+        self.hihat2Obj = midiNotesToWave_Sampler(self.setting_samp["hihat"],bpm = self.bpm)
+        self.snareObj = midiNotesToWave(self.setting_asyn["snare"], bpm = self.bpm)
+        self.snare2Obj = midiNotesToWave_Sampler(self.setting_samp["snare"], bpm = self.bpm)
+
+        #FxPreset
+        self.fxObj.setBpm(bpm)
 
         #Effects
-        self.fx1Obj = midiNotesToWave_Sampler('fx1',bpm = self.bpm)
-        self.fx2Obj = midiNotesToWave_Sampler('fx2',bpm = self.bpm)
-        self.fx3Obj = midiNotesToWave_Sampler('fx3',bpm = self.bpm)
-        self.fx4Obj = midiNotesToWave_Sampler('fx4',bpm = self.bpm)
+        self.fx1Obj = midiNotesToWave_Sampler(self.setting_samp["fx1"], bpm = self.bpm)
+        self.fx2Obj = midiNotesToWave_Sampler(self.setting_samp["fx2"], bpm = self.bpm)
+        self.fx3Obj = midiNotesToWave_Sampler(self.setting_samp["fx3"], bpm = self.bpm)
+        self.fx4Obj = midiNotesToWave_Sampler(self.setting_samp["fx4"], bpm = self.bpm)
 
     def execute(self, writeStream = True, fileOut = False):
-        melody = self.leadObj.convert(self.score.melodyLine)
-        melody = self.dist.hardClipping(melody,10)
-        melody = self.comp.sigmoid(melody,1)
-        melody = self.delay.reverb(melody, 0.9)
 
-        melody2 = self.lead2Obj.convert(self.score.melodyLine)
-        melody2 = self.dist.hardClipping(melody2,9)
+        #melody
+        melody_hz, melody = self.leadObj.convert(self.score.melodyLine)
+        melody = self.fxObj.Set(melody, self.setting_preset["lead"]["presetName"], **self.setting_preset["lead"]["presetArgs"])
 
-        bass =  self.bassObj.convert(self.score.bassLine)
-        bass = self.dist.hardClipping(bass,3)
-        bass = self.comp.sigmoid(bass,3)
+        #melody2
+        melody2_hz, melody2 = self.lead2Obj.convert(self.score.melodyLine)
+        melody2 = self.fxObj.Set(melody2, self.setting_preset["lead2"]["presetName"], **self.setting_preset["lead2"]["presetArgs"])
 
-        voicing =  self.voiceObj.convertPoly(self.score.voiceProg)
-        voicing = self.dist.hardClipping(voicing,1)
+        #bass
+        bass_hz, bass =  self.bassObj.convert(self.score.bassLine)
+        bass = self.fxObj.Set(bass, self.setting_preset["bass"]["presetName"], **self.setting_preset["bass"]["presetArgs"])
 
-        kick = self.kickObj.convertPerc(self.score.drumObj.kick, 50)
-        kick = self.dist.hardClipping(kick,0.2)
-        #kick = self.delay.delay(kick)
-        kick = self.amp.maxStd(kick)
-        #kick = self.comp.sigmoid(kick,5)
-        kick2 = self.kick2Obj.convert(self.score.drumObj.kick)
+        #bass2
+        bass2_hz, bass2 =  self.bass2Obj.convert(self.score.bassLine)
+        bass2 = self.fxObj.Set(bass2, self.setting_preset["bass2"]["presetName"], **self.setting_preset["bass2"]["presetArgs"])
 
-        #snare =  self.snareObj.convertPerc(self.score.drumObj.snare, 40)
-        #snare = self.dist.hardClipping(snare,0.1)
-        #snare  = self.amp.maxStd(snare)
-        snare =  self.snareObj.convertPerc(self.score.drumObj.snare, 40)
-        snare2 =  self.snare2Obj.convert(self.score.drumObj.snare)
+        #voicing
+        voicing_hz, voicing =  self.voiceObj.convertPoly(self.score.voiceProg)
+        voicing = self.fxObj.Set(voicing, self.setting_preset["voice"]["presetName"], **self.setting_preset["voice"]["presetArgs"])
 
-        hihat =  self.hihatObj.convertPerc(self.score.drumObj.hihat, 800)
-        hihat2 =  self.hihat2Obj.convert(self.score.drumObj.hihat)
+        #voicing2
+        voicing2_hz, voicing2 =  self.voice2Obj.convertPoly(self.score.voiceProg)
+        voicing2 = self.fxObj.Set(voicing2, self.setting_preset["voice2"]["presetName"], **self.setting_preset["voice2"]["presetArgs"])
 
-        fx1 = self.fx1Obj.convert(self.score.effectsObj.pt1)
-        fx1 = self.dist.hardClipping(fx1,4)
-        fx1 = self.delay.reverb(fx1, 0.8)
+        #kick
+        kick_hz, kick = self.kickObj.convertPerc(self.score.drumObj.kick, self.setting_asyn["kick"]["constHz"])
+        kick = self.fxObj.Set(kick, self.setting_preset["kick"]["presetName"], **self.setting_preset["kick"]["presetArgs"])
 
-        fx2 = self.fx2Obj.convert(self.score.effectsObj.pt2)
+        bass = self.volCtrl.sidechain(bass, kick_hz)
 
-        fx3 = self.fx3Obj.convert(self.score.effectsObj.pt3)
-        fx3 = self.dist.hardClipping(fx3,4)
-        fx3 = self.delay.reverb(fx3, 0.8)
+        #Kick2
+        kick2_hz, kick2 = self.kick2Obj.convert(self.score.drumObj.kick)
+        kick2 = self.fxObj.Set(kick2, self.setting_preset["kick2"]["presetName"], **self.setting_preset["kick2"]["presetArgs"])
 
-        #fx4 = self.fx4Obj.convert(self.score.effectsObj.pt4)
+        #snare
+        snare_hz, snare =  self.snareObj.convertPerc(self.score.drumObj.snare, self.setting_asyn["snare"]["constHz"])
+        snare = self.fxObj.Set(snare, self.setting_preset["snare"]["presetName"], **self.setting_preset["snare"]["presetArgs"])
 
-        harm = func.add([bass, voicing, melody, melody2], [1.25, 1, 3, 0.8])
-        harm  = self.volCtrl.ending(harm , 15)
+        #snare2
+        snare2_hz, snare2 =  self.snare2Obj.convert(self.score.drumObj.snare)
+        snare2 = self.fxObj.Set(snare2, self.setting_preset["snare2"]["presetName"], **self.setting_preset["snare2"]["presetArgs"])
 
-        drums = func.add([kick, kick2, snare, snare2, hihat, hihat2], [2.0, 4.0, 1.0, 3.0, 1.0, 2.0])
-        drums = self.comp.sigmoid(drums,2)
-        drums = self.delay.reverb(drums, 0.3)
-        drums = self.comp.sigmoid(drums,1)
+        #hihat
+        hihat_hz, hihat =  self.hihatObj.convertPerc(self.score.drumObj.hihat, self.setting_asyn["hihat"]["constHz"])
+        hihat = self.fxObj.Set(hihat, self.setting_preset["hihat"]["presetName"], **self.setting_preset["hihat"]["presetArgs"])
 
-        fx = func.add([fx1, fx2, fx3], [1.0, 1.0, 1.0])
+        #hihat2
+        hihat2_hz, hihat2 =  self.hihat2Obj.convert(self.score.drumObj.hihat)
+        hihat2 = self.fxObj.Set(hihat2, self.setting_preset["hihat2"]["presetName"], **self.setting_preset["hihat2"]["presetArgs"])
 
-        wave = func.add([harm, drums, fx], [2, 2.1, 1.7])
+        #fx1
+        fx1_hz, fx1 = self.fx1Obj.convert(self.score.effectsObj.pt1)
+        fx1 = self.fxObj.Set(fx1, self.setting_preset["fx1"]["presetName"], **self.setting_preset["fx1"]["presetArgs"])
+
+        #fx2
+        fx2_hz, fx2 = self.fx2Obj.convert(self.score.effectsObj.pt2)
+        fx2 = self.fxObj.Set(fx1, self.setting_preset["fx2"]["presetName"], **self.setting_preset["fx2"]["presetArgs"])
+
+        #fx3
+        fx3_hz, fx3 = self.fx3Obj.convert(self.score.effectsObj.pt3)
+        fx3 = self.fxObj.Set(fx3, self.setting_preset["fx3"]["presetName"], **self.setting_preset["fx3"]["presetArgs"])
+
+        #fx4
+        fx4_hz, fx4 = self.fx4Obj.convert(self.score.effectsObj.pt4)
+        fx4 = self.fxObj.Set(fx4, self.setting_preset["fx4"]["presetName"], **self.setting_preset["fx4"]["presetArgs"])
+
+        #harm : merge
+        harm = func.add_stereo([bass, bass2, voicing, voicing2, melody, melody2], \
+            [   self.volume["harm"]["bass"],
+                self.volume["harm"]["bass2"],
+                self.volume["harm"]["voicing"],
+                self.volume["harm"]["voicing2"],
+                self.volume["harm"]["melody"],
+                self.volume["harm"]["melody2"]   ])
+        #harm  = self.volCtrl.ending(harm , 15)
+
+        #drums : merge
+        drums = func.add_stereo([kick, kick2, snare, snare2, hihat, hihat2], \
+            [   self.volume["drums"]["kick"],
+                self.volume["drums"]["kick2"],
+                self.volume["drums"]["snare"],
+                self.volume["drums"]["snare2"],
+                self.volume["drums"]["hihat"],
+                self.volume["drums"]["hihat2"]  ])
+        #drums  = self.volCtrl.ending(drums , 15)
+
+        #fx : merge
+        fx = func.add_stereo([fx1, fx2, fx3, fx4], \
+            [   self.volume["fx"]["fx1"],
+                self.volume["fx"]["fx2"],
+                self.volume["fx"]["fx3"],
+                self.volume["fx"]["fx4"]    ])
+        #fx = self.fxObj.Set(fx, "tremolo", **{"depth":2.0}) #もしかしたら利きすぎかもしれない
+
+        #all : merge
+        wave = func.add([harm, drums, fx], \
+            [   self.volume["master"]["harm"],
+                self.volume["master"]["drums"],
+                self.volume["master"]["fx"]    ])
+
+        #To Binary
         wave_bin = func.toBytes(wave)
 
         if writeStream:
@@ -130,32 +199,12 @@ class Play:
 
 
 class midiNotesToWave:
-    def __init__(self, instName, notePerBar_n = 16, bpm = 120):
+    def __init__(self, setting, notePerBar_n = 16, bpm = 120):
+        self.setting = setting
         self._notePerBar_n = notePerBar_n
         self._bpm = bpm
         self._noteMinLen_sec = func.a16beatToSec(self._bpm)
-
-        if instName == 'bass':
-            self.synthesizer = aSynthe.Synthesizer([aSynthe.Waveform.sine, aSynthe.Waveform.sawtooth], [1.0, 0.2], [1.0, 1.0], aSynthe.FilterName.lowpass, [5000], [0.0, 0.05, 0.8, 0.01], 44100)
-        elif instName == 'lead':
-            #self.synthesizer = aSynthe.Synthesizer([aSynthe.Waveform.sawtooth, aSynthe.Waveform.square], [1.0, 0.8], [1.0, 1.02], aSynthe.FilterName.bandpass, [1000,12000], [0.05, 0.01, 0.4, 0.01], 44100)
-            self.synthesizer = aSynthe.Synthesizer([aSynthe.Waveform.sawtooth, aSynthe.Waveform.sawtooth], [1.0, 1.5], [1.0, 0.02], aSynthe.FilterName.lowpass, [4000], [0.1, 0.1, 0.05, 0.01], 44100)
-        elif instName == 'lead2':
-            self.synthesizer = aSynthe.Synthesizer([aSynthe.Waveform.sine, aSynthe.Waveform.whitenoise], [1.0, 0.2], [1.01, 0.75], aSynthe.FilterName.bandcut, [10, 10000], [0.01, 0.1, 0.05, 0.01], 44100)
-            #self.synthesizer = aSynthe.Synthesizer([aSynthe.Waveform.sawtooth, aSynthe.Waveform.sine], [1.0, 0.8], [1.0, 1.02], aSynthe.FilterName.bandcut, [5000,12000], [0.03, 0.2, 0.1, 0.01], 44100)
-        #elif instName == 'voice':
-        #    self.synthesizer = aSynthe.Synthesizer([aSynthe.Waveform.sine, aSynthe.Waveform.sawtooth], [1.0, 0.05], [1.0, 0.01], aSynthe.FilterName.bandpass, [10,10000], [0.001, 0.02, 0.6, 0.2], 44100)
-        elif instName == 'voice':#2.1は音痴
-            #self.synthesizer = aSynthe.Synthesizer([aSynthe.Waveform.sine, aSynthe.Waveform.sine], [1.0, 0.8], [1.0, 1.001], aSynthe.FilterName.highpass, [100], [0.01, 0.2, 0.8, 0.1], 44100)割といい
-            self.synthesizer = aSynthe.Synthesizer([aSynthe.Waveform.sine, aSynthe.Waveform.sine], [1.0, 0.8], [1.0, 1.001], aSynthe.FilterName.bandcut, [20,200], [0.01, 0.2, 0.8, 0.1], 44100)
-        elif instName == 'kick':
-            self.synthesizer = aSynthe.Synthesizer([aSynthe.Waveform.whitenoise, aSynthe.Waveform.sawtooth], [0.8, 0.8], [1.0, 0.0], aSynthe.FilterName.lowpass, [60], [0.0, 0.04, 0.2 ,0.1], 44100)
-        elif instName == 'snare':
-            #self.sampler = samp.Synthesizer("C:/work/python/kick.wav", FilterName.highpass, [1000], [0.001, 0.02, 0.6, 0.02], 44100)
-            self.synthesizer = aSynthe.Synthesizer([aSynthe.Waveform.whitenoise, aSynthe.Waveform.sawtooth], [1.0, 1.0], [1.0, 0.5], aSynthe.FilterName.bandcut, [500,20000], [0.0001, 0.02, 0.02, 0.1], 44100)
-        elif instName == 'hihat':
-            self.synthesizer = aSynthe.Synthesizer([aSynthe.Waveform.whitenoise, aSynthe.Waveform.sawtooth], [1.0,0.2], [1.0,0.0], aSynthe.FilterName.bandcut, [10,16000], [0.0001, 0.01, 0.001, 0.01], 44100)
-
+        self.synthesizer = aSynthe.Synthesizer(self.setting["waveForm"], self.setting["volume"], self.setting["transpose"], self.setting["freqFilterName"], self.setting["freqFilterRange"], self.setting["adsr"], self.setting["rate"])
 
     def convertPerc(self, score, constHz):
         list = self._midiNotesToHzAndSec(score)
@@ -163,7 +212,7 @@ class midiNotesToWave:
         for hz, sec in list:
             wave = np.r_[wave, self._midiNoteToWave(constHz, sec)] if hz >= 0 else np.r_[wave, self._midiNoteToWave(hz, sec)]
 
-        return wave
+        return list, wave
 
     def convertPoly(self, score):
 
@@ -181,7 +230,7 @@ class midiNotesToWave:
                 else:
                     wave_sum += wave[0:len(wave_sum)]
 
-        return wave_sum/len(score[0,:])
+        return list, wave_sum/len(score[0,:])
 
     def convert(self, score):
         list = self._midiNotesToHzAndSec(score)
@@ -189,7 +238,7 @@ class midiNotesToWave:
         for hz, sec in list:
             wave = np.r_[wave, self._midiNoteToWave(hz, sec)]
 
-        return wave
+        return list, wave
 
     def _midiNotesToHzAndSec(self,score):
         list = []
@@ -207,34 +256,22 @@ class midiNotesToWave:
         return list
 
     def _midiNoteToWave(self, hz, sec):
-        if hz > 0 :
+        if isinstance(hz, list) :
+            wave = self.synthesizer.setPitch(hz,sec)
+        elif hz > 0 :
             wave = self.synthesizer.setPitch(hz,sec)
         else :
             wave = self.synthesizer.soundless(sec)
         return wave
 
 class midiNotesToWave_Sampler:
-    def __init__(self, instName, notePerBar_n = 16, bpm = 120):
+    def __init__(self, setting, notePerBar_n = 16, bpm = 120):
         self._notePerBar_n = notePerBar_n
         self._bpm = bpm
         self._noteMinLen_sec = func.a16beatToSec(self._bpm)
+        self.setting = setting
 
-        if instName == 'kick':
-            self.sampler = samp.Synthesizer("C:/Users/hikari.kubota/Documents/GitHub/auto_music/SongGenerator/mikakunin/wav/sample/box_proc_20180628_174821.wav", samp.FilterName.lowpass, [100], [0.001, 0.02, 0.6, 0.02], 44100)
-        elif instName == 'snare':
-            self.sampler = samp.Synthesizer("C:/Users/hikari.kubota/Documents/GitHub/auto_music/SongGenerator/mikakunin/wav/sample/keyboard_proc_20180628_175123.wav", samp.FilterName.bandcut, [300,8000], [0.001, 0.02, 0.6, 0.02], 44100)
-        elif instName == 'hihat':
-            self.sampler = samp.Synthesizer("C:/Users/hikari.kubota/Documents/GitHub/auto_music/SongGenerator/mikakunin/wav/sample/eSkateBoard_proc_20180628_175042.wav", samp.FilterName.bandpass, [1600,8000], [0.001, 0.02, 0.1, 0.02], 44100)
-        #elif instName == 'snare3':
-        #    self.sampler = samp.Synthesizer("C:/Users/hikari.kubota/Documents/GitHub/auto_music/SongGenerator/mikakunin/wav/sample/rindarinda_proc_20180628_175248.wav", samp.FilterName.bandpass, [300,8000], [0.3, 0.02, 0.3, 0.02], 44100)
-        elif instName == 'fx1':
-            self.sampler = samp.Synthesizer("C:/Users/hikari.kubota/Documents/GitHub/auto_music/SongGenerator/mikakunin/wav/sample/venova_proc_20180628_175220.wav", samp.FilterName.bandpass, [10,8000], [0.3, 0.02, 0.8, 0.02], 44100)
-        elif instName == 'fx2':
-            self.sampler = samp.Synthesizer("C:/Users/hikari.kubota/Documents/GitHub/auto_music/SongGenerator/mikakunin/wav/sample/eSkateBoard_proc_20180628_175042.wav", samp.FilterName.bandpass, [1600,8000], [0.001, 0.02, 0.1, 0.02], 44100)
-        elif instName == 'fx3':
-            self.sampler = samp.Synthesizer("C:/Users/hikari.kubota/Documents/GitHub/auto_music/SongGenerator/mikakunin/wav/sample/rindarinda_proc_20180628_180349.wav", samp.FilterName.bandpass, [300,8000], [0.3, 0.02, 0.3, 0.02], 44100)
-        elif instName == 'fx4':
-            return None
+        self.sampler = samp.Synthesizer(self.setting["file"], self.setting["freqFilterName"], self.setting["freqFilterRange"], self.setting["adsr"], self.setting["rate"])
 
     def convertPoly(self, score):
 
@@ -252,7 +289,7 @@ class midiNotesToWave_Sampler:
                 else:
                     wave_sum += wave[0:len(wave_sum)]
 
-        return wave_sum/len(score[0,:])
+        return list, wave_sum/len(score[0,:])
 
     def convert(self, score):
         list = self._midiNotesToHzAndSec(score)
@@ -260,7 +297,7 @@ class midiNotesToWave_Sampler:
         for hz, sec in list:
             wave = np.r_[wave, self._midiNoteToWave(hz, sec)]
 
-        return wave
+        return list, wave
 
     def _midiNotesToHzAndSec(self,score):
         list = []
@@ -284,19 +321,11 @@ class midiNotesToWave_Sampler:
             wave = self.sampler.soundless(sec)
         return wave
 
-#if __name__ == '__main__':
-    #from Composer import Melody as mel
-    #methods = mel.Methods()
-    #methods._maruBatsu()
-
-
-    #scoreObj = sc.Score()
-    #scoreObj.create('./Composer/settings/default.json')
-
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='MAKE SONG')
     parser.add_argument('-s', '--score', type=str, default='test')
+    parser.add_argument('-p', '--parameters', type=str, default='setting')
     parser.add_argument('-b', '--bpm', type=int, default=120)
     parser.add_argument('-fo', '--fileout', action='store_true')
     parser.add_argument('-ws', '--writestream', action='store_true')
@@ -304,5 +333,6 @@ if __name__ == '__main__':
     #play
     playObj = Play()
     playObj.setScore(args.score)
+    playObj.setAudioParameters(args.parameters)
     playObj.setBpm(args.bpm)
     playObj.execute(writeStream = args.writestream, fileOut = args.fileout)
