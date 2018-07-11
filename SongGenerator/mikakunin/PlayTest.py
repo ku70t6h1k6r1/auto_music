@@ -81,72 +81,73 @@ class Play:
     def execute(self, writeStream = True, fileOut = False):
 
         #melody
-        melody_hz, melody = self.leadObj.convert(self.score.melodyLine)
-        melody = self.fxObj.Set(melody, self.setting_preset["lead"]["presetName"], **self.setting_preset["lead"]["presetArgs"])
+        #melody_hz, melody = self.leadObj.convert(self.score.melodyLine)
+        #melody = self.fxObj.Set(melody, self.setting_preset["lead"]["presetName"], **self.setting_preset["lead"]["presetArgs"])
 
         #melody2
-        melody2_hz, melody2 = self.lead2Obj.convert(self.score.melodyLine)
-        melody2 = self.fxObj.Set(melody2, self.setting_preset["lead2"]["presetName"], **self.setting_preset["lead2"]["presetArgs"])
+        #melody2_hz, melody2 = self.lead2Obj.convert(self.score.melodyLine)
+        #melody2 = self.fxObj.Set(melody2, self.setting_preset["lead2"]["presetName"], **self.setting_preset["lead2"]["presetArgs"])
 
         #bass
         bass_hz, bass =  self.bassObj.convert(self.score.bassLine)
         bass = self.fxObj.Set(bass, self.setting_preset["bass"]["presetName"], **self.setting_preset["bass"]["presetArgs"])
 
         #bass2
-        bass2_hz, bass2 =  self.bass2Obj.convert(self.score.bassLine)
-        bass2 = self.fxObj.Set(bass2, self.setting_preset["bass2"]["presetName"], **self.setting_preset["bass2"]["presetArgs"])
+        #bass2_hz, bass2 =  self.bass2Obj.convert(self.score.bassLine)
+        #bass2 = self.fxObj.Set(bass2, self.setting_preset["bass2"]["presetName"], **self.setting_preset["bass2"]["presetArgs"])
 
         #voicing
-        voicing_hz, voicing =  self.voiceObj.convertPoly(self.score.voiceProg)
-        voicing = self.fxObj.Set(voicing, self.setting_preset["voice"]["presetName"], **self.setting_preset["voice"]["presetArgs"])
+        #voicing_hz, voicing =  self.voiceObj.convertPoly(self.score.voiceProg)
+        #voicing = self.fxObj.Set(voicing, self.setting_preset["voice"]["presetName"], **self.setting_preset["voice"]["presetArgs"])
 
         #voicing2
-        voicing2_hz, voicing2 =  self.voice2Obj.convertPoly(self.score.voiceProg)
-        voicing2 = self.fxObj.Set(voicing2, self.setting_preset["voice2"]["presetName"], **self.setting_preset["voice2"]["presetArgs"])
+        #voicing2_hz, voicing2 =  self.voice2Obj.convertPoly(self.score.voiceProg)
+        #voicing2 = self.fxObj.Set(voicing2, self.setting_preset["voice2"]["presetName"], **self.setting_preset["voice2"]["presetArgs"])
 
         #kick
         kick_hz, kick = self.kickObj.convertPerc(self.score.drumObj.kick, self.setting_asyn["kick"]["constHz"])
         kick = self.fxObj.Set(kick, self.setting_preset["kick"]["presetName"], **self.setting_preset["kick"]["presetArgs"])
 
-        bass = self.volCtrl.sidechain(bass, self.bpm, kick_hz)
+        #bass = self.volCtrl.sidechain(bass, self.bpm, kick_hz)
 
         #Kick2
-        kick2_hz, kick2 = self.kick2Obj.convert(self.score.drumObj.kick)
-        kick2 = self.fxObj.Set(kick2, self.setting_preset["kick2"]["presetName"], **self.setting_preset["kick2"]["presetArgs"])
+        #kick2_hz, kick2 = self.kick2Obj.convert(self.score.drumObj.kick)
+        #kick2 = self.fxObj.Set(kick2, self.setting_preset["kick2"]["presetName"], **self.setting_preset["kick2"]["presetArgs"])
 
         #snare
         snare_hz, snare =  self.snareObj.convertPerc(self.score.drumObj.snare, self.setting_asyn["snare"]["constHz"])
         snare = self.fxObj.Set(snare, self.setting_preset["snare"]["presetName"], **self.setting_preset["snare"]["presetArgs"])
 
         #snare2
-        snare2_hz, snare2 =  self.snare2Obj.convert(self.score.drumObj.snare)
-        snare2 = self.fxObj.Set(snare2, self.setting_preset["snare2"]["presetName"], **self.setting_preset["snare2"]["presetArgs"])
+        #snare2_hz, snare2 =  self.snare2Obj.convert(self.score.drumObj.snare)
+        #snare2 = self.fxObj.Set(snare2, self.setting_preset["snare2"]["presetName"], **self.setting_preset["snare2"]["presetArgs"])
 
         #hihat
         hihat_hz, hihat =  self.hihatObj.convertPerc(self.score.drumObj.hihat, self.setting_asyn["hihat"]["constHz"])
         hihat = self.fxObj.Set(hihat, self.setting_preset["hihat"]["presetName"], **self.setting_preset["hihat"]["presetArgs"])
 
         #hihat2
-        hihat2_hz, hihat2 =  self.hihat2Obj.convert(self.score.drumObj.hihat)
-        hihat2 = self.fxObj.Set(hihat2, self.setting_preset["hihat2"]["presetName"], **self.setting_preset["hihat2"]["presetArgs"])
+        #hihat2_hz, hihat2 =  self.hihat2Obj.convert(self.score.drumObj.hihat)
+        #hihat2 = self.fxObj.Set(hihat2, self.setting_preset["hihat2"]["presetName"], **self.setting_preset["hihat2"]["presetArgs"])
 
         #fx1
-        fx1_hz, fx1 = self.fx1Obj.convert(self.score.effectsObj.pt1)
-        fx1 = self.fxObj.Set(fx1, self.setting_preset["fx1"]["presetName"], **self.setting_preset["fx1"]["presetArgs"])
+        #fx1_hz, fx1 = self.fx1Obj.convert(self.score.effectsObj.pt1)
+        #fx1 = self.fxObj.Set(fx1, self.setting_preset["fx1"]["presetName"], **self.setting_preset["fx1"]["presetArgs"])
 
         #fx2
-        fx2_hz, fx2 = self.fx2Obj.convert(self.score.effectsObj.pt2)
-        fx2 = self.fxObj.Set(fx1, self.setting_preset["fx2"]["presetName"], **self.setting_preset["fx2"]["presetArgs"])
+        #fx2_hz, fx2 = self.fx2Obj.convert(self.score.effectsObj.pt2)
+        #fx2 = self.fxObj.Set(fx1, self.setting_preset["fx2"]["presetName"], **self.setting_preset["fx2"]["presetArgs"])
 
         #fx3
-        fx3_hz, fx3 = self.fx3Obj.convert(self.score.effectsObj.pt3)
-        fx3 = self.fxObj.Set(fx3, self.setting_preset["fx3"]["presetName"], **self.setting_preset["fx3"]["presetArgs"])
+        #fx3_hz, fx3 = self.fx3Obj.convert(self.score.effectsObj.pt3)
+        #fx3 = self.fxObj.Set(fx3, self.setting_preset["fx3"]["presetName"], **self.setting_preset["fx3"]["presetArgs"])
 
         #fx4
-        fx4_hz, fx4 = self.fx4Obj.convert(self.score.effectsObj.pt4)
-        fx4 = self.fxObj.Set(fx4, self.setting_preset["fx4"]["presetName"], **self.setting_preset["fx4"]["presetArgs"])
+        #fx4_hz, fx4 = self.fx4Obj.convert(self.score.effectsObj.pt4)
+        #fx4 = self.fxObj.Set(fx4, self.setting_preset["fx4"]["presetName"], **self.setting_preset["fx4"]["presetArgs"])
 
         #harm : merge
+        """
         harm = func.add_stereo([bass, bass2, voicing, voicing2, melody, melody2], \
             [   self.volume["harm"]["bass"],
                 self.volume["harm"]["bass2"],
@@ -155,8 +156,10 @@ class Play:
                 self.volume["harm"]["melody"],
                 self.volume["harm"]["melody2"]   ])
         #harm  = self.volCtrl.ending(harm , 15)
+        """
 
         #drums : merge
+        """
         drums = func.add_stereo([kick, kick2, snare, snare2, hihat, hihat2], \
             [   self.volume["drums"]["kick"],
                 self.volume["drums"]["kick2"],
@@ -165,20 +168,30 @@ class Play:
                 self.volume["drums"]["hihat"],
                 self.volume["drums"]["hihat2"]  ])
         #drums  = self.volCtrl.ending(drums , 15)
+        """
+        drums = func.add_stereo([kick, snare,  hihat], \
+            [   self.volume["drums"]["kick"],
+                self.volume["drums"]["snare"],
+                self.volume["drums"]["hihat"] ])
 
         #fx : merge
+        """
         fx = func.add_stereo([fx1, fx2, fx3, fx4], \
             [   self.volume["fx"]["fx1"],
                 self.volume["fx"]["fx2"],
                 self.volume["fx"]["fx3"],
                 self.volume["fx"]["fx4"]    ])
         #fx = self.fxObj.Set(fx, "tremolo", **{"depth":2.0}) #もしかしたら利きすぎかもしれない
+        """
 
         #all : merge
+        """
         wave = func.add([harm, drums, fx], \
             [   self.volume["master"]["harm"],
                 self.volume["master"]["drums"],
                 self.volume["master"]["fx"]    ])
+        """
+        wave = func.add([drums,bass],[1,1])
 
         #To Binary
         wave_bin = func.toBytes(wave)

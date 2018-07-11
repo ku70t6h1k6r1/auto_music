@@ -285,17 +285,24 @@ class VolumeController():
         wave[-len(curve):len(wave)] = wave[-len(curve):len(wave)] * curve
         return wave
 
-    def sidechain(self, wave, sec_list_ctrl):
-        bank = 5.0 #3～
+    def sidechain(self, wave, bpm, sec_list_ctrl):
+        max_frame  = int(60/bpm/4 *44100)
+        bank = 4.0 #3～
         curve = np.full(0, 0.0)
         for hz, len_sec in sec_list_ctrl:
             len_frame = int(len_sec *  44100)
-            if len_frame > 0:
+            if len_frame > 0 and len_frame <= max_frame :
                 step = bank/len_frame
-                x = np.arange(0, bank, step)
+                x = np.arange(2, bank, step)
                 curve = np.r_[curve, np.tanh(x)]
+            elif len_frame > max_frame :
+                step = bank/max_frame
+                x = np.arange(2, bank, step)
+                fix = np.full(len_frame - max_frame , 1.0)
+                curve = np.r_[curve, np.tanh(x)]
+
         if len(curve) < len(wave):
-            fix = np.zeros(len(wave) - len(curve))
+            fix = np.full((len(wave) - len(curve)), 1.0)
             curve = np.r_[curve, fix]
         elif len(curve) > len(wave):
             curve = curve[0:len(wave)]
@@ -350,6 +357,18 @@ class Vibrato():
         data = self.calc_signal(frames,data)
         return data
 
+    def random(self, data, depth=1, rate = 44100):
+        """
+        あんま意味ない
+        """
+        self.rate  = rate
+        self.depth = int(rate * depth / 1000)
+        frames = self.calc_random_frames(data)
+
+        # 対応するシグナルを線形補完する
+        data = self.calc_signal(frames, data)
+        return data
+
     # 時間軸をゆがめる. N(n)の計算
     # input  : 時間軸[ 0,   1,   2, 3,..]
     # output : 時間軸[ 0, 0.5, 2.5, 3,..]
@@ -382,6 +401,13 @@ class Vibrato():
         x = int(np.floor(frame))
         d = np.interp(frame,[x,x+1],data[x:x+2]) #indexオーバーする可能性アリ
         return d
+
+    def calc_random_frames(self, data):
+        frames = np.arange(len(data))
+        rand_float = 1/2 - np.random.rand(len(data))
+        frames = frames + rand_float
+        frames[-1] = len(frames) -1 #最後のやつは固定
+        return frames
 
 class Synthesizer():
     def __init__(self, waveform, volume, freqtranspose, filterName ,frequency ,adsr, rate):

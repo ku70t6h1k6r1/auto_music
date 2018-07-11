@@ -20,9 +20,13 @@ class Effector:
         self.trueBypass = "trueBypass"
         self.comp = "comp"
         self.dist = "dist"
+        self.dist2 = "dist2"
+        self.dist3 = "dist3"
         self.tremolo = "tremolo"
         self.flanger = "flanger"
         self.reverb = "reverb"
+        self.radio = "radio"
+        self.wahwah = "wahwah"
 
     def Set(self, wave, presetName, **arg):
         if presetName == self.trueBypass:
@@ -33,6 +37,12 @@ class Effector:
         elif presetName == self.dist:
             o = self._presetObject.Distortion(wave, arg["gain"], arg["depth"])
             return o
+        elif presetName == self.dist2:
+            o = self._presetObject.Distortion2(wave, arg["gain"], arg["depth"])
+            return o
+        elif presetName == self.dist3:
+            o = self._presetObject.Distortion3(wave, arg["gain"], arg["depth"])
+            return o
         elif presetName == self.tremolo:
             o = self._presetObject.Tremolo(wave, arg["depth"], self._bpm)
             return o
@@ -41,6 +51,13 @@ class Effector:
             return o
         elif presetName == self.reverb:
             o = self._presetObject.Reverb(wave, arg["delay"], arg["amp"], arg["depth"])
+            return o
+        elif presetName == self.radio:
+            o = self._presetObject.Radio(wave, arg["gain"])
+            return o
+        elif presetName == self.wahwah:
+            o = self._presetObject.Distortion(wave, 2, 0.6)
+            o = self._presetObject.Wahwah(wave)
             return o
 
 class Preset:
@@ -51,6 +68,22 @@ class Preset:
     def Distortion(self, wave, gain = 2, depth = 2):
         wave = Distortion.hardClipping(Distortion(), wave, gain)
         wave = Compressor.sigmoid(Compressor(), wave, depth)
+        return wave
+
+    def Distortion2(self, wave, gain = 3, depth = 0.5):
+        wave = Distortion.hardClipping(Distortion(), wave, gain)
+        wave = Compressor.sigmoid(Compressor(), wave, depth)
+        filter = Filter('highpass', [1000])
+        wave = Delay.reverb(Delay(), wave, 0.05, 0.6, 0.97)
+        wave = filter.processing(wave)
+        return wave
+
+    def Distortion3(self, wave, gain = 2, depth = 2):
+        wave = Distortion.hardClipping(Distortion(), wave, gain)
+        wave = Compressor.sigmoid(Compressor(), wave, depth)
+        #filter = Filter('bandpass', [10,10000])
+        wave = Delay.reverb(Delay(), wave, 0.01, 0.3, 0.5)
+        #wave = filter.processing(wave)
         return wave
 
     def Tremolo(self, wave, depth = 1, bpm = 120):
@@ -65,9 +98,32 @@ class Preset:
         wave = func.add([wave, wave_proc], [1.0, balance])
         return wave
 
-    def Reverb(self, wave, delay = 0.05, amp = 0.2, depth = 0.9):
+    def Reverb(self, wave, delay = 0.05, amp = 0.2, depth = 0.2):
         #wave = Delay.delay(Delay(), wave, 10000, 0.5, 1000)
         wave = Delay.reverb(Delay(), wave, delay, amp, depth)
+        return wave
+
+    def old_Radio(self, wave, gain = 1):
+        wave = Distortion.hardClipping(Distortion(), wave, gain)
+        wave = Vibrato.sine(Vibrato(), wave, depth=2.3, freq=0.7, rate=44100)
+        wave = Tremolo.am(Tremolo(), wave, depth=0.4, freq=3.0, rate=44100)
+        filter = Filter('bandpass', [20,6000])
+        wave = Delay.reverb(Delay(), wave, 0.05, 0.6, 0.82)
+        wave = filter.processing(wave)
+        return wave
+
+    def Radio(self, wave, gain = 1):
+        wave = Distortion.hardClipping(Distortion(), wave, gain)
+        wave = Vibrato.sine(Vibrato(), wave, depth=2.3, freq=0.7, rate=44100)
+        wave = Tremolo.am(Tremolo(), wave, depth=0.4, freq=3.0, rate=44100)
+        filter = Filter('bandpass', [100,9000])
+        wave = Delay.reverb(Delay(), wave, 0.05, 0.6, 0.82)
+        wave = filter.processing(wave)
+        return wave
+
+    def Wahwah(self, wave):
+        wave = Wahwah.sine(Wahwah(), wave)
+        wave = Delay.reverb(Delay(), wave, delay_s = 0.01, amp = 0.9, depth = 0.4)
         return wave
 
 class Compressor(object):
@@ -139,6 +195,44 @@ class Delay(object):
 
         out = np.array(out)/max(abs(np.array(out))) if max(abs(np.array(out))) > 0 else np.array(out)
         return np.array(out)
+
+class Wahwah():
+    def sine(self, wave, chunk = 0.01, ):
+        """
+        chunkの大きさは？ 0.01暗いが程よい
+        各種調整がむずい。
+        """
+        self.n = 0
+
+        chunk = int(chunk * 44100)
+        window_n =  int(len(wave) / chunk) #あまり分の処理。
+
+        # 時間軸をゆがめる
+        frames = self.calc_frames(np.arange(window_n))
+
+        o = np.zeros(0)
+        for n in range(window_n):
+            # 0 < frame < 2
+            low = 1 + frames[n] * 1000
+            high = low + 3500
+            filter = Filter('bandpass', [low,high])
+            wave_proc = wave[n*chunk:(n+1)*chunk]
+            wave_proc = filter.processing(wave_proc)
+            wave[n*chunk : n*chunk+len(wave_proc)] = wave_proc
+            #o = np.r_[o, wave_proc]
+
+        return wave
+
+    def calc_frames(self,frames):
+        vfunc = np.vectorize(self.calc_frame)
+        return vfunc(frames)
+        #return frames
+
+    def calc_frame(self,n):
+        # n = n ~ n + 2*depth
+        n =   (1 + np.sin(self.n * (2 * np.pi * 0.001 )))
+        self.n += 1
+        return n
 
 class VolumeController():
     """
@@ -233,6 +327,48 @@ class Vibrato():
         x = int(np.floor(frame))
         d = np.interp(frame,[x,x+1],data[x:x+2]) #indexオーバーする可能性アリ
         return d
+
+class Filter():
+    def __init__(self, filterName, frequency, rate = 44100):
+        self._rate = rate
+        self._nyq = self._rate / 2.0
+        self._numtaps = 255
+        self._filterName = filterName
+        self._frequency = np.array(frequency) / self._nyq #0-self._rate /2-1
+
+    def _lowPass(self, frequency):
+        return scipy.signal.firwin(self._numtaps, frequency) # Filter Func
+
+    def _highPass(self, frequency):
+        return scipy.signal.firwin(self._numtaps, frequency, pass_zero=False)
+
+    def _bandPass(self, frequency):
+        return scipy.signal.firwin(self._numtaps, frequency, pass_zero=False)
+
+    def _bandCut(self, frequency):
+        return scipy.signal.firwin(self._numtaps, frequency)
+
+    def _variabeFreq(self, frequency):
+        return None
+
+    def _wave_func(self, wave):
+
+        if "bandpass" == self._filterName :
+            b = self._bandPass(self._frequency)
+        elif "bandcut" == self._filterName :
+            b = self._bandCut(self._frequency)
+        elif "lowpass" == self._filterName :
+            b = self._lowPass(self._frequency[0])
+        elif "highpass" == self._filterName :
+            b = self._highPass(self._frequency[0])
+        else:
+            b = None
+
+        filtered_wave = scipy.signal.lfilter(b, 1, wave) #wave -1～1 多分マストではない
+        return filtered_wave
+
+    def processing(self, wave):
+        return self._wave_func(wave)
 
 if __name__ == '__main__':
     fxObj = Effector()
