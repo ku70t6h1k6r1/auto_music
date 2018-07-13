@@ -3,7 +3,6 @@
 import numpy as np
 
 #option
-import pyaudio
 import wave as wv
 import struct
 import scipy.signal
@@ -153,6 +152,7 @@ class Synthesizer():
         return (wave * float(2 ** (16 - 1) ) ).astype(np.int16).tobytes()
 
 if __name__ == '__main__' :
+    import pyaudio
     audio  = pyaudio.PyAudio()
     o = audio.open(format=audio.get_format_from_width(2),
                                 channels=1,

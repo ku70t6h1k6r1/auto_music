@@ -6,7 +6,6 @@ from AnalogSynthesizer import Sampler as samp
 from AnalogSynthesizer import Effector  as fxPSs
 
 from common import function as func
-import pyaudio
 import wave as wv
 from datetime import datetime
 import argparse
@@ -24,7 +23,7 @@ class Play:
         self.sampwidth = 4 #formatが16だと2
         self.channels = 2
         self.rate = 44100
-        self.o = self.audio.open(format=self.format, channels=self.channels, rate=self.rate, output=True)
+
 
         #Dirs
         self.scoreDir = './Composer/score/'
@@ -187,6 +186,8 @@ class Play:
         wave_bin = func.toBytes(wave)
 
         if writeStream:
+            import pyaudio
+            self.o = self.audio.open(format=self.format, channels=self.channels, rate=self.rate, output=True)
             self.o.write(wave_bin)
 
         if fileOut:
