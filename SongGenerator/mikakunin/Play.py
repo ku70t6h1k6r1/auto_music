@@ -109,6 +109,8 @@ class Play:
         kick = self.fxObj.Set(kick, self.setting_preset["kick"]["presetName"], **self.setting_preset["kick"]["presetArgs"])
 
         bass = self.volCtrl.sidechain(bass, self.bpm, kick_hz)
+        #voicing2 = self.volCtrl.sidechain(voicing2, self.bpm, kick_hz)
+        #melody = self.volCtrl.fourBeat(melody, self.bpm, 0.0, 2.0)
 
         #Kick2
         kick2_hz, kick2 = self.kick2Obj.convert(self.score.drumObj.kick)
@@ -155,6 +157,7 @@ class Play:
                 self.volume["harm"]["melody"],
                 self.volume["harm"]["melody2"]   ])
         #harm  = self.volCtrl.ending(harm , 15)
+        harm = self.volCtrl.fourBeat(harm, self.bpm, 0.0, 1.5)
 
         #drums : merge
         drums = func.add_stereo([kick, kick2, snare, snare2, hihat, hihat2], \

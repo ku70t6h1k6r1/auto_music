@@ -27,6 +27,7 @@ class Effector:
         self.reverb = "reverb"
         self.radio = "radio"
         self.wahwah = "wahwah"
+        self.tape = "tape"
 
     def Set(self, wave, presetName, **arg):
         if presetName == self.trueBypass:
@@ -59,6 +60,9 @@ class Effector:
             o = self._presetObject.Distortion(wave, 2, 0.6)
             o = self._presetObject.Wahwah(wave)
             return o
+        elif presetName == self.tape:
+            o = self._presetObject.Tape(wave)
+            return o
 
 class Preset:
     def Compressor(self, wave, depth = 2):
@@ -82,7 +86,8 @@ class Preset:
         wave = Distortion.hardClipping(Distortion(), wave, gain)
         wave = Compressor.sigmoid(Compressor(), wave, depth)
         #filter = Filter('bandpass', [10,10000])
-        wave = Delay.reverb(Delay(), wave, 0.01, 0.3, 0.5)
+        wave = Delay.reverb(Delay(), wave, 0.01, 0.3, 0.3)
+        wave = Tremolo.am(Tremolo(), wave, depth=1, freq=5.0, rate=44100)
         #wave = filter.processing(wave)
         return wave
 
@@ -114,16 +119,24 @@ class Preset:
 
     def Radio(self, wave, gain = 1):
         wave = Distortion.hardClipping(Distortion(), wave, gain)
-        wave = Vibrato.sine(Vibrato(), wave, depth=2.3, freq=0.7, rate=44100)
-        wave = Tremolo.am(Tremolo(), wave, depth=0.4, freq=3.0, rate=44100)
-        filter = Filter('bandpass', [100,9000])
-        wave = Delay.reverb(Delay(), wave, 0.05, 0.6, 0.82)
+        #filter = Filter('bandpass', [100,9000])
+        filter = Filter('bandcut', [3000,12000])
+        wave = Delay.reverb(Delay(), wave, 0.05, 0.2, 0.9)
         wave = filter.processing(wave)
+        wave = Vibrato.random(Vibrato(), wave, depth=2.3, freq=0.3, rate=44100)
+        wave = Tremolo.am_random(Tremolo(), wave, depth=0.4, freq=5.0, rate=44100)
         return wave
 
     def Wahwah(self, wave):
         wave = Wahwah.sine(Wahwah(), wave)
         wave = Delay.reverb(Delay(), wave, delay_s = 0.01, amp = 0.9, depth = 0.4)
+        return wave
+
+    def Tape(self, wave):
+        wave = Tape.pitch(Tape(), wave, depth=0.23, freq_mirco=0.2, freq_marco=0.3)
+        wave = Distortion.hardClipping(Distortion(), wave, 1)
+        wave = Tape.volume(Tape(), wave, depth=0.032, freq_mirco=0.3, freq_marco=1.0)
+        wave = Delay.reverb(Delay(), wave, 0.06, 0.1, 0.9)
         return wave
 
 class Compressor(object):
@@ -247,6 +260,110 @@ class VolumeController():
         wave[-len(curve):len(wave)] = wave[-len(curve):len(wave)] * curve
         return wave
 
+class Tape():
+    def pitch(self, data, depth=1, freq_mirco=2.0, freq_marco=0.1, rate = 44100):
+        #self.n = 0 なんか変なバグが、、、未使用
+        self.n_macro = 0 #np.random.randint(44100*10)
+        self.depth = int(rate * depth / 1000) # input:[ms]
+        self.freq_macro  = freq_marco
+        self.freq_micro  = freq_mirco
+        self.rate  = rate
+
+        #Freq のリストを作る。
+        self.freqs = self.calc_framesFreq(np.full(data.size, self.freq_micro, dtype = float))
+
+        # 時間軸をゆがめる
+        frames = self.calc_frames(np.arange(data.size))
+
+        # 対応するシグナルを線形補完する
+        data = np.array(self.calc_signal(frames,data))
+        data = data / np.max(abs(data)) if np.max(abs(data)) > 0  else data
+        return data
+
+    def volume(self, data, depth=0.1, freq_mirco=2.0, freq_marco=0.1, rate = 44100):
+        self.n = -1
+        self.n_macro_vol = 0 #np.random.randint(44100*10)
+        self.depth = int(rate * depth / 1000) # input:[ms]
+        self.freq_macro_vol  = freq_marco
+        self.freq_micro_vol  = freq_mirco
+        self.rate  = rate
+
+        #Freq のリストを作る。
+        self.freqs_vol = self.calc_framesFreq_vol(np.full(data.size, self.freq_micro_vol, dtype = float))
+
+        # 時間軸をゆがめる
+        data = self.calc_frames_vol(data)
+
+        return data
+
+    def calc_frames(self,frames):
+        vfunc = np.vectorize(self.calc_frame)
+        return vfunc(frames)
+
+    def calc_frame(self, n):
+        # 60cent が標準のVib 100セントが半音　半音は50～100Hz
+        #sigma = (1 - 2 * np.random.random() ) * self.freq_micro * 0.0 #決め打ち
+        # Micro
+        n = n + self.depth * (1 + np.sin(n * (2 * np.pi * (self.freqs[n] + 0.0) / self.rate)))
+        return n
+
+    def calc_frames_vol(self,data):
+        vfunc = np.vectorize(self.calc_frame_vol)
+        return vfunc(data)
+
+    def calc_frame_vol(self, d):
+        #d = d * (1.0 + self.depth * np.sin(self.n * ( 2 * np.pi * self.freq / self.rate)))
+        d = d *  (1.0 + self.depth * np.sin(self.n * (2 * np.pi * (self.freqs_vol[self.n]) / self.rate)))
+        #d = d * 0.4
+        self.n += 1
+        return d
+
+    def calc_framesFreq(self,freqs):
+        vfunc = np.vectorize(self.calc_microFreq)
+        return vfunc(freqs)
+        #return frames
+
+    def calc_microFreq(self, freq):
+        # Macro
+        #sigma = (1 - 2 * np.random.random() ) * self.freq_macro * 0.0 #決め打ち
+        freq = freq + freq * 0.6 * np.sin(self.n_macro * (2 * np.pi * (self.freq_macro + 0.0) / self.rate)) #0.2決め打ち
+        self.n_macro  += 1
+        return freq
+
+    def calc_framesFreq_vol(self,freqs):
+        vfunc = np.vectorize(self.calc_microFreq_vol)
+        return vfunc(freqs)
+        #return frames
+
+    def calc_microFreq_vol(self, freq):
+        # Macro
+        #sigma = (1 - 2 * np.random.random() ) * self.freq_macro * 0.0 #決め打ち
+        freq = freq + freq * 0.6 * np.sin(self.n_macro_vol * (2 * np.pi * (self.freq_macro_vol + 0.0) / self.rate)) #0.2決め打ち
+        self.n_macro_vol  += 1
+        return freq
+
+    # N(n)を与え，線形補完してy(n)を計算
+    def calc_signal(self,frames,data):
+        # frames: N(n)のリスト
+        # framesのlimit番目以降に対し処理を行う
+        limit = self.depth * 2
+
+        #indexオーバー対策
+        frames_int = np.array(frames, dtype = 'int')
+        frameIdx_List = np.where(frames_int < len(data)-2)
+
+        #framesDiff = np.diff(frames)
+        #minus = np.where(framesDiff < 0)
+        #print("314", len(minus[0]))
+
+        calc_data = [self.calc_interp(frame,data) for frame in frames[limit:np.max(frameIdx_List)]]
+        calc_data = np.hstack([data[:limit],calc_data])
+        return np.array(calc_data)
+
+    def calc_interp(self,frame,data):
+        x = int(np.floor(frame))
+        d = np.interp(frame,[x,x+1],data[x:x+2]) #indexオーバーする可能性アリ
+        return d
 
 class Tremolo():
     '''
@@ -263,6 +380,15 @@ class Tremolo():
         self.freq  = freq
         self.rate  = rate
         self.n     = 0
+
+        vfunc = np.vectorize(self.effect)
+        return vfunc(data)
+
+    def am_random(self, data, depth=0.2, freq=2, rate=44100):
+        self.depth = depth
+        self.freq  = freq
+        self.rate  = rate
+        self.n     = np.random.randint(44100*10)
 
         vfunc = np.vectorize(self.effect)
         return vfunc(data)
@@ -298,6 +424,20 @@ class Vibrato():
     # 時間軸をゆがめる. N(n)の計算
     # input  : 時間軸[ 0,   1,   2, 3,..]
     # output : 時間軸[ 0, 0.5, 2.5, 3,..]
+    def random(self, data, depth=1, freq=1, rate = 44100):
+        self.n = np.random.randint(44100*10)
+        self.depth = int(rate * depth / 1000) # input:[ms]
+        self.freq  = freq
+        self.rate  = rate
+
+        # 時間軸をゆがめる
+        frames = self.calc_frames(np.arange(data.size))
+
+        # 対応するシグナルを線形補完する
+        data = self.calc_signal(frames,data)
+        return data
+
+
     def calc_frames(self,frames):
         vfunc = np.vectorize(self.calc_frame)
         return vfunc(frames)

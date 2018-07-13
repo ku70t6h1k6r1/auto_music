@@ -1,11 +1,11 @@
 {
   "Volume" :{
-    "harm":{  "bass":{"vol":4.0, "r":0.6, "l":0.4},
+    "harm":{  "bass":{"vol":6.0, "r":0.6, "l":0.4},
               "bass2":{"vol":0.0, "r":0.5, "l":0.5},
-              "voicing":{"vol":2.0, "r":0.3, "l":0.7},
-              "voicing2":{"vol":1.0, "r":0.8, "l":0.2},
-              "melody":{"vol":0.0, "r":0.5, "l":0.5},
-              "melody2":{"vol":0.0, "r":0.5, "l":0.5} },
+              "voicing":{"vol":1.5, "r":0.3, "l":0.7},
+              "voicing2":{"vol":1.5, "r":0.8, "l":0.2},
+              "melody":{"vol":2.0, "r":0.45, "l":0.55},
+              "melody2":{"vol": 1.0, "r":0.7, "l":0.3} },
     "drums":{ "kick":{"vol":1.0, "r":0.4, "l":0.6},
               "kick2":{"vol":0.0, "r":0.4, "l":0.6},
               "snare":{"vol":0.3, "r":0.4, "l":0.6},
@@ -16,7 +16,7 @@
               "fx2":{"vol":1.0, "r":0.5, "l":0.5},
               "fx3":{"vol":1.0, "r":0.5, "l":0.5},
               "fx4":{"vol":1.0, "r":0.5, "l":0.5} },
-    "master":{"harm":1.5, "drums":1.0, "fx":0.0}
+    "master":{"harm":1.8, "drums":1.0, "fx":0.0}
   },
   "Preset" : {
     "bass":{
@@ -28,12 +28,12 @@
       "presetArgs":{}
     },
     "lead":{
-      "presetName":"reverb",
-      "presetArgs":{"delay":0.05, "amp":0.2, "depth":0.8}
+      "presetName":"tape",
+      "presetArgs":{}
     },
     "lead2":{
-      "presetName":"reverb",
-      "presetArgs":{"delay":0.05, "amp":0.2, "depth":0.8}
+      "presetName":"dist",
+      "presetArgs":{"gain":1.3 ,"depth":2.0}
     },
     "voice":{
       "presetName":"radio",
@@ -104,30 +104,30 @@
         "rate":44100
       },
       "lead":{
-        "waveForm":["sine", "sawtooth"],
-        "volume":[1.0, 0.8],
-        "transpose":[1.0, 1.01],
+        "waveForm":["sawtooth", "square"],
+        "volume":[1.0, 0.3],
+        "transpose":[1.0, 3.0],
         "freqFilterName":"bandpass",
-        "freqFilterRange":[10, 5000],
-        "adsr":[0.0, 0.3, 0.6, 0.01],
+        "freqFilterRange":[120,19000],
+        "adsr":[0.0, 0.2, 0.2, 0.01],
         "rate":44100
       },
       "lead2":{
-        "waveForm":["sine", "whitenoise"],
-        "volume":[1.0, 0.2],
-        "transpose":[1.01, 0.75],
-        "freqFilterName":"bandcut",
-        "freqFilterRange":[10, 10000],
-        "adsr":[0.01, 0.1, 0.05, 0.01],
+        "waveForm":["sine", "sine"],
+        "volume":[1.0, 0.1],
+        "transpose":[2.0, 1.5],
+        "freqFilterName":"highpass",
+        "freqFilterRange":[1000],
+        "adsr":[0.2, 0.01, 0.1, 0.01],
         "rate":44100
       },
       "voice":{
-        "waveForm":["sine", "sawtooth"],
+        "waveForm":["sine", "sine"],
         "volume":[1.0, 0.3],
-        "transpose":[1.0, 1.0],
+        "transpose":[1.0, 5.0],
         "freqFilterName":"lowpass",
-        "freqFilterRange":[13000],
-        "adsr":[0.0, 0.01, 0.8, 0.1],
+        "freqFilterRange":[15000],
+        "adsr":[0.0, 0.2, 0.2, 0.01],
         "rate":44100
       },
       "voice2":{

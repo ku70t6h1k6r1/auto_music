@@ -292,14 +292,57 @@ class VolumeController():
         for hz, len_sec in sec_list_ctrl:
             len_frame = int(len_sec *  44100)
             if len_frame > 0 and len_frame <= max_frame :
-                step = bank/len_frame
-                x = np.arange(2, bank, step)
+                step = (bank-2.0)/len_frame
+                x = np.arange(2.0, bank, step)
                 curve = np.r_[curve, np.tanh(x)]
             elif len_frame > max_frame :
-                step = bank/max_frame
-                x = np.arange(2, bank, step)
+                step = (bank-2.0)/max_frame
+                x = np.arange(2.0, bank, step)
                 fix = np.full(len_frame - max_frame , 1.0)
                 curve = np.r_[curve, np.tanh(x)]
+
+        if len(curve) < len(wave):
+            fix = np.full((len(wave) - len(curve)), 1.0)
+            curve = np.r_[curve, fix]
+        elif len(curve) > len(wave):
+            curve = curve[0:len(wave)]
+
+        return wave * curve
+
+    def deepSidechain(self, wave, bpm, sec_list_ctrl, min = 2.0, max = 4.0):
+        max_frame  = int(60/bpm *44100)
+        bank = max #3～
+        minVol = min
+        curve = np.full(0, 0.0)
+        for hz, len_sec in sec_list_ctrl:
+            len_frame = int(len_sec *  44100)
+            if len_frame > 0 and len_frame <= max_frame :
+                step = (bank-minVol)/len_frame
+                x = np.arange(minVol, bank, step)
+                curve = np.r_[curve, np.tanh(x)]
+            elif len_frame > max_frame :
+                step = (bank-minVol)/max_frame
+                x = np.arange(minVol, bank, step)
+                fix = np.full(len_frame - max_frame , 1.0)
+                curve = np.r_[curve, np.tanh(x)]
+
+        if len(curve) < len(wave):
+            fix = np.full((len(wave) - len(curve)), 1.0)
+            curve = np.r_[curve, fix]
+        elif len(curve) > len(wave):
+            curve = curve[0:len(wave)]
+
+        return wave * curve
+
+    def fourBeat(self, wave, bpm, min = 2.0, max = 4.0):
+        frame_len  = int(60/bpm *44100)
+        frame_n = int(len(wave) / frame_len)
+        curve = np.full(0, 0.0)
+
+        for n in range(frame_n):
+            step = (max-min)/frame_len
+            x = np.arange(min, max, step)
+            curve = np.r_[curve, np.tanh(x)]
 
         if len(curve) < len(wave):
             fix = np.full((len(wave) - len(curve)), 1.0)
@@ -315,7 +358,7 @@ class Tremolo():
     member
         depth : 変調深度
         freq  : 変調周波数[hz]
-        rate  : サンプリングレート[hz]
+        rate  : サンプリングレート[hz]v
         n     : 現在フレーム
     '''
 
@@ -443,15 +486,36 @@ class Synthesizer():
         return (wave * float(2 ** (16 - 1) ) ).astype(np.int16).tobytes()
 
 if __name__ == '__main__' :
+    import Effector as fx
+
+    preset = fx.Preset()
     audio  = pyaudio.PyAudio()
     o = audio.open(format=audio.get_format_from_width(2),
                                 channels=1,
                                 rate=44100,
                                 output=True)
 
+    synthesizer = Synthesizer(['sine', 'sine'], [1.0, 0.1], [1.0,0.75], 'lowpass', [6000], [0.01, 0.5, 0.1, 0.01], 44100)
 
-    vcoObj = VCO('sine', 1, False, 44100)
-    wave = vcoObj.gererate_shifted_wave([100,10], 1)
+    scale = [261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88, 523.25] * 2
+    bass = [261.63/2] * 16
+
+    wave = np.full(0, 0.0)
+    for note in scale:
+        wave = np.r_[wave, synthesizer.setPitch(note,1)]
+
+    bass_wave = np.full(0, 0.0)
+    for note in bass:
+        bass_wave = np.r_[bass_wave, synthesizer.setPitch(note,1)]
+
+
+    wave = preset.Distortion(wave, 1.3, 2)
+    #wave = preset.Flanger(wave,  gain = 2, depth = 1.0, freq = 1.1, balance = 1.0)
+    #wave = preset.Tape(wave)
+    #wave = (wave[0:44100*20] + bass_wave[0:44100*20]) / 2
+    #wave = preset.Radio(wave, 0.2)
+    #wave = preset.Reverb(wave, 0.05, 0.2, 0.8)
+
     wave_bin = (wave * float(2 ** (16 - 1) ) ).astype(np.int16).tobytes()
     o.write(wave_bin)
     #SNARE?
@@ -461,6 +525,8 @@ if __name__ == '__main__' :
     #KICK?
     #synthesizer = Synthesizer([Waveform.whitenoise, Waveform.square], [1.0, 0.8], [1.0, 1.0], FilterName.lowpass, [1000], [0.001, 0.02, 0.0001, 0.1], 44100)
     #wave = synthesizer.setPitch(100,2)
+    #vcoObj = VCO('sine', 1, False, 44100)
+    #wave = vcoObj.gererate_shifted_wave([100,10], 1)
 
     #HAT?
     #synthesizer = Synthesizer([Waveform.whitenoise], [1.0], [1.0], FilterName.highpass, [7000], [0.0, 0.02, 0.0001, 0.4], 44100)
