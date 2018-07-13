@@ -16,10 +16,10 @@ class Play:
         #Objects
         self.scoreObj = sc.Score()
         self.fxObj = fxPSs.Effector()
-        self.audio  = pyaudio.PyAudio()
+        #self.audio  = pyaudio.PyAudio()
 
         #Output Format
-        self.format = pyaudio.paInt32
+        #self.format = pyaudio.paInt32
         self.sampwidth = 4 #formatが16だと2
         self.channels = 2
         self.rate = 44100
@@ -187,6 +187,7 @@ class Play:
 
         if writeStream:
             import pyaudio
+            self.format = pyaudio.paInt32
             self.o = self.audio.open(format=self.format, channels=self.channels, rate=self.rate, output=True)
             self.o.write(wave_bin)
 
