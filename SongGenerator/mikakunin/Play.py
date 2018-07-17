@@ -156,7 +156,7 @@ class Play:
                 self.volume["harm"]["melody"],
                 self.volume["harm"]["melody2"]   ])
         #harm  = self.volCtrl.ending(harm , 15)
-        harm = self.volCtrl.fourBeat(harm, self.bpm, 0.0, 1.5)
+        #harm = self.volCtrl.fourBeat(harm, self.bpm, 0.0, 1.5)
 
         #drums : merge
         drums = func.add_stereo([kick, kick2, snare, snare2, hihat, hihat2], \
