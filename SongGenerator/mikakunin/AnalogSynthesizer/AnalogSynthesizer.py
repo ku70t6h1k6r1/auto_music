@@ -44,6 +44,8 @@ class Oscillator(object):
             return scipy.signal.sawtooth(phases)
         elif self._waveform == "square":
             return scipy.signal.square(phases)
+        #elif self._waveform == "gausspulse":
+        #    return scipy.signal.gausspulse(phases)
         elif self._waveform == "whitenoise":
             wn = np.random.normal(0, 1, size=len(phases))
             threshold = 1.96

@@ -86,8 +86,20 @@ class Methods:
         effectsObj.setPt4(self._accentRandom(kick, barsPerOneSection, temperature['kick'], tryN['kick']))
         return effectsObj
 
+    def onBeat(self, melody, beat = 4, temperature = {'fx1':0.0005, 'fx2':0.0005, 'fx3':0.0005, 'fx4':0.0005}, tryN = {'fx1':1, 'fx2':1, 'fx3':1, 'fx4':1}):
+        effectsObj = cs.Effects()
 
+        frame = int(beat * self._notePerBar_n / 4)
+        frame_n = int(len(melody) / frame)
+        score = [1,0,1,0] * frame_n
+        frame_mod = [0] * ( len(melody) - len(score) )
+        score.extend(frame_mod)
 
+        effectsObj.setPt1(self._accentRandom(score, 1, temperature['fx1'], tryN['fx1']))
+        effectsObj.setPt2(self._accentRandom(score, 1, temperature['fx2'], tryN['fx2']))
+        effectsObj.setPt3(self._accentRandom(score, 1, temperature['fx3'], tryN['fx3']))
+        effectsObj.setPt4(self._accentRandom(score, 1, temperature['fx4'], tryN['fx4']))
+        return effectsObj
 
 if __name__ == '__main__':
     melody = [1,-1,-1,-1, 1,-1,-1,-1, 1,-1,-1,-1, 1,-1,-1,-1,
