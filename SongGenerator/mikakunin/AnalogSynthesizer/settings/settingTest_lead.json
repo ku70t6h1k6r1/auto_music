@@ -5,7 +5,7 @@
               "voicing":{"vol":1.3, "r":0.4, "l":0.6},
               "voicing2":{"vol":2.0, "r":0.6, "l":0.4},
               "melody":{"vol":2.0, "r":0.53, "l":0.47},
-              "melody2":{"vol": 2.0, "r":0.53, "l":0.47} },
+              "melody2":{"vol": 0.5, "r":0.53, "l":0.47} },
     "drums":{ "kick":{"vol":4.2, "r":0.52, "l":0.48},
               "kick2":{"vol":2.2, "r":0.48, "l":0.52},
               "snare":{"vol":1.0, "r":0.3, "l":0.7},
@@ -28,12 +28,12 @@
       "presetArgs":{}
     },
     "lead":{
-      "presetName":"tape",
-      "presetArgs": {"gain":2}
+      "presetName":"dist",
+      "presetArgs":{"gain":4.0 ,"depth":5.0}
     },
     "lead2":{
       "presetName":"vibrato",
-      "presetArgs": {"depth":0.7, "freq":1.3}
+      "presetArgs": {"depth":0.7, "freq":1.9}
     },
     "voice":{
       "presetName":"tape",
@@ -104,21 +104,21 @@
         "rate":44100
       },
       "lead":{
-        "waveForm":["sawtooth", "sine", "sine"],
-        "volume":[1.0, 0.9, 0.9],
-        "transpose":[1.0, 2.0, 3.0],
-        "freqFilterName":"highpass",
-        "freqFilterRange":[1],
-        "adsr":[0.0, 0.01, 0.4, 0.0],
+        "waveForm":["sine", "sine", "sine", "sine"],
+        "volume":[0.2, 2.0, 0.9, 1.4],
+        "transpose":[0.5, 1.0, 2.0, 3.0],
+        "freqFilterName":"lowpass",
+        "freqFilterRange":[5000],
+        "adsr":[0.1, 0.005, 0.2, 0.01],
         "rate":44100
       },
       "lead2":{
         "waveForm":["sine", "sine", "sine"],
-        "volume":[0.6, 0.6, 0.7, 0.8],
-        "transpose":[4.0, 5.0, 6.0, 7.0],
+        "volume":[1.1, 0.8, 1.0],
+        "transpose":[4.0, 5.0, 6.0],
         "freqFilterName":"highpass",
         "freqFilterRange":[1],
-        "adsr":[0.0, 0.01, 0.4, 0.0],
+        "adsr":[0.1, 0.005, 0.2, 0.01],
         "rate":44100
       },
       "voice":{

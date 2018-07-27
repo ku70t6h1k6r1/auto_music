@@ -34,7 +34,7 @@
 
         "Bass":
           {
-            "name":"eightbeat",
+            "name":"riff",
             "range":[28,60],
             "args":{}
           },
@@ -66,7 +66,7 @@
 
           "Melody":
             {
-              "name":"cherryA",
+              "name":"oxgame",
               "range":[56,70],
               "args":{"reverce":false}
             },
@@ -88,7 +88,7 @@
             {
               "name":"doubleStop",
               "range":[60,75],
-              "args": {"subMethodName":"synchroniseBass"}
+              "args": {"subMethodName":"synchroniseKick"}
             },
             "Effects":
               {
@@ -100,7 +100,7 @@
       "ChordProgression":
           {
             "name":"punk",
-            "args":{"is_Maj": true, "chord_per_1bar":2}
+            "args":{"is_Maj": false, "chord_per_1bar":1}
           },
 
         "ChordProgressionChild":
@@ -111,29 +111,29 @@
 
         "Melody":
           {
-            "name":"oxgame",
+            "name":"zenzenzense",
             "range":[65,77],
             "args":{}
           },
 
         "Drums":
           {
-            "name":"random",
+            "name":"eightbeat",
             "args":{}
           },
 
         "Bass":
           {
-            "name":"eightbeat",
+            "name":"riff",
             "range":[28,60],
             "args":{}
           },
 
         "VoiceProgression":
           {
-            "name":"triad",
+            "name":"doubleStop",
             "range":[60,75],
-            "args": {"subMethodName":"synchroniseBass"}
+            "args": {"subMethodName":"synchroniseKick"}
           },
           "Effects":
             {

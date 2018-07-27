@@ -23,6 +23,7 @@ class Effector:
         self.dist2 = "dist2"
         self.dist3 = "dist3"
         self.tremolo = "tremolo"
+        self.vibrato = "vibrato"
         self.flanger = "flanger"
         self.reverb = "reverb"
         self.radio = "radio"
@@ -47,6 +48,9 @@ class Effector:
         elif presetName == self.tremolo:
             o = self._presetObject.Tremolo(wave, arg["depth"], self._bpm)
             return o
+        elif presetName == self.vibrato:
+            o = self._presetObject.Vibrato(wave, arg["depth"], arg["freq"])
+            return o
         elif presetName == self.flanger:
             o = self._presetObject.Flanger(wave, arg["depth"], arg["freq"], arg["balance"])
             return o
@@ -54,14 +58,14 @@ class Effector:
             o = self._presetObject.Reverb(wave, arg["delay"], arg["amp"], arg["depth"])
             return o
         elif presetName == self.radio:
-            o = self._presetObject.Radio(wave, arg["gain"])
+            o = self._presetObject.Radio(wave, arg["gain"], arg["depth_pitch"], arg["freq_pitch"], arg["depth_vol"], arg["freq_vol"])
             return o
         elif presetName == self.wahwah:
             o = self._presetObject.Distortion(wave, 2, 0.6)
             o = self._presetObject.Wahwah(wave)
             return o
-        elif presetName == self.tape:
-            o = self._presetObject.Tape(wave)
+        elif presetName == self.tape: #self, data, depth=1, freq_mirco=2.0, freq_marco=0.1, rate = 44100
+            o = self._presetObject.Tape(wave, arg["gain"], arg["depth"])
             return o
 
 class Preset:
@@ -97,6 +101,11 @@ class Preset:
         wave = Tremolo.am(Tremolo(), wave, depth, freq)
         return wave
 
+    def Vibrato(self, wave, depth = 1, freq = 1):
+        wave = self.Distortion(wave, gain = 2)
+        wave = Vibrato.sine(Vibrato(), wave, depth, freq)
+        return wave
+
     def Flanger(self, wave, gain = 2, depth = 0.5, freq = 0.3, balance = 1.0):
         wave = self.Distortion(wave, gain = gain)
         wave_proc = Vibrato.sine(Vibrato(), wave, depth, freq)
@@ -117,14 +126,14 @@ class Preset:
         wave = filter.processing(wave)
         return wave
 
-    def Radio(self, wave, gain = 1):
+    def Radio(self, wave, gain = 1, depth_pitch = 2.3, freq_pitch = 0.3, depth_vol = 0.4, freq_vol = 5.0):
         wave = Distortion.hardClipping(Distortion(), wave, gain)
         #filter = Filter('bandpass', [100,9000])
-        filter = Filter('bandcut', [3000,12000])
-        wave = Delay.reverb(Delay(), wave, 0.05, 0.2, 0.9)
+        filter = Filter('bandpass', [100,9000])
+        wave = Delay.reverb(Delay(), wave, 0.05, 0.8, 0.9)
         wave = filter.processing(wave)
-        wave = Vibrato.random(Vibrato(), wave, depth=2.3, freq=0.3, rate=44100)
-        wave = Tremolo.am_random(Tremolo(), wave, depth=0.4, freq=5.0, rate=44100)
+        wave = Vibrato.random(Vibrato(), wave, depth=depth_pitch, freq= freq_pitch, rate=44100)
+        wave = Tremolo.am_random(Tremolo(), wave, depth=depth_vol, freq=freq_vol, rate=44100)
         return wave
 
     def Wahwah(self, wave):
@@ -132,9 +141,9 @@ class Preset:
         wave = Delay.reverb(Delay(), wave, delay_s = 0.01, amp = 0.9, depth = 0.4)
         return wave
 
-    def Tape(self, wave):
+    def Tape(self, wave, gain = 1, depth = 1):
         wave = Tape.pitch(Tape(), wave, depth=0.23, freq_mirco=0.2, freq_marco=0.3)
-        wave = Distortion.hardClipping(Distortion(), wave, 1)
+        wave = self.Distortion(wave, gain, depth)
         wave = Tape.volume(Tape(), wave, depth=0.032, freq_mirco=0.3, freq_marco=1.0)
         wave = Delay.reverb(Delay(), wave, 0.06, 0.1, 0.9)
         return wave
@@ -210,7 +219,34 @@ class Delay(object):
         return np.array(out)
 
 class Wahwah():
-    def sine(self, wave, chunk = 0.01, ):
+    def multiWaveForm(self, wave, waveForm, chunk = 0.01):
+        """
+        chunkの大きさは？ 0.01暗いが程よい
+        各種調整がむずい。
+        """
+        self.n = 0
+
+        chunk = int(chunk * 44100)
+        window_n =  int(len(wave) / chunk) #あまり分の処理。
+
+        # 時間軸をゆがめる
+        frames = self.calc_frames(np.arange(window_n), waveForm)
+
+        o = np.zeros(0)
+        for n in range(window_n):
+            # 0 < frame < 2
+            low = 1 + frames[n] * 1000
+            high = low + 3500
+            filter = Filter('bandpass', [low,high])
+            wave_proc = wave[n*chunk:(n+1)*chunk]
+            wave_proc = filter.processing(wave_proc)
+            wave[n*chunk : n*chunk+len(wave_proc)] = wave_proc
+            #o = np.r_[o, wave_proc]
+
+        return wave
+
+
+    def sine(self, wave, chunk = 0.01):
         """
         chunkの大きさは？ 0.01暗いが程よい
         各種調整がむずい。
@@ -236,15 +272,22 @@ class Wahwah():
 
         return wave
 
-    def calc_frames(self,frames):
-        vfunc = np.vectorize(self.calc_frame)
-        return vfunc(frames)
-        #return frames
+    def calc_frames(self, frames, waveForm):
+        if waveForm == 'sine' or waveForm == 'square' or waveForm == 'sawtooth' :
+            vfunc = np.vectorize(self.sine_frame)
+            return vfunc(frames)
 
-    def calc_frame(self,n):
+        elif waveForm == 'chirp':
+            return None
+
+    def sine_frame(self,n):
         # n = n ~ n + 2*depth
         n =   (1 + np.sin(self.n * (2 * np.pi * 0.001 )))
         self.n += 1
+        return n
+
+    def calc_frames_chirp(self, frames):
+
         return n
 
 class VolumeController():
@@ -259,6 +302,8 @@ class VolumeController():
         curve = np.tanh(x)
         wave[-len(curve):len(wave)] = wave[-len(curve):len(wave)] * curve
         return wave
+
+
 
 class Tape():
     def pitch(self, data, depth=1, freq_mirco=2.0, freq_marco=0.1, rate = 44100):

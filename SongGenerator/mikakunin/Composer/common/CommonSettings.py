@@ -36,10 +36,13 @@ class Score:
         self.keyProg = None #最小単位がnotePerBar_n = 16じゃない
         self.chordProg = None #最小単位がnotePerBar_n = 16じゃない
         self.melodyLine = None
+        self.melodyLine2 = None
         self.bassLine = None
         self.voiceProg = None
         self.drumObj = Drums() #Drumの中身どうしよう
         self.effectsObj = Effects()
+
+        self.form = None
 
     def setKeyProg(self, keyProg):
         self.keyProg = keyProg
@@ -49,6 +52,9 @@ class Score:
 
     def setMelodyLine(self, melodyLine):
         self.melodyLine = melodyLine
+
+    def setMelodyLine2(self, melodyLine):
+        self.melodyLine2 = melodyLine
 
     def setBassLine(self, bassLine):
         self.bassLine = bassLine
@@ -71,6 +77,7 @@ class Score:
         self.drumObj._append(scoreObj.drumObj)
         self.effectsObj._append(scoreObj.effectsObj)
 
+
     def addScoreObj(self, scoreObj, useable_Part_list={'melodyLine':False, 'bassLine':False, 'voiceProg':False, 'drums':False, 'effects':False}):
         self.keyProg  = self._appendPoly(self.keyProg, scoreObj.keyProg)
         self.chordProg  = self._appendPoly(self.chordProg, scoreObj.chordProg)
@@ -81,6 +88,15 @@ class Score:
             self.melodyLine  = self._append(self.melodyLine, off_sounds)
         else:
             self.melodyLine  = self._append(self.melodyLine, scoreObj.melodyLine)
+        self.form = self._append(self.form, len(self.melodyLine))
+
+        if 'melodyLine2' in useable_Part_list.keys():
+            if not useable_Part_list['melodyLine2']:
+                off_sounds = np.full(len(scoreObj.melodyLine), -1)
+                off_sounds[0] = -2
+                self.melodyLine2  = self._append(self.melodyLine2, off_sounds)
+            else:
+                self.melodyLine2  = self._append(self.melodyLine2, scoreObj.melodyLine)
 
         if not useable_Part_list['bassLine']:
             off_sounds = np.full(len(scoreObj.bassLine), -1)

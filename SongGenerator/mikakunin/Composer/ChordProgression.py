@@ -51,6 +51,10 @@ class ChordProgression:
             scoreObj.setKeyProg(chords[0])
             scoreObj.setChordProg(chords[1])
 
+        #elif changeName == self.break:
+        #    chords = [[0]] * arg['ba']
+        #    scoreObj.setKeyProg()
+
     def update(self, scoreObj, changeName): #, keyProgression, chordProgression):
         if changeName  == self.cherryIntro:
             chords = self._subMethodsObject.cherryIntro(scoreObj.keyProg, scoreObj.chordProg)

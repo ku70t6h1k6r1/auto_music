@@ -3,6 +3,31 @@
 import numpy as np
 from Composer.common import CommonSettings as cs
 
+class Fills:
+    def __init__(self):
+        self.list = []
+
+        #Fours
+        instObj = cs.Drums()
+        instObj.setHihat([-2,-1,-1,-1,  -1,-1,-1,-1,    -1,-1,-1,-1,    -1,-1,-1,-1], True)
+        instObj.setSnare([0,-1,-1,-1,  0,-1,-1,-1,    0,-1,-1,-1,    0,-1,-1,-1], True)
+        instObj.setKick([-2,-1,-1,-1,  -1,-1,-1,-1,    -1,-1,-1,-1,    -1,-1,-1,-1], True)
+        self.list.append(instObj)
+
+        #Eights
+        instObj = cs.Drums()
+        instObj.setHihat([-2,-1,-1,-1,  -1,-1,-1,-1,    -1,-1,-1,-1,    -1,-1,-1,-1], True)
+        instObj.setSnare([0,-1,0,-1,  0,-1,0,-1,    0,-1,0,-1,    0,-1,0,-1], True)
+        instObj.setKick([-2,-1,-1,-1,  -1,-1,-1,-1,    -1,-1,-1,-1,    -1,-1,-1,-1], True)
+        self.list.append(instObj)
+
+        #Sixteens
+        instObj = cs.Drums()
+        instObj.setHihat([-2,-1,-1,-1,  -1,-1,-1,-1,    -1,-1,-1,-1,    -1,-1,-1,-1], True)
+        instObj.setSnare([0,0,0,0,  0,0,0,0,    0,0,0,0,    0,0,0,0], True)
+        instObj.setKick([-2,-1,-1,-1,  -1,-1,-1,-1,    -1,-1,-1,-1,    -1,-1,-1,-1], True)
+        self.list.append(instObj)
+
 class Patterns:
     def __init__(self):
         self.list = []
@@ -28,16 +53,18 @@ class Patterns:
 
         #Funk Beat
         instObj = cs.Drums()
+        instObj.setHihat([0,-1,0,-1,  0,-1,0,-1,    0,-1,0,-1,    0,-1,0,-1], True)
+        instObj.setSnare([-1,-1,-1,-1,  0,-1,-1,-1,    -1,0,-1,-1,    0,-1,-1,-1], True)
+        instObj.setKick([0,-1,-1,-1,  -1,-1,-1,-1,    0,-1,-1,0,    -1,-1,-1,-1], True)
+        self.list.append(instObj)
+
+        instObj = cs.Drums()
         instObj.setHihat([0,0,0,0,  0,0,0,0,    0,0,0,0,    0,0,0,0], True)
         instObj.setSnare([-1,-1,-1,-1,  0,-1,-1,-1,    -1,-1,-1,-1,    0,-1,-1,-1], True)
         instObj.setKick([0,-1,-1,-1,  -1,-1,-1,-1,    0,-1,0,-1,    -1,-1,-1,-1], True)
         self.list.append(instObj)
 
-        instObj = cs.Drums()
-        instObj.setHihat([0,-1,0,-1,  0,-1,0,-1,    0,-1,0,-1,    0,-1,0,-1], True)
-        instObj.setSnare([-1,-1,-1,-1,  0,-1,-1,-1,    -1,0,-1,-1,    0,-1,-1,-1], True)
-        instObj.setKick([0,-1,-1,-1,  -1,-1,-1,-1,    0,-1,-1,0,    -1,-1,-1,-1], True)
-        self.list.append(instObj)
+
 
         #Dance Beat
         instObj = cs.Drums()
@@ -215,6 +242,13 @@ class Patterns:
         instObj.setHihat([0,-1,0,-1,  0,-1,0,-1,    0,-1,0,-1,    0,-1,0,-1], True)
         instObj.setSnare([-1,-1,-1,-1,  0,-1,-1,-1,    -1,-1,-1,-1,    0,-1,-1,-1], True)
         instObj.setKick([0,-1,-1,-1,  -1,-1,-1,0,    -1,-1,0,-1,    -1,0,-1,0], True)
+        self.list.append(instObj)
+
+        #Yotsu-uchi
+        instObj = cs.Drums()
+        instObj.setHihat([0,-1,-1,-1,  0,-1,-1,-1,    0,-1,-1,-1,    0,-1,-1,-1], True)
+        instObj.setSnare([-1,-1,-1,-1,  0,-1,-1,-1,    -1,-1,-1,-1,    0,-1,-1,-1], True)
+        instObj.setKick([0,-1,-1,-1,  0,-1,-1,-1,    0,-1,-1,-1,    0,-1,-1,-1], True)
         self.list.append(instObj)
 
 if __name__ == '__main__':

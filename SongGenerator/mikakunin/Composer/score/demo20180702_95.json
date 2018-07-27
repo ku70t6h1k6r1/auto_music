@@ -34,16 +34,16 @@
 
         "Bass":
           {
-            "name":"eightbeat",
+            "name":"riff",
             "range":[28,60],
             "args":{}
           },
 
           "VoiceProgression":
             {
-              "name":"doubleStop",
+              "name":"unisonBass",
               "range":[60,75],
-              "args": {"subMethodName":"synchroniseKick"}
+              "args": {}
             },
             "Effects":
               {
@@ -55,7 +55,7 @@
       "ChordProgression":
           {
             "name":"punk",
-            "args":{"is_Maj": false, "chord_per_1bar":1}
+            "args":{"is_Maj": true, "chord_per_1bar":1}
           },
 
         "ChordProgressionChild":
@@ -66,9 +66,9 @@
 
           "Melody":
             {
-              "name":"cherryA",
+              "name":"romeria",
               "range":[56,70],
-              "args":{"reverce":false}
+              "args":{}
             },
 
         "Drums":
@@ -86,9 +86,9 @@
 
           "VoiceProgression":
             {
-              "name":"doubleStop",
+              "name":"unisonBass",
               "range":[60,75],
-              "args": {"subMethodName":"synchroniseBass"}
+              "args": {}
             },
             "Effects":
               {
@@ -100,7 +100,7 @@
       "ChordProgression":
           {
             "name":"punk",
-            "args":{"is_Maj": true, "chord_per_1bar":2}
+            "args":{"is_Maj": true, "chord_per_1bar":1}
           },
 
         "ChordProgressionChild":
@@ -111,29 +111,29 @@
 
         "Melody":
           {
-            "name":"oxgame",
+            "name":"zenzenzense",
             "range":[65,77],
             "args":{}
           },
 
         "Drums":
           {
-            "name":"random",
+            "name":"eightbeat",
             "args":{}
           },
 
         "Bass":
           {
-            "name":"eightbeat",
+            "name":"riff",
             "range":[28,60],
             "args":{}
           },
 
         "VoiceProgression":
           {
-            "name":"triad",
+            "name":"doubleStop",
             "range":[60,75],
-            "args": {"subMethodName":"synchroniseBass"}
+            "args": {"subMethodName":"synchroniseKick"}
           },
           "Effects":
             {

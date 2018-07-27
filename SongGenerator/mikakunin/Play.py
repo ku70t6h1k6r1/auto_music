@@ -36,6 +36,7 @@ class Play:
         self.comp = aSynthe.Compressor()
         self.dist = aSynthe.Distortion()
         self.volCtrl = aSynthe.VolumeController()
+        self.filCtrl = aSynthe.FilterController()
         self.vib = aSynthe.Vibrato()
         self.tre = aSynthe.Tremolo()
 
@@ -59,6 +60,7 @@ class Play:
         self.bass2Obj = midiNotesToWave(self.setting_asyn["bass2"], bpm = self.bpm)
         self.leadObj = midiNotesToWave(self.setting_asyn["lead"], bpm = self.bpm)
         self.lead2Obj = midiNotesToWave(self.setting_asyn["lead2"], bpm = self.bpm)
+        self.subLeadObj = midiNotesToWave(self.setting_asyn["subLead"], bpm = self.bpm)
         self.voiceObj = midiNotesToWave(self.setting_asyn["voice"], bpm = self.bpm)
         self.voice2Obj = midiNotesToWave(self.setting_asyn["voice2"], bpm = self.bpm)
         self.kickObj = midiNotesToWave(self.setting_asyn["kick"], bpm = self.bpm)
@@ -87,6 +89,10 @@ class Play:
         melody2_hz, melody2 = self.lead2Obj.convert(self.score.melodyLine)
         melody2 = self.fxObj.Set(melody2, self.setting_preset["lead2"]["presetName"], **self.setting_preset["lead2"]["presetArgs"])
 
+        #subMelody
+        subMelody_hz, subMelody = self.subLeadObj.convert(self.score.melodyLine2)
+        subMelody = self.fxObj.Set(subMelody, self.setting_preset["subLead"]["presetName"], **self.setting_preset["subLead"]["presetArgs"])
+
         #bass
         bass_hz, bass =  self.bassObj.convert(self.score.bassLine)
         bass = self.fxObj.Set(bass, self.setting_preset["bass"]["presetName"], **self.setting_preset["bass"]["presetArgs"])
@@ -107,7 +113,6 @@ class Play:
         kick_hz, kick = self.kickObj.convertPerc(self.score.drumObj.kick, self.setting_asyn["kick"]["constHz"])
         kick = self.fxObj.Set(kick, self.setting_preset["kick"]["presetName"], **self.setting_preset["kick"]["presetArgs"])
 
-        bass = self.volCtrl.sidechain(bass, self.bpm, kick_hz)
         #voicing2 = self.volCtrl.sidechain(voicing2, self.bpm, kick_hz)
         #melody = self.volCtrl.fourBeat(melody, self.bpm, 0.0, 2.0)
 
@@ -137,7 +142,7 @@ class Play:
 
         #fx2
         fx2_hz, fx2 = self.fx2Obj.convert(self.score.effectsObj.pt2)
-        fx2 = self.fxObj.Set(fx1, self.setting_preset["fx2"]["presetName"], **self.setting_preset["fx2"]["presetArgs"])
+        fx2 = self.fxObj.Set(fx2, self.setting_preset["fx2"]["presetName"], **self.setting_preset["fx2"]["presetArgs"])
 
         #fx3
         fx3_hz, fx3 = self.fx3Obj.convert(self.score.effectsObj.pt3)
@@ -147,16 +152,50 @@ class Play:
         fx4_hz, fx4 = self.fx4Obj.convert(self.score.effectsObj.pt4)
         fx4 = self.fxObj.Set(fx4, self.setting_preset["fx4"]["presetName"], **self.setting_preset["fx4"]["presetArgs"])
 
+        #
+        bass = self.volCtrl.sidechain(bass, self.bpm, kick_hz)
+        bass = self.volCtrl.feedIn2(bass, self.bpm, [self.score.form[2],  self.score.form[3]-16 ], [self.score.form[3]-16, self.score.form[3]] , [0.3, 0.99])
+        bass2 = self.volCtrl.sidechain(bass2, self.bpm, kick_hz)
+        bass2 = self.volCtrl.feedIn2(bass2, self.bpm,  [self.score.form[2],  self.score.form[3]-16 ], [self.score.form[3]-16, self.score.form[3]], [0.3, 0.99])
+
+        """
+        長さ確認
+        """
+        print("melody : ", len(melody), len(self.score.melodyLine))
+        print("melody2 : ", len(melody2))
+        print("subMelody : ", len(subMelody))
+        print("bass : ", len(bass), len(self.score.bassLine))
+        print("bass2 : ", len(bass2))
+        print("voicing : ", len(voicing))
+        print("voicing2 : ", len(voicing2))
+        print("kick  : ", len(kick ), len(self.score.drumObj.kick))
+        print("kick2  : ", len(kick2))
+        print("snare : ", len(snare))
+        print("snare2 : ", len(snare2))
+        print("hihat : ", len(hihat))
+        print("hihat2 : ", len(hihat2))
+        print("fx1 : ", len(fx1))
+        print("fx2 : ", len(fx2))
+        print("fx3 : ", len(fx3))
+        print("fx4 : ", len(fx4))
+
+        #bass:merge
+        bass = func.add_stereo([bass, bass2], [self.volume["bass"]["bass"], self.volume["bass"]["bass2"]])
+        bass = self.filCtrl.lowfi_stereo(bass, self.bpm, [self.score.form[1]], [self.score.form[2]]  ,'bandpass' ,[[1000,5000]])
+
         #harm : merge
-        harm = func.add_stereo([bass, bass2, voicing, voicing2, melody, melody2], \
-            [   self.volume["harm"]["bass"],
-                self.volume["harm"]["bass2"],
-                self.volume["harm"]["voicing"],
+        harm = func.add_stereo([voicing, voicing2, melody, melody2, subMelody], \
+            [   self.volume["harm"]["voicing"],
                 self.volume["harm"]["voicing2"],
                 self.volume["harm"]["melody"],
-                self.volume["harm"]["melody2"]   ])
+                self.volume["harm"]["melody2"],
+                self.volume["harm"]["subMelody"]   ])
         #harm  = self.volCtrl.ending(harm , 15)
-        #harm = self.volCtrl.fourBeat(harm, self.bpm, 0.0, 1.5)
+        harm = self.volCtrl.fourBeat_stereo(harm, self.bpm, [self.score.form[3]],  [self.score.form[5]], [0.0], [3.0])
+
+
+        #snare = self.volCtrl.feedIn2(snare, self.bpm, [self.score.form[2],  self.score.form[3]-16 ], [self.score.form[3]-16, self.score.form[3]] , [0.3, 0.99])
+        #snare2 = self.volCtrl.feedIn2(snare2, self.bpm, [self.score.form[2],  self.score.form[3]-16 ], [self.score.form[3]-16, self.score.form[3]] , [0.3, 0.99])
 
         #drums : merge
         drums = func.add_stereo([kick, kick2, snare, snare2, hihat, hihat2], \
@@ -168,6 +207,9 @@ class Play:
                 self.volume["drums"]["hihat2"]  ])
         #drums  = self.volCtrl.ending(drums , 15)
 
+        drums = self.volCtrl.feedIn_stereo(drums, self.bpm, [self.score.form[2],  self.score.form[3]-16 ], [self.score.form[3]-16, self.score.form[3]], ['liner','tanh'], [0.3, 0.92])
+        drums = self.filCtrl.lowfi_stereo(drums, self.bpm, [self.score.form[1]], [self.score.form[2]]  ,'bandpass' ,[[3000,10000]])
+
         #fx : merge
         fx = func.add_stereo([fx1, fx2, fx3, fx4], \
             [   self.volume["fx"]["fx1"],
@@ -177,8 +219,9 @@ class Play:
         #fx = self.fxObj.Set(fx, "tremolo", **{"depth":2.0}) #もしかしたら利きすぎかもしれない
 
         #all : merge
-        wave = func.add([harm, drums, fx], \
+        wave = func.add([harm, bass, drums, fx], \
             [   self.volume["master"]["harm"],
+                self.volume["master"]["bass"],
                 self.volume["master"]["drums"],
                 self.volume["master"]["fx"]    ])
 
@@ -193,7 +236,7 @@ class Play:
 
         if fileOut:
             dt = datetime.now().strftime("%Y%m%d_%H%M%S")
-            fileName = self.scoreName + '_' + str(self.bpm) + '__' + dt + '.wav'
+            fileName = self.scoreName + '_' + self.settingName + '_' + str(self.bpm) + '__' + dt + '.wav'
 
             waveFile = wv.open(self.outputDir + fileName , 'wb')
             waveFile.setnchannels(self.channels)
@@ -209,7 +252,12 @@ class midiNotesToWave:
         self._notePerBar_n = notePerBar_n
         self._bpm = bpm
         self._noteMinLen_sec = func.a16beatToSec(self._bpm)
-        self.synthesizer = aSynthe.Synthesizer(self.setting["waveForm"], self.setting["volume"], self.setting["transpose"], self.setting["freqFilterName"], self.setting["freqFilterRange"], self.setting["adsr"], self.setting["rate"])
+
+        if len(self.setting["waveForm"]) > 2 :
+            self.synthesizer = aSynthe.Synthesizer_Poly(self.setting["waveForm"], self.setting["volume"], self.setting["transpose"], self.setting["freqFilterName"], self.setting["freqFilterRange"], self.setting["adsr"], self.setting["rate"])
+        else:
+            self.synthesizer = aSynthe.Synthesizer(self.setting["waveForm"], self.setting["volume"], self.setting["transpose"], self.setting["freqFilterName"], self.setting["freqFilterRange"], self.setting["adsr"], self.setting["rate"])
+
 
     def convertPerc(self, score, constHz):
         list = self._midiNotesToHzAndSec(score)

@@ -26,6 +26,9 @@ class Melody:
         self.cherryA = "cherryA" # >2bars even
         self.cherryB = "cherryB" # >1bars ただし4回繰り返すからあまり多すぎる小節もどうかと
         self.oxgame = "oxgame" # >0bars　ただし転調しまくるコード進行に対しては多分ひどいことになる
+        self.zenzenzense = "zenzenzense" # >0bars　ただし転調しまくるコード進行に対しては多分ひどいことになる
+        self.romeria = "romeria"
+        self.approach = "approach"
 
     def _setMelodyNameWithoutChord(self):
         return None
@@ -44,6 +47,22 @@ class Melody:
             scoreObj.setMelodyLine(melody[2])
         elif melodyName == self.oxgame:
             melody = self._methodsObject.oxgame( scoreObj.keyProg, scoreObj.chordProg, range)
+            scoreObj.setKeyProg(melody[0])
+            scoreObj.setChordProg(melody[1])
+            scoreObj.setMelodyLine(melody[2])
+        elif melodyName == self.zenzenzense:
+            melody = self._methodsObject.zenzenzense( scoreObj.keyProg, scoreObj.chordProg, range)
+            scoreObj.setKeyProg(melody[0])
+            scoreObj.setChordProg(melody[1])
+            scoreObj.setMelodyLine(melody[2])
+        elif melodyName == self.romeria:
+            melody = self._methodsObject.zenzenzense( scoreObj.keyProg, scoreObj.chordProg, range)
+            scoreObj.setKeyProg(melody[0])
+            scoreObj.setChordProg(melody[1])
+            scoreObj.setMelodyLine(melody[2])
+        elif melodyName == self.approach:
+            melody = self._methodsObject.approach( scoreObj.keyProg, scoreObj.chordProg, range, 4)
+            print("指定すること otherNoteDegree")
             scoreObj.setKeyProg(melody[0])
             scoreObj.setChordProg(melody[1])
             scoreObj.setMelodyLine(melody[2])
@@ -237,6 +256,40 @@ class Methods:
         chordProg[-1][-1] = 0
         return  keyProg, chordProg , melody.flatten()
 
+    def _romeria(self, key, oneBar, range, otherNoteDegree, lastNoteDegree):
+        if key[1] == 0:
+            scale = self._majorScale+key[0]
+            scale = func.clipping(scale[0]) -scale[0] + scale
+            scale = [scale[0], scale[1] , scale[2], scale[3], scale[4]-12, scale[5]-12, scale[6]-12]
+            penta = [scale[0], scale[1] , scale[2], scale[4], scale[5]]
+
+        elif key[1] == 1:
+            scale = self._minorScale +key[0]
+            scale = func.clipping(scale[0]) -scale[0] + scale
+            scale = [scale[0], scale[1] , scale[2], scale[3], scale[4]-12, scale[5]-12, scale[6]-12]
+            penta =  [scale[0], scale[2] , scale[3], scale[4], scale[6]]
+
+        noteOnIndicies = []
+        for idx, note in enumerate(oneBar):
+            if note > -1:
+                #全て置換
+                if idx % 4 == 3 :
+                    oneBar[idx] = scale[0]
+                else :
+                    oneBar[idx] = scale[otherNoteDegree]
+                noteOnIndicies.append(idx)
+
+        #最後の音置換
+        oneBar[noteOnIndicies[-1]] = scale[lastNoteDegree]
+
+        for i in range(2):
+            if len(noteOnIndicies) > 2:
+                midIndicies = np.arange(1,len(noteOnIndicies)-1)
+                idx = noteOnIndicies[midIndicies[np.random.randint(len(midIndicies))]]
+                oneBar[idx] =  penta[np.random.randint(len(penta))]
+
+        return oneBar
+
     def _oxgame(self, key, oneBar, range, otherNoteDegree, lastNoteDegree):
         if key[1] == 0:
             scale = self._majorScale+key[0]
@@ -266,6 +319,89 @@ class Methods:
             oneBar[idx] =  penta[np.random.randint(len(penta))]
 
         return oneBar
+
+    def _zenzenzense(self, key, oneBar, range, otherNoteDegree, lastNoteDegree):
+        if key[1] == 0:
+            scale = self._majorScale+key[0]
+            scale = func.clipping(scale[0]) -scale[0] + scale
+            scale = [scale[0], scale[1] , scale[2], scale[3], scale[4], scale[5]-12, scale[6]]
+            penta = [scale[0], scale[1] , scale[2], scale[4], scale[5]]
+
+        elif key[1] == 1:
+            scale = self._minorScale +key[0]
+            scale = func.clipping(scale[0]) -scale[0] + scale
+            scale = [scale[0], scale[1] , scale[2], scale[3], scale[4], scale[5]-12, scale[6]]
+            penta =  [scale[0], scale[2] , scale[3], scale[4], scale[6]]
+
+        noteOnIndicies = []
+        for idx, note in enumerate(oneBar):
+            if note > -1:
+                #全て置換
+                oneBar[idx] = scale[otherNoteDegree]
+                noteOnIndicies.append(idx)
+
+        #最後の音置換
+        oneBar[noteOnIndicies[-1]] = scale[lastNoteDegree]
+
+        if len(noteOnIndicies) > 2:
+            midIndicies = np.arange(1,len(noteOnIndicies)-1)
+            idx = noteOnIndicies[midIndicies[np.random.randint(len(midIndicies))]]
+            oneBar[idx] =  penta[np.random.randint(len(penta))]
+
+        return oneBar
+
+    def romeria(self, keyProg=None, chordProg=None, range = [69,101]):
+        grp_name, patterns = random.choice(list(self._rhythmPatters.items()))
+        grp_name, patterns2 = random.choice(list(self._rhythmPatters.items()))
+
+        """
+        とりあえず
+        [A, A, B, B]
+        Keyをはじめの小節に固定しているので変だったら変更してみて。
+        """
+
+        if len(keyProg) >= 8:
+            a = patterns[np.random.randint(len(patterns))]
+            a1 = patterns2[np.random.randint(len(patterns2))]
+            a.extend(a1)
+            bar1 = self._romeria(keyProg[0], a, range, 1, 2)
+            bar2 = bar1
+
+            b = patterns[np.random.randint(len(patterns))]
+            b1 = patterns2[np.random.randint(len(patterns2))]
+            b.extend(b1)
+            bar3 = self._romeria(keyProg[0], b, range, 1, 0)
+            bar4 = bar3
+
+            melody = np.array([bar1, bar2, bar3, bar4]).flatten() #the bar-arg's length is 2bars
+            key = keyProg[0:8]
+            chord = chordProg[0:8]
+
+
+        elif len(keyProg) >= 4:
+            a = patterns[np.random.randint(len(patterns))]
+            a1 = patterns2[np.random.randint(len(patterns2))]
+            a.extend(a1)
+            bar1 = self._romeria(keyProg[0], a, range, 1, 0)
+            bar2 = bar1
+
+            melody = np.array([bar1, bar2] ).flatten()
+            key = np.append(keyProg[0:4], keyProg[0:4] , axis = 0)
+            chord = np.append(chordProg[0:4], chordProg[0:4], axis = 0)
+
+        elif len(keyProg) >= 2:
+            a = patterns[np.random.randint(len(patterns))]
+            a1 = patterns2[np.random.randint(len(patterns2))]
+            a.extend(a1)
+            bar1 = self._romeria(keyProg[0], a, range, 1, 0)
+
+            melody = np.array([bar1] ).flatten()
+            key = np.append(keyProg[0:2], keyProg[0:2] , axis = 0)
+            key = np.append(key, key , axis = 0)
+            chord = np.append(chordProg[0:2], chordProg[0:2], axis = 0)
+            chord = np.append(chord, chord, axis = 0)
+
+        return key, chord, melody
 
     def oxgame(self, keyProg=None, chordProg=None, range = [69,101]):
         grp_name, patterns = random.choice(list(self._rhythmPatters.items()))
@@ -326,6 +462,141 @@ class Methods:
             chord = np.append(chord, chord, axis = 0)
 
         return key, chord, melody
+
+    def zenzenzense(self, keyProg=None, chordProg=None, range = [69,101]):
+        grp_name, patterns = random.choice(list(self._rhythmPatters.items()))
+
+        """
+        とりあえず
+        [A, B, A, B,    D, E, D, F]
+        Keyをはじめの小節に固定しているので変だったら変更してみて。
+        """
+
+        if len(keyProg) >= 8:
+            a = patterns[np.random.randint(len(patterns))]
+            bar1 = self._zenzenzense(keyProg[0], a, range, 4, 4)
+            bar3 = bar1
+
+            b = patterns[np.random.randint(len(patterns))]
+            bar4 = self._zenzenzense(keyProg[0], b, range, 2, 2)
+            bar2 = self._zenzenzense(keyProg[0], b, range, 4, 0)
+
+            c = patterns[np.random.randint(len(patterns))]
+            bar5 = self._zenzenzense(keyProg[0], c, range, 4, 0)
+            bar7 = self._zenzenzense(keyProg[0], c, range, 4, 4)
+
+            d = patterns[np.random.randint(len(patterns))]
+            bar6 = self._zenzenzense(keyProg[0], d, range, 4, 0)
+
+            f = patterns[np.random.randint(len(patterns))]
+            bar8 = self._zenzenzense(keyProg[0], f, range, 4, 0)
+
+            melody = np.array([bar1, bar2, bar3, bar4,   bar5, bar6, bar7, bar8]).flatten()
+            key = keyProg[0:8]
+            chord = chordProg[0:8]
+
+
+        elif len(keyProg) >= 4:
+            a = patterns[np.random.randint(len(patterns))]
+            bar1 = self._zenzenzense(keyProg[0], a, range, 4, 4)
+            bar3 = bar1
+
+            b = patterns[np.random.randint(len(patterns))]
+            bar2 = self._zenzenzense(keyProg[0], b, range, 4, 0)
+            bar4 = self._zenzenzense(keyProg[0], b, range, 4, 2)
+
+            melody = np.array([bar1, bar2, bar3, bar4] * 2).flatten()
+            key = np.append(keyProg[0:4], keyProg[0:4] , axis = 0)
+            chord = np.append(chordProg[0:4], chordProg[0:4], axis = 0)
+
+        elif len(keyProg) >= 2:
+            a = patterns[np.random.randint(len(patterns))]
+            b = patterns[np.random.randint(len(patterns))]
+            bar1 = self._zenzenzense(keyProg[0], a, range, 4, 4)
+            bar2 = self._zenzenzense(keyProg[0], b, range, 4, 0)
+
+            melody = np.array([bar1, bar2] * 4).flatten()
+            key = np.append(keyProg[0:2], keyProg[0:2] , axis = 0)
+            key = np.append(key, key , axis = 0)
+            chord = np.append(chordProg[0:2], chordProg[0:2], axis = 0)
+            chord = np.append(chord, chord, axis = 0)
+
+        return key, chord, melody
+
+    def _approach(self, tempMelody, last_key, last_chord, last_chord_tone_degree = 0, range = [69,101] ):
+        on_index = np.where(tempMelody > -1)
+
+        if self._notePerBar_n == 16:
+            if len(tempMelody) < self._notePerBar_n :
+                print("ALERT IN MELODY _cherryB 1 ")
+            else :
+                last_melody = self._threeNotesApproach(last_key, last_chord, last_chord_tone_degree)
+
+                for idx, note in enumerate(last_melody):
+                    tempMelody[on_index[idx-4]] = note
+
+        else:
+            print("ALERT IN MELODY 2, Not Prepared")
+
+        melody = func.processing(tempMelody, range)
+        melody = np.array(tempMelody)
+        return melody
+
+    def approach(self, keyProg=None, chordProg=None, _range = [69,101], otherNoteDegree = 4):
+        #作りかけ
+        #パターンのグループ抽出
+        grp_name, patterns = random.choice(list(self._rhythmPatters.items()))
+
+        melody = np.full(len(keyProg)*self._notePerBar_n , -1)
+        targetNote = None
+
+        if len(keyProg) >= 4 and len(keyProg) % 4 == 0:
+            trial_n = len(keyProg) - 1
+            print(type(trial_n))
+            for num in range(2):
+
+                key = keyProg[num]
+                chord_idx = chordProg[num][-1] #取り急ぎ
+                if key[1] == 0:
+                    scale = self._majorScale+key[0]
+                    scale = func.clipping(scale[0]) -scale[0] + scale
+                    scale = [scale[0], scale[1] , scale[2], scale[3], scale[4], scale[5]-12, scale[6]]
+                    penta = [scale[0], scale[1] , scale[2], scale[4], scale[5]]
+
+                elif key[1] == 1:
+                    scale = self._minorScale +key[0]
+                    scale = func.clipping(scale[0]) -scale[0] + scale
+                    scale = [scale[0], scale[1] , scale[2], scale[3], scale[4], scale[5]-12, scale[6]]
+                    penta =  [scale[0], scale[2] , scale[3], scale[4], scale[6]]
+
+
+                tempMelody = np.array(patterns[np.random.randint(len(patterns))])
+
+                #全て置換
+                onIdxs = np.where(tempMelody > -1)
+                for idx in onIdxs:
+                    tempMelody[idx] = scale[otherNoteDegree]
+
+                if targetNote is None:
+                    tempMelody[onIdxs[0]] = scale[otherNoteDegree]
+                else:
+                    tempMelody[onIdxs[0]] = targetNote
+
+                appNotes = self._threeNotesApproach(key[num+1], chord_idx[num+1], degree = np.random.randint(3))
+
+                targetNote = appNotes[-1]
+                tempMelody[onIdxs[-1]] = appNotes[-2]
+                tempMelody[onIdxs[-2]] = appNotes[-3]
+                tempMelody[onIdxs[-3]] = appNotes[-4]
+
+                melody[num*self._notePerBar_n : (num+1)*self._notePerBar_n] = tempMelody
+
+            #本当はもっとよく変えたい
+            melody[-self._notePerBar_n]  = targetNote
+
+        melody = func.processing(tempMelody, _range)
+        melody = np.array(tempMelody)
+        return  keyProg, chordProg, melody
 
     #approachノート系
     def _threeNotesApproach(self, key, chord_idx, degree = np.random.randint(3)):

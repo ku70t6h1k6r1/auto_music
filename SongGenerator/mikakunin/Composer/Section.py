@@ -13,12 +13,15 @@ class Section:
         self._setMethodName()
 
     def _setMethodName(self):
+        self.paaibbi = "paaibbi"
         self.ppaabbi = "ppaabbi"
         self.piaabbi = "piaabbi"
         self.iaabbi = "iaabbi"
         self.aaba = "aaba"
         self.ab = "ab"
         self.a = "a"
+#サビ（ドラムなし）→A→インタールード→アウトロ
+
 
     def create(self, methodName):
         if methodName == self.aaba:
@@ -33,10 +36,19 @@ class Section:
             return self._methodObject.piaabbi()
         elif methodName == self.ppaabbi:
             return self._methodObject.ppaabbi()
+        elif methodName == self.paaibbi:
+            return self._methodObject.paaibbi()
 
 class Methods:
     def __init__(self):
         return None
+
+    def paaibbi(self):
+        p = cs.Score()
+        i = cs.Score()
+        a = cs.Score()
+        b = cs.Score()
+        return [p,a,a,i,b,b,i]
 
     def ppaabbi(self):
         p = cs.Score()

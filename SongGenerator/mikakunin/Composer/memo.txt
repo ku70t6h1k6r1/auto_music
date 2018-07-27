@@ -32,9 +32,28 @@ https://note.nkmk.me/python-argument-expand/
 ・長さそろわない問題→？
 
 To Do
-・pyaudio廃止、ないしは隔離。
 ・KEY設定
 ・各モデルの名前、引数をjson
 ・CherryBの長くなり過ぎちゃう対策
 ・メロデイリズムパターン制覇
 ・各エフェクターの有効範囲を調整、確認
+・変調フィルター→サイドチェイン的な使い方
+・Break機能→EDMとかのめっちゃ同じとこ繰り返したりするやつ
+・変数「range」の使用禁止
+
+IDEA
+endingはメロディーだけでめっちゃDelayかける＋環境音
+
+※https://ameblo.jp/soratamusic/entry-12205099731.html
+
+・サビ（ドラムなし）→A→インタールード→アウトロ
+  →https://www.youtube.com/watch?time_continue=170&v=r2LpOUwca94
+
+・ペダル→ブレイク→Aメロ→ブレイク
+　→https://www.youtube.com/watch?time_continue=7&v=gCYcHz2k5x0
+
+・LMFAO
+　→https://www.youtube.com/watch?v=KQ6zr6kCPj8
+
+・よくあるやつな気がする
+　→https://www.youtube.com/watch?time_continue=66&v=_rRHJRKS1ag

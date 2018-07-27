@@ -16,6 +16,7 @@ class VoiceProgression:
         self.powerChord = "powerChord"
         self.triad = "triad"
         self.doubleStop = "doubleStop"
+        self.unisonBass = "unisonBass"
 
     def _setRythmName(self):
         self.eightBeat = self._methodsObject.eightBeat
@@ -31,6 +32,9 @@ class VoiceProgression:
             scoreObj.setVoiceProg(voiceProg)
         elif voicingName == self.doubleStop:
             voiceProg = self._methodsObject.doubleStop(scoreObj.chordProg, scoreObj.drumObj.kick, scoreObj.bassLine, range, arg['subMethodName'])
+            scoreObj.setVoiceProg(voiceProg)
+        elif voicingName == self.unisonBass:
+            voiceProg = self._methodsObject.unisonBass(scoreObj.chordProg, scoreObj.bassLine, range)
             scoreObj.setVoiceProg(voiceProg)
 
 class Methods:
@@ -50,6 +54,7 @@ class Methods:
         self.eightBeat = "eightBeat"
         self.synchroniseKick = "synchroniseKick"
         self.synchroniseBass = "synchroniseBass"
+        self.wholeNote = "wholeNote"
 
     def powerChord(self, chordProg, kickScore, bassScore, range, subMethodName = "eightBeat"):
         chordScore = None
@@ -59,6 +64,8 @@ class Methods:
             chordScore = self._subMethods.synchroniseKick(chordProg, kickScore)
         elif subMethodName == self.synchroniseBass:
             chordScore = self._subMethods.synchroniseBass(chordProg, bassScore)
+        elif subMethodName == self.wholeNote:
+            chordScore = self._subMethods.wholeNote(chordProg)
         else:
             print("ERROR IN VoiceProgression")
             return None
@@ -77,6 +84,8 @@ class Methods:
             chordScore = self._subMethods.synchroniseKick(chordProg, kickScore)
         elif subMethodName == self.synchroniseBass:
             chordScore = self._subMethods.synchroniseBass(chordProg, bassScore)
+        elif subMethodName == self.wholeNote:
+            chordScore = self._subMethods.wholeNote(chordProg)
         else:
             print("ERROR IN VoiceProgression")
             return None
@@ -96,6 +105,8 @@ class Methods:
             chordScore = self._subMethods.synchroniseKick(chordProg, kickScore)
         elif subMethodName == self.synchroniseBass:
             chordScore = self._subMethods.synchroniseBass(chordProg, bassScore)
+        elif subMethodName == self.wholeNote:
+            chordScore = self._subMethods.wholeNote(chordProg)
         else:
             print("ERROR IN VoiceProgression")
             return None
@@ -106,6 +117,18 @@ class Methods:
                 score[i][0] = func.clipping(self._chordIdx.getTonesFromIdx(chord)[1], range[0], range[1])
                 score[i][1] = func.clipping(self._chordIdx.getTonesFromIdx(chord)[3], range[0], range[1])
         return score
+
+    def unisonBass(self, chordProg, bassScore, range ):
+        chordScore = None
+        chordScore = self._subMethods.synchroniseBass(chordProg, bassScore)
+
+        score = np.full([len(chordProg)*self._notePerBar_n, 2], -1)
+        for i, chord in enumerate(chordScore):
+            if chord > -1:
+                score[i][0] = func.clipping(bassScore[i], range[0], range[1])
+                score[i][1] = func.clipping(self._chordIdx.getTonesFromIdx(chord)[2], range[0], range[1])
+        return score
+
 
 class SubMethods:
     def __init__(self,  notePerBar_n = 16):
@@ -136,6 +159,17 @@ class SubMethods:
                 chordScore[beat] = -1
 
         return  chordScore
+
+    def wholeNote(self, chordProg):
+        chordScore = np.full(len(chordProg)*self._notePerBar_n ,-1)
+        for bar, chords in enumerate(chordProg):
+            for beat, chord in enumerate(chords):
+                #issue1
+                chordScore[int(bar*self._notePerBar_n + beat*self._notePerBar_n/4*2) ] \
+                = chord
+
+        return  chordScore
+
 
 if __name__ == '__main__':
     import Drums as dr

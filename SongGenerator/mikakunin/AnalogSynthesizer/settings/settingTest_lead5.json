@@ -1,11 +1,12 @@
 {
+  "description":"flanger like organ sound",
   "Volume" :{
     "harm":{  "bass":{"vol":5.5, "r":0.5, "l":0.5},
               "bass2":{"vol":0.0, "r":0.5, "l":0.5},
               "voicing":{"vol":1.3, "r":0.4, "l":0.6},
               "voicing2":{"vol":2.0, "r":0.6, "l":0.4},
-              "melody":{"vol":2.0, "r":0.53, "l":0.47},
-              "melody2":{"vol": 2.0, "r":0.53, "l":0.47} },
+              "melody":{"vol":2.0, "r":0.4, "l":0.6},
+              "melody2":{"vol": 1.0, "r":0.6, "l":0.4} },
     "drums":{ "kick":{"vol":4.2, "r":0.52, "l":0.48},
               "kick2":{"vol":2.2, "r":0.48, "l":0.52},
               "snare":{"vol":1.0, "r":0.3, "l":0.7},
@@ -28,16 +29,16 @@
       "presetArgs":{}
     },
     "lead":{
-      "presetName":"tape",
-      "presetArgs": {"gain":2}
+      "presetName":"flanger",
+      "presetArgs":{"gain":6, "depth":1.0, "freq":0.5, "balance":1.0}
     },
     "lead2":{
       "presetName":"vibrato",
-      "presetArgs": {"depth":0.7, "freq":1.3}
+      "presetArgs": {"depth":1.0, "freq":1.0}
     },
     "voice":{
       "presetName":"tape",
-      "presetArgs": {"gain":3}
+      "presetArgs": {"gain":1, "depth":1}
     },
     "voice2":{
       "presetName":"dist2",
@@ -104,21 +105,21 @@
         "rate":44100
       },
       "lead":{
-        "waveForm":["sawtooth", "sine", "sine"],
-        "volume":[1.0, 0.9, 0.9],
-        "transpose":[1.0, 2.0, 3.0],
-        "freqFilterName":"highpass",
-        "freqFilterRange":[1],
-        "adsr":[0.0, 0.01, 0.4, 0.0],
+        "waveForm":["sine", "sawtooth", "sine", "square", "square", "square", "square"],
+        "volume":[1.0, 1.0, 0.2, 0.4, 0.4, 0.4, 0.8],
+        "transpose":[0.5, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0],
+        "freqFilterName":"bandpass",
+        "freqFilterRange":[500,10000],
+        "adsr":[0.02, 0.005, 0.9, 0.01],
         "rate":44100
       },
       "lead2":{
-        "waveForm":["sine", "sine", "sine"],
-        "volume":[0.6, 0.6, 0.7, 0.8],
-        "transpose":[4.0, 5.0, 6.0, 7.0],
-        "freqFilterName":"highpass",
-        "freqFilterRange":[1],
-        "adsr":[0.0, 0.01, 0.4, 0.0],
+        "waveForm":["sawtooth", "sine", "sawtooth", "whitenoise"],
+        "volume":[1.1, 0.8, 1.0,0.6],
+        "transpose":[4.0, 5.0, 6.0, 1.0],
+        "freqFilterName":"lowpass",
+        "freqFilterRange":[6000],
+        "adsr":[0.06, 0.005, 0.4, 0.01],
         "rate":44100
       },
       "voice":{

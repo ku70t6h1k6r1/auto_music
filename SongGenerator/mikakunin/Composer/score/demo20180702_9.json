@@ -34,7 +34,7 @@
 
         "Bass":
           {
-            "name":"eightbeat",
+            "name":"riff",
             "range":[28,60],
             "args":{}
           },
@@ -68,7 +68,7 @@
             {
               "name":"cherryA",
               "range":[56,70],
-              "args":{"reverce":false}
+              "args":{"reverce":true}
             },
 
         "Drums":
@@ -111,7 +111,7 @@
 
         "Melody":
           {
-            "name":"oxgame",
+            "name":"zenzenzense",
             "range":[65,77],
             "args":{}
           },
@@ -124,7 +124,7 @@
 
         "Bass":
           {
-            "name":"eightbeat",
+            "name":"riff",
             "range":[28,60],
             "args":{}
           },

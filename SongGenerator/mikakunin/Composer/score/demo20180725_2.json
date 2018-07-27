@@ -1,0 +1,192 @@
+{
+  "form": {
+    "name":"paaibbi",
+    "args":["p","a","i","b"]
+    },
+  "mix": {
+    "name":"edm1"
+    },
+    "p":  {
+            "ChordProgression":
+                {
+                  "name":"cherry",
+                  "args":{"rotate": -1, "keyMm":[1,0], "chordDeg":[0,4]}
+                },
+
+              "ChordProgressionChild":
+              {
+                "name":"cherryB",
+                "args":{}
+              },
+
+            "Melody":
+              {
+                "name":"oxgame",
+                "range":[60,72],
+                "args":{}
+              },
+
+            "Drums":
+              {
+                "name":"random",
+                "args":{}
+              },
+
+            "Bass":
+              {
+                "name":"riff",
+                "range":[28,60],
+                "args":{}
+              },
+
+              "VoiceProgression":
+                {
+                  "name":"unisonBass",
+                  "range":[60,75],
+                  "args": {}
+                },
+
+              "Effects":
+                {
+                  "name":"accentRandom",
+                  "args": {"temperature":{"melody":0.0005, "hihat":0.0005, "snare":0.0005, "kick":0.001}, "tryN":{"melody":1, "hihat":10, "snare":0, "kick":2}}
+                }
+              },
+
+      "i": {
+            "ChordProgression":
+                {
+                  "name":"cherry",
+                  "args":{"rotate": -1, "keyMm":[1,0], "chordDeg":[0,6]}
+                },
+
+            "ChordProgressionChild":
+              {
+                "name":"cherryB",
+                "args":{}
+              },
+
+            "Melody":
+              {
+                "name":"oxgame",
+                "range":[60,72],
+                "args":{}
+              },
+
+            "Drums":
+              {
+                "name":"snareroll",
+                "args":{}
+              },
+
+            "Bass":
+              {
+                "name":"riff",
+                "range":[28,60],
+                "args":{}
+              },
+
+              "VoiceProgression":
+                {
+                  "name":"unisonBass",
+                  "range":[60,75],
+                  "args": {}
+                },
+
+              "Effects":
+                {
+                  "name":"accentRandom",
+                  "args": {"temperature":{"melody":0.0005, "hihat":0.0005, "snare":0.0005, "kick":0.001}, "tryN":{"melody":1, "hihat":10, "snare":0, "kick":2}}
+                }
+              },
+    "a":  {
+        "ChordProgression":
+            {
+              "name":"punk",
+              "args":{"is_Maj": false, "chord_per_1bar":1}
+            },
+
+          "ChordProgressionChild":
+              {
+                "name":"none",
+                "args":{}
+              },
+
+            "Melody":
+              {
+                "name":"cherryA",
+                "range":[65,77],
+                "args":{"reverce":true}
+              },
+
+          "Drums":
+            {
+              "name":"random",
+              "args":{}
+            },
+
+          "Bass":
+            {
+              "name":"kick",
+              "range":[28,60],
+              "args":{}
+            },
+
+            "VoiceProgression":
+              {
+                "name":"unisonBass",
+                "range":[60,75],
+                "args": {}
+              },
+              "Effects":
+                {
+                  "name":"accentRandom",
+                  "args": {"temperature":{"melody":0.0005, "hihat":0.0005, "snare":0.0005, "kick":0.001}, "tryN":{"melody":1, "hihat":1, "snare":1, "kick":1}}
+                }
+            },
+  "b":  {
+      "ChordProgression":
+          {
+            "name":"punk",
+            "args":{"is_Maj": false, "chord_per_1bar":1}
+          },
+
+        "ChordProgressionChild":
+            {
+              "name":"none",
+              "args":{}
+            },
+
+        "Melody":
+          {
+            "name":"romeria",
+            "range":[65,77],
+            "args":{}
+          },
+
+        "Drums":
+          {
+            "name":"fourbeat",
+            "args":{}
+          },
+
+        "Bass":
+          {
+            "name":"riff",
+            "range":[28,60],
+            "args":{}
+          },
+
+        "VoiceProgression":
+          {
+            "name":"doubleStop",
+            "range":[60,75],
+            "args": {"subMethodName":"wholeNote"}
+          },
+          "Effects":
+            {
+              "name":"accentRandom",
+              "args": {"temperature":{"melody":0.0001, "hihat":0.0005, "snare":0.001, "kick":0.001}, "tryN":{"melody":0.8, "hihat":0.2, "snare":0.8, "kick":0.8}}
+            }
+    }
+}
