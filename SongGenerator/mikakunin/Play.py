@@ -191,6 +191,7 @@ class Play:
                 self.volume["harm"]["melody2"],
                 self.volume["harm"]["subMelody"]   ])
         #harm  = self.volCtrl.ending(harm , 15)
+        harm = self.filCtrl.lowfi_stereo(harm, self.bpm, [0], [self.score.form[2]]  ,'bandpass' ,[[400,4000]])
         harm = self.volCtrl.fourBeat_stereo(harm, self.bpm, [self.score.form[3]],  [self.score.form[5]], [0.0], [3.0])
 
 
@@ -216,7 +217,9 @@ class Play:
                 self.volume["fx"]["fx2"],
                 self.volume["fx"]["fx3"],
                 self.volume["fx"]["fx4"]    ])
-        #fx = self.fxObj.Set(fx, "tremolo", **{"depth":2.0}) #もしかしたら利きすぎかもしれない
+
+        fx = self.volCtrl.feedIn_stereo(fx, self.bpm, [self.score.form[2],  self.score.form[3]-16 ], [self.score.form[3]-16, self.score.form[3]], ['liner','tanh'], [0.6, 0.92])
+
 
         #all : merge
         wave = func.add([harm, bass, drums, fx], \

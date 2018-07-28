@@ -161,7 +161,7 @@
           {
             "name":"approach",
             "range":[65,77],
-            "args":{}
+            "args":{"defaultNote":0}
           },
 
         "Drums":
@@ -179,9 +179,9 @@
 
         "VoiceProgression":
           {
-            "name":"doubleStop",
+            "name":"unisonBass",
             "range":[60,75],
-            "args": {"subMethodName":"wholeNote"}
+            "args": {"subMethodName":""}
           },
           "Effects":
             {

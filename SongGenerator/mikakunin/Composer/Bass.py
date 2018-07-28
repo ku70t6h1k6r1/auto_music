@@ -21,6 +21,7 @@ class Bass:
         self.eightBeat = "eightbeat"
         self.synchroniseKick = "kick"
         self.riff = "riff"
+        self.breaka = "break"
 
     def create(self, scoreObj, methodName, range): #melodyName, keyProg, chordProg, range, arg
         if methodName == self.eightBeat:
@@ -30,11 +31,12 @@ class Bass:
             kick = scoreObj.drumObj.kick
             bassLine = self._methodObject.synchroniseKick(scoreObj.chordProg, kick, range)
             scoreObj.setBassLine(bassLine)
-
         elif methodName == self.riff:
             bassLine = self._methodObject.riff(scoreObj.chordProg, range)
             scoreObj.setBassLine(bassLine)
-
+        elif methodName == self.breaka:
+            bassLine = self._methodObject.breaka(scoreObj.chordProg, range)
+            scoreObj.setBassLine(bassLine)
 
 class Methods:
     def __init__(self, notePerBar_n = 16):
@@ -91,6 +93,12 @@ class Methods:
 
         bassLine = bass_kick
         return bassLine
+
+    def breaka(self, chordProg = None):
+        bassLine = np.full(len(chordProg) * self._notePerBar_n, -1)
+        bassLine[0] = -2
+
+        return  bassLine
 
 if __name__ == '__main__':
     import Drums as dr

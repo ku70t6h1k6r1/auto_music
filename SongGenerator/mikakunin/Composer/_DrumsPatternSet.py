@@ -11,21 +11,21 @@ class Fills:
         instObj = cs.Drums()
         instObj.setHihat([-2,-1,-1,-1,  -1,-1,-1,-1,    -1,-1,-1,-1,    -1,-1,-1,-1], True)
         instObj.setSnare([0,-1,-1,-1,  0,-1,-1,-1,    0,-1,-1,-1,    0,-1,-1,-1], True)
-        instObj.setKick([-2,-1,-1,-1,  -1,-1,-1,-1,    -1,-1,-1,-1,    -1,-1,-1,-1], True)
+        instObj.setKick([0,-1,-1,-1,  0,-1,-1,-1,    0,-1,-1,-1,    0,-1,-1,-1], True)
         self.list.append(instObj)
 
         #Eights
         instObj = cs.Drums()
         instObj.setHihat([-2,-1,-1,-1,  -1,-1,-1,-1,    -1,-1,-1,-1,    -1,-1,-1,-1], True)
         instObj.setSnare([0,-1,0,-1,  0,-1,0,-1,    0,-1,0,-1,    0,-1,0,-1], True)
-        instObj.setKick([-2,-1,-1,-1,  -1,-1,-1,-1,    -1,-1,-1,-1,    -1,-1,-1,-1], True)
+        instObj.setKick([0,-1,0,-1,  0,-1,0,-1,    0,-1,0,-1,    0,-1,0,-1], True)
         self.list.append(instObj)
 
         #Sixteens
         instObj = cs.Drums()
         instObj.setHihat([-2,-1,-1,-1,  -1,-1,-1,-1,    -1,-1,-1,-1,    -1,-1,-1,-1], True)
         instObj.setSnare([0,0,0,0,  0,0,0,0,    0,0,0,0,    0,0,0,0], True)
-        instObj.setKick([-2,-1,-1,-1,  -1,-1,-1,-1,    -1,-1,-1,-1,    -1,-1,-1,-1], True)
+        instObj.setKick([0,0,0,0,  0,0,0,0,    0,0,0,0,    0,0,0,0], True)
         self.list.append(instObj)
 
 class Patterns:
@@ -247,7 +247,7 @@ class Patterns:
         #Yotsu-uchi
         instObj = cs.Drums()
         instObj.setHihat([0,-1,-1,-1,  0,-1,-1,-1,    0,-1,-1,-1,    0,-1,-1,-1], True)
-        instObj.setSnare([-1,-1,-1,-1,  0,-1,-1,-1,    -1,-1,-1,-1,    0,-1,-1,-1], True)
+        instObj.setSnare([-1,-1,0,-1,  -1,-1,0,-1,    -1,-1,0,-1,    -1,-1,0,-1], True)
         instObj.setKick([0,-1,-1,-1,  0,-1,-1,-1,    0,-1,-1,-1,    0,-1,-1,-1], True)
         self.list.append(instObj)
 

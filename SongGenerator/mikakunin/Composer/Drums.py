@@ -17,6 +17,7 @@ class Drums:
         self.eightbeat = "eightbeat"
         self.snareroll = "snareroll"
         self.fourBeat = "fourbeat"
+        self.breaka = "break"
 
     def create(self, scoreObj, methodName):
         if methodName == self.random:
@@ -30,6 +31,9 @@ class Drums:
             scoreObj.setDrumObj(drumObj)
         elif methodName == self.fourBeat:
             drumObj = self._methodsObject.fourBeat(scoreObj.chordProg)
+            scoreObj.setDrumObj(drumObj)
+        elif methodName == self.breaka:
+            drumObj = self._methodsObject.breaka(scoreObj.chordProg)
             scoreObj.setDrumObj(drumObj)
 
 
@@ -93,6 +97,19 @@ class Methods:
         hihatScore = np.tile(self._patterns[idx].hihat, len(chordProg))
         snareScore = np.tile(self._patterns[idx].snare, len(chordProg))
         kickScore = np.tile(self._patterns[idx].kick, len(chordProg))
+
+        drumObj.setHihat(hihatScore)
+        drumObj.setSnare(snareScore)
+        drumObj.setKick(kickScore)
+        return drumObj
+
+    def breaka(self, chordProg):
+        drumObj = cs.Drums()
+
+        score = [-2,-1,-1,-1, -1,-1,-1,-1, -1,-1,-1,-1, -1,-1,-1,-1]
+        hihatScore = np.tile(score, len(chordProg))
+        snareScore = np.tile(score, len(chordProg))
+        kickScore = np.tile(score, len(chordProg))
 
         drumObj.setHihat(hihatScore)
         drumObj.setSnare(snareScore)

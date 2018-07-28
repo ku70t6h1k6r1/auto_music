@@ -1,10 +1,10 @@
 {
   "Volume" :{
     "harm":{  "voicing":{"vol":2.0, "r":0.4, "l":0.6},
-              "voicing2":{"vol":0.0, "r":0.6, "l":0.4},
+              "voicing2":{"vol":1.2, "r":0.6, "l":0.4},
               "melody":{"vol":2.5, "r":0.47, "l":0.53},
               "melody2":{"vol": 0.0, "r":0.8, "l":0.2},
-              "subMelody":{"vol": 3.0, "r":0.8, "l":0.2}
+              "subMelody":{"vol": 3.0, "r":0.6, "l":0.4}
              },
     "bass":{  "bass":{"vol":2.5, "r":0.5, "l":0.5},
               "bass2":{"vol":2.0, "r":0.6, "l":0.4}
@@ -147,12 +147,12 @@
         "rate":44100
       },
       "voice2":{
-        "waveForm":["whitenoise", "sawtooth"],
-        "volume":[1.0, 1.0],
-        "transpose":[1.0, 1.0],
-        "freqFilterName":"bandcut",
-        "freqFilterRange":[5500,18000],
-        "adsr":[0.0, 0.2, 0.9, 0.1],
+        "waveForm":["sine", "square", "sine", "sine", "sine", "sawtooth", "sawtooth"],
+        "volume":[0.3, 1.0, 0.2, 0.4, 0.4, 0.2, 0.2],
+        "transpose":[0.5, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0],
+        "freqFilterName":"lowpass",
+        "freqFilterRange":[15000],
+        "adsr":[0.02, 0.3, 0.9, 0.01],
         "rate":44100
       },
       "kick":{

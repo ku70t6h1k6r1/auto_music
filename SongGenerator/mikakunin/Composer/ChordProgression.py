@@ -22,6 +22,7 @@ class ChordProgression:
         self.cherry = "cherry" # >0bars
         self.punk = "punk" # >0bars
         self.radioIntro = "radioIntro" # >0bars
+        self.breaka = "break"
 
     def _setChildChangeName(self):
         self.cherryIntro = "cherryIntro" # >4bars
@@ -51,9 +52,10 @@ class ChordProgression:
             scoreObj.setKeyProg(chords[0])
             scoreObj.setChordProg(chords[1])
 
-        #elif changeName == self.break:
-        #    chords = [[0]] * arg['ba']
-        #    scoreObj.setKeyProg()
+        elif changeName == self.breaka:
+            chords = self._methodsObject.breaka(arg['bars'])
+            scoreObj.setKeyProg(chords[0])
+            scoreObj.setChordProg(chords[1])
 
     def update(self, scoreObj, changeName): #, keyProgression, chordProgression):
         if changeName  == self.cherryIntro:
@@ -203,6 +205,12 @@ class Methods:
             keyProg = [[0,1]] *  4 * rep  #とりあえず4小節を一単位
             idx = (self._minorDiatonicChords[4] + 5*len(self._chordSymbols)) % (len(self._chordSymbols)*len(self._rootSymbols))
             chordsProg = [[idx]]  * 4 * rep
+        return np.array(keyProg), np.array(chordsProg)
+
+    def breaka(self, bars = 1):
+        chordsProg = [[0]] * bars
+        keyprog = [[0,0]] * bars
+
         return np.array(keyProg), np.array(chordsProg)
 
 class SubMethods:

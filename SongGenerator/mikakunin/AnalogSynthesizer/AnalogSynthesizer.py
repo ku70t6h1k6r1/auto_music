@@ -716,7 +716,7 @@ if __name__ == '__main__' :
     #synthesizer = Synthesizer_Poly(['sawtooth', 'square', 'sine', 'sine', 'sine', 'sawtooth', 'sawtooth'], [0.7, 1.0, 0.9, 0.8, 0.4, 0.4, 0.4], [0.5, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0], 'lowpass', [5000], [0.0, 0.25, 0.0, 0.0], 44100)
 
     #Drawer Piano
-    #synthesizer = Synthesizer_Poly(['sine', 'sine', 'sine', 'sine', 'sine', 'sine', 'sine'], [1.0, 1.0, 0.2, 0.4, 0.4, 0.4, 0.8], [0.5, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0], 'lowpass', [15000], [0.02, 0.3, 0.0, 0.0], 44100)
+    #synthesizer = Synthesizer_Poly(['sine', 'sine', 'sine', 'sine', 'sine', 'sine', 'sine'], [1.0, 1.0, 0.2, 0.4, 0.4, 0.4, 0.8], [0.5, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0], 'lowpass', [15000], [0.02, 0.3, 0.9, 0.01], 44100)
     #wave = preset.Distortion(wave, 3, 5)
 
     #Church Organ?
@@ -736,14 +736,18 @@ if __name__ == '__main__' :
     #synthesizer = Synthesizer_Poly(["sine", "sine", "sine", "sine", "whitenoise"], [0.05, 1.4, 0.8, 0.8, 0.5], [0.5, 1.0, 2.0, 3.0, 1.0], 'lowpass', [600], [0.05, 0.1, 0.8, 0.02], 44100)
     #synthesizer2 = Synthesizer_Poly([ "sine", "sine", "sine", "sawtooth", "sine"], [0.8, 0.4, 0.4, 0.4, 0.4], [ 4.0, 5.0, 6.0, 7.01, 7.992], 'lowpass', [600], [0.1, 0.1, 0.8, 0.02], 4410)
 
-    synthesizer = Synthesizer(["sine", "sine"], [1.0, 0.8], [1.0, 1.0], 'lowpass', [200], [0.0, 0.04, 0.3, 0.1], 44100)
+    #synthesizer = Synthesizer(["sine", "sine"], [1.0, 0.8], [1.0, 1.0], 'lowpass', [200], [0.0, 0.04, 0.3, 0.1], 44100)
 
-    #scale = [261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88, 523.25] * 1
-    scale = [[60, 2], [60, 2], [60, 2], [60, 2]]
+    synthesizer = Synthesizer_Poly(["sine", "square", "sine", "sine", "sine", "sawtooth", "sawtooth"], [0.3, 1.0, 0.2, 0.4, 0.4, 0.2, 0.2], [0.5, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0], 'lowpass', [15000], [0.02, 0.3, 0.9, 0.01], 44100)
+
+    scale = [261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88, 523.25] * 1
+    #scale = [[60, 2], [60, 2], [60, 2], [60, 2]]
 
     wave = np.full(0, 0.0)
     for note in scale:
         wave = np.r_[wave, synthesizer.setPitch(note,0.3)]
+
+    wave = preset.Reverb(wave, 0.05, 0.2, 0.8)
 
     #wave2 = np.full(0, 0.0)
     #for note in scale:
@@ -755,10 +759,9 @@ if __name__ == '__main__' :
     #wave = preset.Vibrato(wave, 1.0, 1.7)
     #wave = (wave[0:44100*20] + bass_wave[0:44100*20]) / 2
     #wave = preset.Radio(wave, 0.2)
-    wave = preset.Tape(wave, 0.1, 1.4)
+    #wave = preset.Tape(wave, 0.1, 1.4)
 
 
-    wave = preset.Reverb(wave, 0.05, 0.2, 0.8)
 
     #wave = add([wave, wave2], [1.0, 0.6])
     wave_bin = (wave * float(2 ** (16 - 2) ) ).astype(np.int16).tobytes()

@@ -134,5 +134,5 @@ class Processing:
 if __name__ == '__main__' :
     #proc = Processing('C:/Users/hikari.kubota/Documents/GitHub/auto_music/SongGenerator/mikakunin/wav/test/')
     #proc.execute('C:/Users/hikari.kubota/Documents/GitHub/auto_music/SongGenerator/mikakunin/wav/sample/vowel_normal.wav', 'onset', False, False)
-    proc = Processing('C:/Users/hikari.kubota/Documents/')
-    proc.execute('C:/Users/hikari.kubota/Desktop/temp/09 Last Call.m4a', 'onset', False, False)
+    proc = Processing('C:/Users/hikari.kubota/Documents/GitHub/auto_music/SongGenerator/mikakunin/wav/sample/20180728/')
+    proc.execute('C:/Users/hikari.kubota/Documents/GitHub/auto_music/SongGenerator/mikakunin/wav/sample/20180728/8266436665974_tired.m4a', 'onset', False, False)

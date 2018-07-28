@@ -29,6 +29,7 @@ class Melody:
         self.zenzenzense = "zenzenzense" # >0bars　ただし転調しまくるコード進行に対しては多分ひどいことになる
         self.romeria = "romeria"
         self.approach = "approach"
+        self.breaka = "break"
 
     def _setMelodyNameWithoutChord(self):
         return None
@@ -61,8 +62,13 @@ class Melody:
             scoreObj.setChordProg(melody[1])
             scoreObj.setMelodyLine(melody[2])
         elif melodyName == self.approach:
-            melody = self._methodsObject.approach( scoreObj.keyProg, scoreObj.chordProg, range, 4)
-            print("指定すること otherNoteDegree")
+            melody = self._methodsObject.approach( scoreObj.keyProg, scoreObj.chordProg, range, arg['defaultNote'])
+            print("なんかエラーがでることがある。　UnboundLocalError: local variable 'pastNote' referenced before assignment")
+            scoreObj.setKeyProg(melody[0])
+            scoreObj.setChordProg(melody[1])
+            scoreObj.setMelodyLine(melody[2])
+        elif melodyName == self.breaka :
+            melody = self._methodsObject.breaka( scoreObj.keyProg, scoreObj.chordProg)
             scoreObj.setKeyProg(melody[0])
             scoreObj.setChordProg(melody[1])
             scoreObj.setMelodyLine(melody[2])
@@ -545,15 +551,17 @@ class Methods:
     def approach(self, keyProg=None, chordProg=None, _range = [69,101], otherNoteDegree = 4):
         #作りかけ
         #パターンのグループ抽出
-        grp_name, patterns = random.choice(list(self._rhythmPatters.items()))
+        #grp_name, patterns = random.choice(list(self._rhythmPatters.items()))
 
         melody = np.full(len(keyProg)*self._notePerBar_n , -1)
         targetNote = None
 
-        if len(keyProg) >= 4 and len(keyProg) % 4 == 0:
-            trial_n = len(keyProg) - 1
-            print(type(trial_n))
-            for num in range(2):
+        #if len(keyProg) >= 4 and len(keyProg) % 4 == 0:
+        if len(keyProg) > 1:
+            trial_n = len(keyProg)-1
+            for num in range(trial_n ):
+
+                grp_name, patterns = random.choice(list(self._rhythmPatters.items()))
 
                 key = keyProg[num]
                 chord_idx = chordProg[num][-1] #取り急ぎ
@@ -573,7 +581,7 @@ class Methods:
                 tempMelody = np.array(patterns[np.random.randint(len(patterns))])
 
                 #全て置換
-                onIdxs = np.where(tempMelody > -1)
+                onIdxs = np.where(tempMelody > -1)[0]
                 for idx in onIdxs:
                     tempMelody[idx] = scale[otherNoteDegree]
 
@@ -582,20 +590,30 @@ class Methods:
                 else:
                     tempMelody[onIdxs[0]] = targetNote
 
-                appNotes = self._threeNotesApproach(key[num+1], chord_idx[num+1], degree = np.random.randint(3))
+                appNotes = self._threeNotesApproach(keyProg[num+1], chordProg[num+1][0], degree = np.random.randint(3))
 
                 targetNote = appNotes[-1]
-                tempMelody[onIdxs[-1]] = appNotes[-2]
-                tempMelody[onIdxs[-2]] = appNotes[-3]
                 tempMelody[onIdxs[-3]] = appNotes[-4]
+                tempMelody[onIdxs[-2]] = appNotes[-3]
+                tempMelody[onIdxs[-1]] = appNotes[-2]
+
+
 
                 melody[num*self._notePerBar_n : (num+1)*self._notePerBar_n] = tempMelody
 
             #本当はもっとよく変えたい
             melody[-self._notePerBar_n]  = targetNote
 
-        melody = func.processing(tempMelody, _range)
-        melody = np.array(tempMelody)
+        print(melody)
+        melody = func.processing(melody, _range)
+        melody = np.array(melody)
+
+        return  keyProg, chordProg, melody
+
+    def breaka(self,keyProg=None, chordProg = None):
+        melody = np.full(len(keyProg) * self._notePerBar_n, -1)
+        melody[0] = -2
+
         return  keyProg, chordProg, melody
 
     #approachノート系

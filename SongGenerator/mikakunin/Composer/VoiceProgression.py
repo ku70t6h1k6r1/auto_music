@@ -17,6 +17,7 @@ class VoiceProgression:
         self.triad = "triad"
         self.doubleStop = "doubleStop"
         self.unisonBass = "unisonBass"
+        self.breaka = "break"
 
     def _setRythmName(self):
         self.eightBeat = self._methodsObject.eightBeat
@@ -35,6 +36,9 @@ class VoiceProgression:
             scoreObj.setVoiceProg(voiceProg)
         elif voicingName == self.unisonBass:
             voiceProg = self._methodsObject.unisonBass(scoreObj.chordProg, scoreObj.bassLine, range)
+            scoreObj.setVoiceProg(voiceProg)
+        elif voicingName == self.breaka:
+            voiceProg = self._methodsObject.breaka(scoreObj.chordProg)
             scoreObj.setVoiceProg(voiceProg)
 
 class Methods:
@@ -129,6 +133,12 @@ class Methods:
                 score[i][1] = func.clipping(self._chordIdx.getTonesFromIdx(chord)[2], range[0], range[1])
         return score
 
+    def breaka(self, chordProg):
+        score = np.full([len(chordProg)*self._notePerBar_n, 2], -1)
+        score[0][0] = -2
+        score[0][1] = -2
+
+        return score
 
 class SubMethods:
     def __init__(self,  notePerBar_n = 16):
