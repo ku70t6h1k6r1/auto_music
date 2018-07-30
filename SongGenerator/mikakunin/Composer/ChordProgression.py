@@ -209,7 +209,7 @@ class Methods:
 
     def breaka(self, bars = 1):
         chordsProg = [[0]] * bars
-        keyprog = [[0,0]] * bars
+        keyProg = [[0,0]] * bars
 
         return np.array(keyProg), np.array(chordsProg)
 

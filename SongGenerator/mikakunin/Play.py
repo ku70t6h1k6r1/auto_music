@@ -80,6 +80,7 @@ class Play:
         self.fx4Obj = midiNotesToWave_Sampler(self.setting_samp["fx4"], bpm = self.bpm)
 
     def execute(self, writeStream = True, fileOut = False):
+        print(self.score.form)
 
         #melody
         melody_hz, melody = self.leadObj.convert(self.score.melodyLine)
@@ -154,9 +155,9 @@ class Play:
 
         #
         bass = self.volCtrl.sidechain(bass, self.bpm, kick_hz)
-        bass = self.volCtrl.feedIn2(bass, self.bpm, [self.score.form[2],  self.score.form[3]-16 ], [self.score.form[3]-16, self.score.form[3]] , [0.3, 0.99])
+        #bass = self.volCtrl.feedIn2(bass, self.bpm, [self.score.form[3],  self.score.form[5]-16 ], [self.score.form[5]-16, self.score.form[5]] , [0.3, 0.99])
         bass2 = self.volCtrl.sidechain(bass2, self.bpm, kick_hz)
-        bass2 = self.volCtrl.feedIn2(bass2, self.bpm,  [self.score.form[2],  self.score.form[3]-16 ], [self.score.form[3]-16, self.score.form[3]], [0.3, 0.99])
+        #bass2 = self.volCtrl.feedIn2(bass2, self.bpm,  [self.score.form[3],  self.score.form[5]-16 ], [self.score.form[5]-16, self.score.form[5]], [0.3, 0.99])
 
         """
         長さ確認
@@ -181,7 +182,9 @@ class Play:
 
         #bass:merge
         bass = func.add_stereo([bass, bass2], [self.volume["bass"]["bass"], self.volume["bass"]["bass2"]])
-        bass = self.filCtrl.lowfi_stereo(bass, self.bpm, [self.score.form[1]], [self.score.form[2]]  ,'bandpass' ,[[1000,5000]])
+        bass = self.filCtrl.lowfi_stereo(bass, self.bpm, [self.score.form[1]], [self.score.form[3]]  ,'bandpass' ,[[1000,5000]])
+        bass = self.volCtrl.feedIn_stereo(bass, self.bpm, [self.score.form[3],  self.score.form[5]-16 ], [self.score.form[5]-16, self.score.form[5]], ['liner','tanh'], [0.3, 0.99])
+
 
         #harm : merge
         harm = func.add_stereo([voicing, voicing2, melody, melody2, subMelody], \
@@ -191,8 +194,9 @@ class Play:
                 self.volume["harm"]["melody2"],
                 self.volume["harm"]["subMelody"]   ])
         #harm  = self.volCtrl.ending(harm , 15)
-        harm = self.filCtrl.lowfi_stereo(harm, self.bpm, [0], [self.score.form[2]]  ,'bandpass' ,[[400,4000]])
-        harm = self.volCtrl.fourBeat_stereo(harm, self.bpm, [self.score.form[3]],  [self.score.form[5]], [0.0], [3.0])
+        harm = self.filCtrl.lowfi_stereo(harm, self.bpm, [self.score.form[1]], [self.score.form[4]]  ,'bandpass' ,[[400,4000]])
+        harm = self.volCtrl.fourBeat_stereo(harm, self.bpm, [self.score.form[5]],  [self.score.form[8]], [0.0], [3.0])
+        #harm = self.volCtrl.feedIn_stereo(harm, self.bpm, [self.score.form[3],  self.score.form[5]-16 ], [self.score.form[5]-16, self.score.form[5]], ['liner','tanh'], [0.3, 0.99])
 
 
         #snare = self.volCtrl.feedIn2(snare, self.bpm, [self.score.form[2],  self.score.form[3]-16 ], [self.score.form[3]-16, self.score.form[3]] , [0.3, 0.99])
@@ -208,8 +212,8 @@ class Play:
                 self.volume["drums"]["hihat2"]  ])
         #drums  = self.volCtrl.ending(drums , 15)
 
-        drums = self.volCtrl.feedIn_stereo(drums, self.bpm, [self.score.form[2],  self.score.form[3]-16 ], [self.score.form[3]-16, self.score.form[3]], ['liner','tanh'], [0.3, 0.92])
-        drums = self.filCtrl.lowfi_stereo(drums, self.bpm, [self.score.form[1]], [self.score.form[2]]  ,'bandpass' ,[[3000,10000]])
+        drums = self.volCtrl.feedIn_stereo(drums, self.bpm, [self.score.form[3],  self.score.form[5]-16,  self.score.form[7]], [self.score.form[5]-16, self.score.form[5],  self.score.form[8]], ['liner','tanh','tanh'], [0.3, 0.99, 0.2])
+        drums = self.filCtrl.lowfi_stereo(drums, self.bpm, [self.score.form[1]], [self.score.form[3]]  ,'bandpass' ,[[3000,10000]])
 
         #fx : merge
         fx = func.add_stereo([fx1, fx2, fx3, fx4], \
@@ -218,7 +222,7 @@ class Play:
                 self.volume["fx"]["fx3"],
                 self.volume["fx"]["fx4"]    ])
 
-        fx = self.volCtrl.feedIn_stereo(fx, self.bpm, [self.score.form[2],  self.score.form[3]-16 ], [self.score.form[3]-16, self.score.form[3]], ['liner','tanh'], [0.6, 0.92])
+        fx = self.volCtrl.feedIn_stereo(fx, self.bpm, [self.score.form[3],  self.score.form[5]-16 ], [self.score.form[5]-16, self.score.form[5]], ['liner','liner'], [0.6, 0.99])
 
 
         #all : merge

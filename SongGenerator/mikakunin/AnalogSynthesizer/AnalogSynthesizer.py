@@ -468,6 +468,33 @@ class VolumeController():
 
         return wave
 
+    def feedOut_stereo(self, wave, bpm, start = [0], end = [0], type = ['tanh'], depth = [0.0]):
+        wave_r =  wave[1::2]
+        wave_l = wave[0::2]
+
+        volume = np.full(len(wave_r), 1.0)
+        start = np.array(start) * int(60 / bpm / 4 * 44100 )
+        end = np.array(end) * int(60 / bpm / 4 * 44100 )
+
+        for idx, s in enumerate(start):
+            curve = np.full(( end[idx] - start[idx] + 1) , 0.0)
+            step = len(curve) * ( 1.0 - depth[idx] )
+
+            if type[idx] == 'liner':
+                x = np.linspace(0.0, 1.0, num = step)
+                curve[-len(x) : len(curve)] = x
+
+            elif type[idx] == 'tanh':
+                x = np.linspace(0.0, 3.0, num = step)
+                curve[-len(x) : len(curve)] = np.tanh(x)
+
+            volume[start[idx]:end[idx]+1] = curve[::-1]
+
+        wave[1::2] = wave_r * volume
+        wave[0::2] = wave_l * volume
+
+        return wave
+
     def deepSidechain(self, wave, bpm, sec_list_ctrl, min = 2.0, max = 4.0):
         max_frame  = int(60/bpm *44100)
         bank = max #3～
@@ -738,7 +765,7 @@ if __name__ == '__main__' :
 
     #synthesizer = Synthesizer(["sine", "sine"], [1.0, 0.8], [1.0, 1.0], 'lowpass', [200], [0.0, 0.04, 0.3, 0.1], 44100)
 
-    synthesizer = Synthesizer_Poly(["sine", "square", "sine", "sine", "sine", "sawtooth", "sawtooth"], [0.3, 1.0, 0.2, 0.4, 0.4, 0.2, 0.2], [0.5, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0], 'lowpass', [15000], [0.02, 0.3, 0.9, 0.01], 44100)
+    synthesizer = Synthesizer_Poly(["sawtooth", "sawtooth", "sawtooth", "sine", "sine", "whitenoise"], [1.0, 0.9, 0.1, 0.2, 0.2, 0.75], [ 1.0, 2.0, 3.0, 4.01, 5.01, 6.0], 'bandpass', [300,8000], [0.15, 0.01, 0.5, 0.1], 44100)
 
     scale = [261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88, 523.25] * 1
     #scale = [[60, 2], [60, 2], [60, 2], [60, 2]]

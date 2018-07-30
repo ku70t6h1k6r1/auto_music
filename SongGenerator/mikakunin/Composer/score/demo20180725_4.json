@@ -102,7 +102,7 @@
             "ChordProgression":
                 {
                   "name":"cherry",
-                  "args":{"rotate": -1, "keyMm":[1,0], "chordDeg":[0,6]}
+                  "args":{"rotate": -1, "keyMm":[0,1], "chordDeg":[0,6]}
                 },
 
             "ChordProgressionChild":
@@ -159,7 +159,7 @@
 
             "Melody":
               {
-                "name":"cherryA",
+                "name":"romeria",
                 "range":[65,77],
                 "args":{"reverce":true}
               },
@@ -193,7 +193,7 @@
       "ChordProgression":
           {
             "name":"punk",
-            "args":{"is_Maj": false, "chord_per_1bar":1}
+            "args":{"is_Maj": true, "chord_per_1bar":1}
           },
 
         "ChordProgressionChild":

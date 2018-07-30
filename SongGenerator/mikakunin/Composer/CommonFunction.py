@@ -61,9 +61,11 @@ def clipping(note, lowestPitch = 60, highestPitch = 84):
     return note
 
 def processing(melody, range):
+    pastNote = None
     for beat, note in enumerate(melody):
         if note > -1:
-            if beat > 0:
+            #if beat > 0:
+            if pastNote is not None:
                 melody[beat] = clipping(note, range[0], range[1])
                 melody[beat] = smoothing(melody[beat], pastNote)
                 pastNote = melody[beat]

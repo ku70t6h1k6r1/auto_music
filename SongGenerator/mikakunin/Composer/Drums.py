@@ -87,7 +87,7 @@ class Methods:
 
         drumObj.setHihat(silent)
         drumObj.setSnare(snare)
-        drumObj.setKick(silent)
+        drumObj.setKick(snare)
         return drumObj
 
     def fourBeat(self,chordProg):

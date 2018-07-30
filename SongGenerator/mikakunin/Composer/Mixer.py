@@ -88,8 +88,10 @@ class Methods:
             output[0] = {'melodyLine':False, 'melodyLine2':False, 'bassLine':False, 'voiceProg':False, 'drums':False, 'effects':True}
             output[1] = {'melodyLine':True, 'melodyLine2':False, 'bassLine':False, 'voiceProg':True, 'drums':False, 'effects':True}
             output[2] = {'melodyLine':True, 'melodyLine2':False, 'bassLine':True, 'voiceProg':True, 'drums':True, 'effects':True}
-            output[3] = {'melodyLine':True, 'melodyLine2':False, 'bassLine':True, 'voiceProg':False, 'drums':True, 'effects':True}
-            output[4] = {'melodyLine':False, 'melodyLine2':True, 'bassLine':True, 'voiceProg':True, 'drums':True, 'effects':True}
+            output[3] = {'melodyLine':True, 'melodyLine2':False, 'bassLine':False, 'voiceProg':False, 'drums':False, 'effects':True}
+            output[4] = {'melodyLine':True, 'melodyLine2':False, 'bassLine':True, 'voiceProg':False, 'drums':True, 'effects':True}
             output[5] = {'melodyLine':False, 'melodyLine2':True, 'bassLine':True, 'voiceProg':True, 'drums':True, 'effects':True}
-            output[-1] = {'melodyLine':True, 'melodyLine2':False, 'bassLine':False, 'voiceProg':False, 'drums':False, 'effects':True}
+            output[6] = {'melodyLine':False, 'melodyLine2':True, 'bassLine':True, 'voiceProg':True, 'drums':True, 'effects':True}
+            output[-2] = {'melodyLine':False, 'melodyLine2':True, 'bassLine':False, 'voiceProg':False, 'drums':True, 'effects':True}
+            output[-1] = {'melodyLine':False, 'melodyLine2':False, 'bassLine':False, 'voiceProg':False, 'drums':False, 'effects':False}
         return output

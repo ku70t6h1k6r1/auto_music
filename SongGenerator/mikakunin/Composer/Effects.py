@@ -15,6 +15,7 @@ class Effects:
 
     def _setMethodName(self):
         self.accentRandom = "accentRandom"
+        self.onBeat = "onbeat"
 
     def create(self, scoreObj, methodName, **arg):
 #    def accentRandom(self, melody, hihat, snare, kick , barsPerOneSection = 4, temperature = {'melody':0.0005, 'hihat':0.0005, 'snare':0.0005, 'kick':0.0005}):
@@ -24,6 +25,9 @@ class Effects:
             The N of bars must be > 2bars and Even
             """
             effectsObj = self._methodsObject.accentRandom(scoreObj.melodyLine, scoreObj.drumObj.hihat, scoreObj.drumObj.snare, scoreObj.drumObj.kick, 2, arg['temperature'], arg['tryN'])
+            scoreObj.setEffectsObj(effectsObj)
+        elif methodName == self.onBeat:
+            effectsObj = self._methodsObject.onBeat(scoreObj.melodyLine, 4, arg['temperature'], arg['tryN'])
             scoreObj.setEffectsObj(effectsObj)
 
 class Methods:
@@ -99,6 +103,7 @@ class Methods:
         effectsObj.setPt2(self._accentRandom(score, 1, temperature['fx2'], tryN['fx2']))
         effectsObj.setPt3(self._accentRandom(score, 1, temperature['fx3'], tryN['fx3']))
         effectsObj.setPt4(self._accentRandom(score, 1, temperature['fx4'], tryN['fx4']))
+        print(effectsObj)
         return effectsObj
 
 if __name__ == '__main__':

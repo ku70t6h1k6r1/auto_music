@@ -13,7 +13,7 @@ class Section:
         self._setMethodName()
 
     def _setMethodName(self):
-        self.paasibbi = "paasibbi"
+        self.paasibbis = "paasibbis"
         self.paaibbi = "paaibbi"
         self.ppaabbi = "ppaabbi"
         self.piaabbi = "piaabbi"
@@ -39,20 +39,20 @@ class Section:
             return self._methodObject.ppaabbi()
         elif methodName == self.paaibbi:
             return self._methodObject.paaibbi()
-        elif methodName == self.paasibbi:
-            return self._methodObject.paasibbi()
+        elif methodName == self.paasibbis:
+            return self._methodObject.paasibbis()
 
 class Methods:
     def __init__(self):
         return None
 
-    def paasibbi(self):
+    def paasibbis(self):
         p = cs.Score()
         i = cs.Score()
         a = cs.Score()
         b = cs.Score()
         s = cs.Score()
-        return [p,a,a,s,i,b,b,i]
+        return [p,a,a,s,i,b,b,i,s]
 
     def paaibbi(self):
         p = cs.Score()

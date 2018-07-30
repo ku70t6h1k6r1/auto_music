@@ -35,7 +35,7 @@ class Bass:
             bassLine = self._methodObject.riff(scoreObj.chordProg, range)
             scoreObj.setBassLine(bassLine)
         elif methodName == self.breaka:
-            bassLine = self._methodObject.breaka(scoreObj.chordProg, range)
+            bassLine = self._methodObject.breaka(scoreObj.chordProg)
             scoreObj.setBassLine(bassLine)
 
 class Methods:
