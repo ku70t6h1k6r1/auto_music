@@ -78,11 +78,23 @@ class Preset:
         wave = Compressor.sigmoid(Compressor(), wave, depth)
         return wave
 
+    def _Distortion2(self, wave, gain = 3, depth = 0.5):
+        """
+        ギターの音と合わせたら声みたいに
+        demo20180730_Test_settingTest_20180730_133__20180730_170252.wav
+        """
+        wave = Distortion.hardClipping(Distortion(), wave, gain)
+        wave = Compressor.sigmoid(Compressor(), wave, depth)
+        filter = Filter('bandpass', [50, 1000])
+        wave = Delay.reverb(Delay(), wave, 0.05, 0.6, 0.97)
+        wave = filter.processing(wave)
+        return wave
+
     def Distortion2(self, wave, gain = 3, depth = 0.5):
         wave = Distortion.hardClipping(Distortion(), wave, gain)
         wave = Compressor.sigmoid(Compressor(), wave, depth)
-        filter = Filter('highpass', [1000])
-        wave = Delay.reverb(Delay(), wave, 0.05, 0.6, 0.97)
+        filter = Filter('bandpass', [18, 12000])
+        wave = Delay.reverb(Delay(), wave, 0.05, 0.9, 0.85)
         wave = filter.processing(wave)
         return wave
 
@@ -93,6 +105,11 @@ class Preset:
         wave = Delay.reverb(Delay(), wave, 0.01, 0.3, 0.3)
         wave = Tremolo.am(Tremolo(), wave, depth=1, freq=5.0, rate=44100)
         #wave = filter.processing(wave)
+        return wave
+
+    def Filter(self, wave, filterName = 'bandpass', freqs = [18, 12000]):
+        filter = Filter(filterName, freqs)
+        wave = filter.processing(wave)
         return wave
 
     def Tremolo(self, wave, depth = 1, bpm = 120):

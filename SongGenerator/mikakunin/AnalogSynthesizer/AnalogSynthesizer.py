@@ -765,32 +765,39 @@ if __name__ == '__main__' :
 
     #synthesizer = Synthesizer(["sine", "sine"], [1.0, 0.8], [1.0, 1.0], 'lowpass', [200], [0.0, 0.04, 0.3, 0.1], 44100)
 
-    synthesizer = Synthesizer_Poly(["sawtooth", "sawtooth", "sawtooth", "sine", "sine", "whitenoise"], [1.0, 0.9, 0.1, 0.2, 0.2, 0.75], [ 1.0, 2.0, 3.0, 4.01, 5.01, 6.0], 'bandpass', [300,8000], [0.15, 0.01, 0.5, 0.1], 44100)
+    #guitar
+    synthesizer = Synthesizer_Poly(["sawtooth", "sawtooth", "sawtooth", "sine", "sine", "whitenoise"], [0.8, 0.2, 0.1, 0.2, 0.2, 0.3], [1.0, 2.0, 3.0, 4.01, 5.01, 6.0], 'bandpass', [10,18000], [0.0, 0.15, 0.9, 0.1], 44100)
 
     scale = [261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88, 523.25] * 1
+    #scale = [261.63/4] * 16
     #scale = [[60, 2], [60, 2], [60, 2], [60, 2]]
 
     wave = np.full(0, 0.0)
     for note in scale:
-        wave = np.r_[wave, synthesizer.setPitch(note,0.3)]
+        wave = np.r_[wave, synthesizer.setPitch(note,0.2)]
+    #scale2 = [261.63 * 1.5/4 , 293.66 * 1.5/4,   329.63 * 1.5/4,  349.23 * 1.5/4, 392.00 * 1.5/4, 440.00 * 1.5/4, 493.88 * 1.5/4, 523.25 * 1.5/4] * 1
 
-    wave = preset.Reverb(wave, 0.05, 0.2, 0.8)
+    #scale2 = [261.63*1.5/4] * 16
 
     #wave2 = np.full(0, 0.0)
-    #for note in scale:
-    #    wave2 = np.r_[wave2, synthesizer2.setPitch(note,0.3)]
+    #for note in scale2:
+    #    wave2 = np.r_[wave2, synthesizer.setPitch(note,0.2)]
+
+    #wave = add([wave, wave2], [1.0, 1.0])
+
 
 
     #wave = preset.Distortion(wave, 5, 3)
+    wave = preset.Filter(wave, 'bandpass', [20, 5000])
+
     #wave = preset.Flanger(wave,  gain = 4, depth = 2.0, freq = 0.8, balance = 1.0)
     #wave = preset.Vibrato(wave, 1.0, 1.7)
     #wave = (wave[0:44100*20] + bass_wave[0:44100*20]) / 2
     #wave = preset.Radio(wave, 0.2)
     #wave = preset.Tape(wave, 0.1, 1.4)
+    wave = preset.Reverb(wave, 0.05, 0.2, 0.8)
 
 
-
-    #wave = add([wave, wave2], [1.0, 0.6])
     wave_bin = (wave * float(2 ** (16 - 2) ) ).astype(np.int16).tobytes()
     o.write(wave_bin)
     #SNARE?

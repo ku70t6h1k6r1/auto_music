@@ -1,0 +1,55 @@
+{
+  "form": {
+    "name":"a",
+    "args":["a"]
+    },
+  "mix": {
+    "name":"test"
+    },
+
+    "a":  {
+        "ChordProgression":
+            {
+              "name":"punk",
+              "args":{"is_Maj": false, "chord_per_1bar":1}
+            },
+
+          "ChordProgressionChild":
+              {
+                "name":"none",
+                "args":{}
+              },
+
+            "Melody":
+              {
+                "name":"romeria",
+                "range":[65,77],
+                "args":{"reverce":true}
+              },
+
+          "Drums":
+            {
+              "name":"random",
+              "args":{}
+            },
+
+          "Bass":
+            {
+              "name":"riff16",
+              "range":[28,60],
+              "args":{}
+            },
+
+            "VoiceProgression":
+              {
+                "name":"unisonBass",
+                "range":[40,60],
+                "args": {"subMethodName":"wholeNote"}
+              },
+              "Effects":
+              {
+                "name":"onBeat_manual",
+                "args": {}
+              }
+            }
+}

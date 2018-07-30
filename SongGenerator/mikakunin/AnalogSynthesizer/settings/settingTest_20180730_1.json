@@ -1,0 +1,240 @@
+{
+  "Volume" :{
+    "harm":{  "voicing":{"vol":2.0, "r":0.4, "l":0.6},
+              "voicing2":{"vol":1.2, "r":0.6, "l":0.4},
+              "melody":{"vol":2.0, "r":0.47, "l":0.53},
+              "melody2":{"vol": 0.0, "r":0.8, "l":0.2},
+              "subMelody":{"vol": 2.0, "r":0.6, "l":0.4}
+             },
+    "bass":{  "bass":{"vol":2.5, "r":0.5, "l":0.5},
+              "bass2":{"vol":2.0, "r":0.6, "l":0.4}
+            },
+    "drums":{ "kick":{"vol":8.0, "r":0.5, "l":0.5},
+              "kick2":{"vol":2.0, "r":0.75, "l":0.25},
+              "snare":{"vol":1.0, "r":0.3, "l":0.7},
+              "snare2":{"vol":2.0, "r":0.7, "l":0.3},
+              "hihat":{"vol":1.0, "r":0.2, "l":0.8},
+              "hihat2":{"vol":0.0, "r":0.4, "l":0.6}  },
+    "fx":{    "fx1":{"vol":1.0, "r":0.1, "l":0.9},
+              "fx2":{"vol":1.0, "r":0.9, "l":0.1},
+              "fx3":{"vol":1.0, "r":0.95, "l":0.05},
+              "fx4":{"vol":1.0, "r":0.05, "l":0.95} },
+    "master":{"harm":0.0, "bass":0.0, "drums":0.5, "fx":0.5}
+  },
+  "Preset" : {
+    "bass":{
+      "presetName":"flanger",
+      "presetArgs":{"gain":4, "depth":0.65, "freq":0.3, "balance":1.0}
+    },
+    "bass2":{
+      "presetName":"trueBypass",
+      "presetArgs":{}
+    },
+    "lead":{
+      "presetName":"tape",
+      "presetArgs": {"gain":0.2 , "depth":0.1}
+    },
+    "lead2":{
+      "presetName":"tape",
+      "presetArgs": {"gain":2, "depth":1}
+    },
+    "subLead":{
+      "presetName":"radio",
+      "presetArgs": {"gain":1.0, "depth_pitch":2.3, "freq_pitch":0.3, "depth_vol":0.1, "freq_vol":5.0}
+    },
+    "voice":{
+      "presetName":"dist2",
+      "presetArgs":{"gain":5 ,"depth":3}
+    },
+    "voice2":{
+      "presetName":"dist2",
+      "presetArgs":{"gain":7 ,"depth":2}
+    },
+    "hihat":{
+      "presetName":"dist",
+      "presetArgs":{"gain":2.0 ,"depth":2.0}
+    },
+    "hihat2":{
+      "presetName":"trueBypass",
+      "presetArgs":{}
+    },
+    "snare":{
+      "presetName":"dist",
+      "presetArgs":{"gain":3 ,"depth":1}
+    },
+    "snare2":{
+      "presetName":"trueBypass",
+      "presetArgs":{}
+    },
+    "kick":{
+      "presetName":"dist",
+      "presetArgs":{"gain":0.1 ,"depth":0.1}
+    },
+    "kick2":{
+      "presetName":"dist",
+      "presetArgs":{"gain":0.1 ,"depth":1.0}
+    },
+    "fx1":{
+      "presetName":"reverb",
+      "presetArgs":{"delay": 0.05, "amp": 0.6, "depth": 0.8}
+    },
+    "fx2":{
+      "presetName":"reverb",
+      "presetArgs":{"delay": 0.05, "amp": 0.9, "depth": 0.8}
+    },
+    "fx3":{
+      "presetName":"reverb",
+      "presetArgs":{"delay": 0.05, "amp": 0.7, "depth": 0.8}
+    },
+    "fx4":{
+      "presetName":"reverb",
+      "presetArgs":{"delay": 0.05, "amp": 0.8, "depth": 0.8}
+    }
+  },
+  "AnalogSynthesizer" : {
+      "bass":{
+        "waveForm":["sine", "sawtooth"],
+        "volume":[1.0, 0.2],
+        "transpose":[1.0, 1.0],
+        "freqFilterName":"lowpass",
+        "freqFilterRange":[2000],
+        "adsr":[0.0, 0.03, 0.38, 0.01],
+        "rate":44100
+      },
+      "bass2":{
+        "waveForm":["square"],
+        "volume":[1.0],
+        "transpose":[1.0],
+        "freqFilterName":"bandpass",
+        "freqFilterRange":[100,3000],
+        "adsr":[0.0, 0.03, 0.38, 0.01],
+        "rate":44100
+      },
+      "lead":{
+        "waveForm":["sine", "sine", "sawtooth", "sawtooth", "square", "square", "whitenoise"],
+        "volume":[0.1, 2.0, 0.9, 0.8, 0.2, 0.2, 0.9],
+        "transpose": [0.5, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0],
+        "freqFilterName":"bandcut",
+        "freqFilterRange":[3000, 10000],
+        "adsr":[0.05, 0.18, 0.01, 0.01],
+        "rate":44100
+      },
+      "lead2":{
+        "waveForm":["sawtooth", "sawtooth", "sawtooth", "sine"],
+        "volume":[0.2, 2.0,  0.1, 0.9],
+        "transpose":[0.5, 1.0, 2.0, 3.001],
+        "freqFilterName":"bandpass",
+        "freqFilterRange":[10,18000],
+        "adsr":[0.03, 0.02, 0.6, 0.01],
+        "rate":44100
+      },
+      "subLead":{
+        "waveForm":["sawtooth", "sawtooth", "sawtooth", "sine", "sine", "whitenoise"],
+        "volume":[1.0, 0.9, 0.1, 0.2, 0.2, 0.75],
+        "transpose":[1.0, 2.0, 3.0, 4.01, 5.01, 6.0],
+        "freqFilterName":"bandpass",
+        "freqFilterRange":[300,8000],
+        "adsr":[0.15, 0.01, 0.5, 0.1],
+        "rate":44100
+      },
+      "voice":{
+        "waveForm":["sawtooth", "sawtooth", "sawtooth", "sawtooth", "sine", "sine", "whitenoise"],
+        "volume":[0.74, 0.8, 0.2, 0.1, 0.2, 0.2, 0.3],
+        "transpose":[0.5, 1.0, 2.0, 3.0, 4.01, 5.01, 6.0],
+        "freqFilterName":"bandpass",
+        "freqFilterRange":[300,8000],
+        "adsr":[0.0, 0.15, 0.6, 0.1],
+        "rate":44100
+      },
+      "voice2":{
+        "waveForm":["sine", "square", "sine", "sine", "sine", "sawtooth", "sawtooth"],
+        "volume":[0.3, 1.0, 0.2, 0.4, 0.4, 0.2, 0.2],
+        "transpose":[0.5, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0],
+        "freqFilterName":"lowpass",
+        "freqFilterRange":[15000],
+        "adsr":[0.02, 0.3, 0.9, 0.01],
+        "rate":44100
+      },
+      "kick":{
+        "constHz":[60.0,2.0],
+        "waveForm":["whitenoise", "sine"],
+        "volume":[0.8, 0.8],
+        "transpose":[1.0, 1.0],
+        "freqFilterName":"lowpass",
+        "freqFilterRange":[200],
+        "adsr":[0.0, 0.04, 0.3 ,0.1],
+        "rate":44100
+      },
+      "snare":{
+        "constHz":100,
+        "waveForm":["sawtooth", "whitenoise"],
+        "volume":[0.2, 1.0],
+        "transpose":[1.0, 1.0],
+        "freqFilterName":"bandcut",
+        "freqFilterRange":[1000,3000],
+        "adsr":[0.01, 0.02, 0.0, 0.01],
+        "rate":44100
+      },
+      "hihat":{
+        "constHz":1000,
+        "waveForm":["whitenoise", "sawtooth"],
+        "volume":[1.0, 1.0],
+        "transpose":[1.0, 0.5],
+        "freqFilterName":"highpass",
+        "freqFilterRange":[15000],
+        "adsr":[0.0, 0.01, 0.0, 0.1],
+        "rate":44100
+      }
+    },
+  "Sampler" :{
+      "fx1":{
+        "file":"C:/Users/hikari.kubota/Documents/GitHub/auto_music/SongGenerator/mikakunin/wav/sample/*",
+        "freqFilterName":"bandpass",
+        "freqFilterRange":[500,15000],
+        "adsr": [0.3, 0.02, 0.8, 0.02],
+        "rate":44100
+      },
+      "fx2":{
+        "file":"C:/Users/hikari.kubota/Documents/GitHub/auto_music/SongGenerator/mikakunin/wav/sample/*",
+        "freqFilterName":"bandpass",
+        "freqFilterRange":[200,12000],
+        "adsr":[0.0, 0.02, 0.9, 0.02],
+        "rate":44100
+      },
+      "fx3":{
+        "file":"C:/Users/hikari.kubota/Documents/GitHub/auto_music/SongGenerator/mikakunin/wav/sample/*",
+        "freqFilterName":"bandpass",
+        "freqFilterRange":[100,10000],
+        "adsr":[0.0, 0.02, 0.9, 0.02],
+        "rate":44100
+      },
+      "fx4":{
+        "file":"C:/Users/hikari.kubota/Documents/GitHub/auto_music/SongGenerator/mikakunin/wav/sample/*",
+        "freqFilterName":"bandpass",
+        "freqFilterRange":[2,9500],
+        "adsr":[0.01, 0.2, 0.8, 0.1],
+        "rate":44100
+      },
+      "kick":{
+        "file":"C:/Users/hikari.kubota/Documents/GitHub/auto_music/SongGenerator/mikakunin/wav/sample/*",
+        "freqFilterName":"lowpass",
+        "freqFilterRange":[800],
+        "adsr":[0.0, 0.02, 0.0, 0.0],
+        "rate":44100
+      },
+      "snare":{
+        "file":"C:/Users/hikari.kubota/Documents/GitHub/auto_music/SongGenerator/mikakunin/wav/sample/*",
+        "freqFilterName":"bandpass",
+        "freqFilterRange":[300,8000],
+        "adsr":[0.0, 0.02, 0.6, 0.02],
+        "rate":44100
+      },
+      "hihat":{
+        "file":"C:/Users/hikari.kubota/Documents/GitHub/auto_music/SongGenerator/mikakunin/wav/sample/*",
+        "freqFilterName":"highpass",
+        "freqFilterRange":[400],
+        "adsr":[0.0, 0.02, 0.7, 0.02],
+        "rate":44100
+      }
+    }
+}

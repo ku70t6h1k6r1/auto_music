@@ -8,10 +8,12 @@ class Mixer:
 
     def _setMethodName(self):
         self.default = 'default'
+        self.test = 'test'
         self.demo20180702 = 'demo20180702'
         self.demo20180716 = 'demo20180716'
         self.pattern1 = 'pattern1'
         self.edm1 = 'edm1'
+        self.edm2 = 'edm2'
 
     def create(self, formObj, methodName):
         if methodName == self.default:
@@ -24,6 +26,10 @@ class Mixer:
             return self._methodObject.demo20180716(formObj)
         elif methodName == self.edm1:
             return self._methodObject.edm1(formObj)
+        elif methodName == self.edm2:
+            return self._methodObject.edm2(formObj)
+        elif methodName == self.test:
+            return self._methodObject.test(formObj)
 
 
 class Methods:
@@ -32,6 +38,14 @@ class Methods:
 
     def default(self, section):
         all_on = {'melodyLine':True, 'melodyLine2':False, 'bassLine':True, 'voiceProg':True, 'drums':True, 'effects':True}
+        output = []
+        for num in section:
+            output.append(all_on)
+
+        return output
+
+    def test(self, section):
+        all_on = {'melodyLine':False, 'melodyLine2':False, 'bassLine':True, 'voiceProg':True, 'drums':True, 'effects':False}
         output = []
         for num in section:
             output.append(all_on)
@@ -94,4 +108,19 @@ class Methods:
             output[6] = {'melodyLine':False, 'melodyLine2':True, 'bassLine':True, 'voiceProg':True, 'drums':True, 'effects':True}
             output[-2] = {'melodyLine':False, 'melodyLine2':True, 'bassLine':False, 'voiceProg':False, 'drums':True, 'effects':True}
             output[-1] = {'melodyLine':False, 'melodyLine2':False, 'bassLine':False, 'voiceProg':False, 'drums':False, 'effects':False}
+        return output
+
+    def edm2(self, section):
+        all_on = {'melodyLine':True, 'melodyLine2':True, 'bassLine':True, 'voiceProg':True, 'drums':True, 'effects':True}
+        output = []
+        for num in section:
+            output.append(all_on)
+
+        if len(section) > 3:
+            output[0] = {'melodyLine':False, 'melodyLine2':False, 'bassLine':False, 'voiceProg':False, 'drums':False, 'effects':True}
+            output[1] = {'melodyLine':False, 'melodyLine2':False, 'bassLine':False, 'voiceProg':True, 'drums':False, 'effects':True}
+            output[2] = {'melodyLine':False, 'melodyLine2':False, 'bassLine':True, 'voiceProg':True, 'drums':True, 'effects':True}
+            output[3] = {'melodyLine':False, 'melodyLine2':True, 'bassLine':True, 'voiceProg':True, 'drums':True, 'effects':True}
+            output[4] = {'melodyLine':False, 'melodyLine2':True, 'bassLine':True, 'voiceProg':True, 'drums':True, 'effects':True}
+            output[5] = {'melodyLine':False, 'melodyLine2':True, 'bassLine':False, 'voiceProg':False, 'drums':True, 'effects':True}
         return output

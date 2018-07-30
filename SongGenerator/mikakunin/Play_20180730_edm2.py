@@ -180,9 +180,9 @@ class Play:
         print("fx4 : ", len(fx4))
 
         #bass:merge
-        #bass = func.add_stereo([bass, bass2], [self.volume["bass"]["bass"], self.volume["bass"]["bass2"]])
+        bass = func.add_stereo([bass, bass2], [self.volume["bass"]["bass"], self.volume["bass"]["bass2"]])
         #bass = self.filCtrl.lowfi_stereo(bass, self.bpm, [self.score.form[1]], [self.score.form[3]]  ,'bandpass' ,[[1000,5000]])
-        #bass = self.volCtrl.feedIn_stereo(bass, self.bpm, [self.score.form[3],  self.score.form[5]-16 ], [self.score.form[5]-16, self.score.form[5]], ['liner','tanh'], [0.3, 0.99])
+        bass = self.volCtrl.feedIn_stereo(bass, self.bpm, [ self.score.form[3]-16 ], [self.score.form[3]], ['tanh'], [0.99])
 
 
         #harm : merge
@@ -195,7 +195,7 @@ class Play:
         #harm  = self.volCtrl.ending(harm , 15)
         #harm = self.filCtrl.lowfi_stereo(harm, self.bpm, [self.score.form[1]], [self.score.form[4]]  ,'bandpass' ,[[400,4000]])
         #harm = self.volCtrl.fourBeat_stereo(harm, self.bpm, [self.score.form[5]],  [self.score.form[8]], [0.0], [3.0])
-        #harm = self.volCtrl.feedIn_stereo(harm, self.bpm, [self.score.form[3],  self.score.form[5]-16 ], [self.score.form[5]-16, self.score.form[5]], ['liner','tanh'], [0.3, 0.99])
+        harm = self.volCtrl.feedIn_stereo(harm, self.bpm, [ self.score.form[3]-16 ], [self.score.form[3]], ['tanh'], [0.99])
 
 
         #snare = self.volCtrl.feedIn2(snare, self.bpm, [self.score.form[2],  self.score.form[3]-16 ], [self.score.form[3]-16, self.score.form[3]] , [0.3, 0.99])
@@ -211,7 +211,7 @@ class Play:
                 self.volume["drums"]["hihat2"]  ])
         #drums  = self.volCtrl.ending(drums , 15)
 
-        #drums = self.volCtrl.feedIn_stereo(drums, self.bpm, [self.score.form[3],  self.score.form[5]-16,  self.score.form[7]], [self.score.form[5]-16, self.score.form[5],  self.score.form[8]], ['liner','tanh','tanh'], [0.3, 0.99, 0.2])
+        drums = self.volCtrl.feedIn_stereo(drums, self.bpm, [ self.score.form[3]-16 ], [self.score.form[3]], ['tanh'], [0.99])
         #drums = self.filCtrl.lowfi_stereo(drums, self.bpm, [self.score.form[1]], [self.score.form[3]]  ,'bandpass' ,[[3000,10000]])
 
         #fx : merge

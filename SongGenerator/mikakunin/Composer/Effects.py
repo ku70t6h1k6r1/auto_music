@@ -16,6 +16,7 @@ class Effects:
     def _setMethodName(self):
         self.accentRandom = "accentRandom"
         self.onBeat = "onbeat"
+        self.onBeat_manual = "onBeat_manual"
 
     def create(self, scoreObj, methodName, **arg):
 #    def accentRandom(self, melody, hihat, snare, kick , barsPerOneSection = 4, temperature = {'melody':0.0005, 'hihat':0.0005, 'snare':0.0005, 'kick':0.0005}):
@@ -28,6 +29,9 @@ class Effects:
             scoreObj.setEffectsObj(effectsObj)
         elif methodName == self.onBeat:
             effectsObj = self._methodsObject.onBeat(scoreObj.melodyLine, 4, arg['temperature'], arg['tryN'])
+            scoreObj.setEffectsObj(effectsObj)
+        elif methodName == self.onBeat_manual:
+            effectsObj = self._methodsObject.onBeat_manual(scoreObj.keyProg)
             scoreObj.setEffectsObj(effectsObj)
 
 class Methods:
@@ -103,7 +107,26 @@ class Methods:
         effectsObj.setPt2(self._accentRandom(score, 1, temperature['fx2'], tryN['fx2']))
         effectsObj.setPt3(self._accentRandom(score, 1, temperature['fx3'], tryN['fx3']))
         effectsObj.setPt4(self._accentRandom(score, 1, temperature['fx4'], tryN['fx4']))
-        print(effectsObj)
+
+        return effectsObj
+
+    def onBeat_manual(self, keyProg):
+
+        wholeNotes = [0,-1,-1,-1, -1,-1,-1,-1, -1,-1,-1,-1, -1,-1,-1,-1]
+        fourBeats =  [0,-1,-1,-1, 0,-1,-1,-1, 0,-1,-1,-1, 0,-1,-1,-1]
+        a16Beats =  [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0]
+
+        effectsObj = cs.Effects()
+
+        score = np.tile(wholeNotes, len(keyProg))
+        score[-4*self._notePerBar_n:-2*self._notePerBar_n] = np.tile(fourBeats, 2)
+        score[-2*self._notePerBar_n: len(score)] = np.tile(a16Beats, 2)
+
+        effectsObj.setPt1(score)
+        effectsObj.setPt2(score)
+        effectsObj.setPt3(score)
+        effectsObj.setPt4(score)
+
         return effectsObj
 
 if __name__ == '__main__':

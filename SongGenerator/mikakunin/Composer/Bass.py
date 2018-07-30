@@ -1,6 +1,7 @@
 # coding: UTF-8
 #default
 import numpy as np
+import random
 
 #option
 from Composer import ChordSet as cs
@@ -10,6 +11,8 @@ from Composer import ChordProgression as cp
 from Composer import _DrumsPatternSet as drptn
 from Composer.common import CommonSettings as cs
 from Composer import _DrumsPatternSet as drPtn
+from Composer import _MelodicRhythmPatterns as _rp
+
 
 class Bass:
     def __init__(self, notePerBar_n = 16):
@@ -21,6 +24,8 @@ class Bass:
         self.eightBeat = "eightbeat"
         self.synchroniseKick = "kick"
         self.riff = "riff"
+        self.riff16 = "riff16"
+        self.pedal = "pedal"
         self.breaka = "break"
 
     def create(self, scoreObj, methodName, range): #melodyName, keyProg, chordProg, range, arg
@@ -33,6 +38,12 @@ class Bass:
             scoreObj.setBassLine(bassLine)
         elif methodName == self.riff:
             bassLine = self._methodObject.riff(scoreObj.chordProg, range)
+            scoreObj.setBassLine(bassLine)
+        elif methodName == self.riff16:
+            bassLine = self._methodObject.riff16(scoreObj.chordProg, range)
+            scoreObj.setBassLine(bassLine)
+        elif methodName == self.pedal:
+            bassLine = self._methodObject.pedal(scoreObj.keyProg, range)
             scoreObj.setBassLine(bassLine)
         elif methodName == self.breaka:
             bassLine = self._methodObject.breaka(scoreObj.chordProg)
@@ -51,6 +62,16 @@ class Methods:
         self._chordIdx = self._chordSet.chordIdx
         self._rootSymbols = self._chordSet.rootSymbols
         self._chordSymbols = self._chordSet.chordSymbols
+
+        #SET SCALE
+        self._majorScaleObj = ds.MajorScale()
+        self._minorScaleObj = ds.NaturalMinorScale()
+        self._majorScale = self._majorScaleObj.scale
+        self._minorScale = self._minorScaleObj.scale
+
+        #SET Rhythm Patterns
+        self._rhythmPattersObj = _rp.Patterns()
+        self._rhythmPatters = self._rhythmPattersObj.list
 
     def eightBeat(self, chordProg, range, chordTone = 0):
         bassLine = np.full(len(chordProg)*self._notePerBar_n ,-1)
@@ -92,13 +113,65 @@ class Methods:
                 bass_kick[idx] = bass_snare[idx]
 
         bassLine = bass_kick
+
         return bassLine
+
+    def riff16(self, chordProg, range):
+        """
+        一旦minorで考える
+        """
+
+        grp_name, patterns = random.choice(list(self._rhythmPatters.items()))
+        grp_name, patterns2 = random.choice(list(self._rhythmPatters.items()))
+
+        a = patterns[np.random.randint(len(patterns))]
+        a1 = patterns2[np.random.randint(len(patterns2))]
+        a.extend(a1)
+
+        a = np.array(a[0::2] )
+
+        for idx, note in enumerate(a):
+            if note > -1:
+                break
+            else:
+                a[idx] = -2
+
+
+        a = np.tile(a, len(chordProg))
+        bassLine = self.synchroniseKick(chordProg, a, range, np.random.randint(0, 4, 1)[0])
+
+        return bassLine
+
+    def pedal(self, keyProg, range):
+        patterns = [
+            [0,0,0,-1, 0,0,-1,0, 0,0,0,-1, 0,0,-1,0,]
+        ]
+
+        pattern = np.array(patterns[np.random.randint(0, len(patterns), 1)[0]])
+
+        key = keyProg[0]
+        if key[1] == 0:
+            scale = self._majorScale+key[0]
+        elif key[1] == 1:
+            scale = self._minorScale +key[0]
+
+        bassLine = np.full(len(pattern) ,-1)
+        onSets = np.where(pattern > -1)[0]
+
+        for idx in onSets:
+            bassLine[idx] = func.clipping(scale[4], range[0], range[1])
+
+        bassLine = np.tile(bassLine, len(keyProg))
+
+        return  bassLine
 
     def breaka(self, chordProg = None):
         bassLine = np.full(len(chordProg) * self._notePerBar_n, -1)
         bassLine[0] = -2
 
         return  bassLine
+
+
 
 if __name__ == '__main__':
     import Drums as dr

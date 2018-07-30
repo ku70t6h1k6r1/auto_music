@@ -63,7 +63,6 @@ class Melody:
             scoreObj.setMelodyLine(melody[2])
         elif melodyName == self.approach:
             melody = self._methodsObject.approach( scoreObj.keyProg, scoreObj.chordProg, range, arg['defaultNote'])
-            print("なんかエラーがでることがある。　UnboundLocalError: local variable 'pastNote' referenced before assignment")
             scoreObj.setKeyProg(melody[0])
             scoreObj.setChordProg(melody[1])
             scoreObj.setMelodyLine(melody[2])
@@ -604,7 +603,6 @@ class Methods:
             #本当はもっとよく変えたい
             melody[-self._notePerBar_n]  = targetNote
 
-        print(melody)
         melody = func.processing(melody, _range)
         melody = np.array(melody)
 

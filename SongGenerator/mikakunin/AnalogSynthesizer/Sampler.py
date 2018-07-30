@@ -6,6 +6,7 @@ import numpy as np
 import wave as wv
 import struct
 import scipy.signal
+import glob
 from enum import Enum
 
 class FilterName(Enum):
@@ -20,6 +21,7 @@ class Sampler(object):
         self._rate_for_return = rate #return用
         self._channels = 1
         self._sampleSize =  2
+        self.cur_dir_idx = 0
 
     def set_instrument(self, dir):
         u"""
@@ -37,7 +39,28 @@ class Sampler(object):
         _tmp_wave = np.r_[self._wave, silent] #本当はファイル形式と出力の差を埋める必要がある。
         return _tmp_wave[0:int(length * self._rate_for_return)]
 
-    #def convert_perc(self, score):
+    def set_instruments(self, dir):
+        files = glob.glob(dir)
+
+        wav_files = []
+        for file in files:
+            if file.find('.wav') > -1:
+                wav_files.append(file)
+
+        self.wav_files = np.array(wav_files)
+        np.random.shuffle(self.wav_files)
+        filename = self.wav_files[self.cur_dir_idx]
+        self.set_instrument(filename)
+
+    def generate_wave(self, length):
+        silent = np.zeros(int(length * self._rate_for_return))
+        _tmp_wave = np.r_[self._wave, silent]
+
+        self.cur_dir_idx = self.cur_dir_idx + 1 if self.cur_dir_idx  + 1< len(self.wav_files) else 0
+        filename = self.wav_files[self.cur_dir_idx]
+        self.set_instrument(filename)
+
+        return _tmp_wave[0:int(length * self._rate_for_return)]
 
 class VCF(object):
     def __init__(self, filterName, frequency, rate = 44100):
@@ -132,14 +155,21 @@ class Synthesizer():
         self._rate = rate #44100
 
         self._sample = Sampler()
-        self._sample.set_instrument(self._waveDir)
+
+        if self._waveDir.find('.wav') > -1:
+            self._sample.set_instrument(self._waveDir)
+        else:
+            self._sample.set_instruments(self._waveDir)
 
         self._vcf = VCF(self._filterName, self._frequency, self._rate)
         self._vca = VCA(self._adsr[0], self._adsr[1], self._adsr[2], self._adsr[3], self._rate)
         self._amp = Amp()
 
     def setLength(self, length):
-        buf = self._sample.generate_constant_wave(length)   #length is sec
+        if self._waveDir.find('.wav') > -1:
+            buf = self._sample.generate_constant_wave(length)   #length is sec
+        else:
+            buf = self._sample.generate_wave(length)
         buf = self._vcf.processing(buf)
         buf = self._vca.processing(buf)
         buf = self._amp.maxStd(buf)
@@ -151,7 +181,20 @@ class Synthesizer():
     def toBytes(self, wave):
         return (wave * float(2 ** (16 - 1) ) ).astype(np.int16).tobytes()
 
-if __name__ == '__main__' :
+if __name__ == '__main3__' :
+    import glob
+
+    dir = 'C:/Users/hikari.kubota/Documents/GitHub/auto_music/SongGenerator/mikakunin/wav/sample/*'
+    files = np.array(glob.glob(dir))
+
+    wav_files = []
+    for file in files:
+        if file.find('.wav') > -1:
+            wav_files.append(file)
+
+    print(wav_files)
+
+if __name__ == '__main2__' :
     import pyaudio
     audio  = pyaudio.PyAudio()
     o = audio.open(format=audio.get_format_from_width(2),
