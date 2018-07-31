@@ -14,6 +14,7 @@ class Mixer:
         self.pattern1 = 'pattern1'
         self.edm1 = 'edm1'
         self.edm2 = 'edm2'
+        self.edm3 = 'edm3'
 
     def create(self, formObj, methodName):
         if methodName == self.default:
@@ -28,6 +29,8 @@ class Mixer:
             return self._methodObject.edm1(formObj)
         elif methodName == self.edm2:
             return self._methodObject.edm2(formObj)
+        elif methodName == self.edm3:
+            return self._methodObject.edm3(formObj)
         elif methodName == self.test:
             return self._methodObject.test(formObj)
 
@@ -100,10 +103,10 @@ class Methods:
 
         if len(section) > 3:
             output[0] = {'melodyLine':False, 'melodyLine2':False, 'bassLine':False, 'voiceProg':False, 'drums':False, 'effects':True}
-            output[1] = {'melodyLine':True, 'melodyLine2':False, 'bassLine':False, 'voiceProg':True, 'drums':False, 'effects':True}
-            output[2] = {'melodyLine':True, 'melodyLine2':False, 'bassLine':True, 'voiceProg':True, 'drums':True, 'effects':True}
-            output[3] = {'melodyLine':True, 'melodyLine2':False, 'bassLine':False, 'voiceProg':False, 'drums':False, 'effects':True}
-            output[4] = {'melodyLine':True, 'melodyLine2':False, 'bassLine':True, 'voiceProg':False, 'drums':True, 'effects':True}
+            output[1] = {'melodyLine':False, 'melodyLine2':True, 'bassLine':False, 'voiceProg':True, 'drums':False, 'effects':True}
+            output[2] = {'melodyLine':False, 'melodyLine2':True, 'bassLine':True, 'voiceProg':True, 'drums':True, 'effects':True}
+            output[3] = {'melodyLine':False, 'melodyLine2':True, 'bassLine':False, 'voiceProg':False, 'drums':False, 'effects':True}
+            output[4] = {'melodyLine':False, 'melodyLine2':True, 'bassLine':True, 'voiceProg':False, 'drums':True, 'effects':True}
             output[5] = {'melodyLine':False, 'melodyLine2':True, 'bassLine':True, 'voiceProg':True, 'drums':True, 'effects':True}
             output[6] = {'melodyLine':False, 'melodyLine2':True, 'bassLine':True, 'voiceProg':True, 'drums':True, 'effects':True}
             output[-2] = {'melodyLine':False, 'melodyLine2':True, 'bassLine':False, 'voiceProg':False, 'drums':True, 'effects':True}
@@ -123,4 +126,21 @@ class Methods:
             output[3] = {'melodyLine':False, 'melodyLine2':True, 'bassLine':True, 'voiceProg':True, 'drums':True, 'effects':True}
             output[4] = {'melodyLine':False, 'melodyLine2':True, 'bassLine':True, 'voiceProg':True, 'drums':True, 'effects':True}
             output[5] = {'melodyLine':False, 'melodyLine2':True, 'bassLine':False, 'voiceProg':False, 'drums':True, 'effects':True}
+        return output
+
+    def edm3(self, section):
+        all_on = {'melodyLine':True, 'melodyLine2':True, 'bassLine':True, 'voiceProg':True, 'drums':True, 'effects':True}
+        output = []
+        for num in section:
+            output.append(all_on)
+
+        if len(section) > 3:
+            output[0] = {'melodyLine':False, 'melodyLine2':False, 'bassLine':False, 'voiceProg':False, 'drums':False, 'effects':True} #p
+            output[1] = {'melodyLine':False, 'melodyLine2':False, 'bassLine':True, 'voiceProg':True, 'drums':True, 'effects':True} #a
+            output[2] = {'melodyLine':False, 'melodyLine2':False, 'bassLine':True, 'voiceProg':True, 'drums':True, 'effects':True} #a
+            output[3] = {'melodyLine':False, 'melodyLine2':True, 'bassLine':False, 'voiceProg':False, 'drums':False, 'effects':True} #s i
+            output[5] = {'melodyLine':False, 'melodyLine2':False, 'bassLine':True, 'voiceProg':True, 'drums':True, 'effects':True} #b
+            output[6] = {'melodyLine':False, 'melodyLine2':True, 'bassLine':True, 'voiceProg':True, 'drums':True, 'effects':True} #b
+            output[-2] = {'melodyLine':False, 'melodyLine2':True, 'bassLine':False, 'voiceProg':False, 'drums':True, 'effects':True}
+            output[-1] = {'melodyLine':False, 'melodyLine2':False, 'bassLine':False, 'voiceProg':False, 'drums':False, 'effects':False}
         return output

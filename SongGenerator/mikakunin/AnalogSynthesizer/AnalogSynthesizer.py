@@ -360,6 +360,43 @@ class VolumeController():
 
         return wave * curve
 
+    def sidechain_stereo(self, wave, bpm, sec_list_ctrl):
+        """
+        長さ変わらない
+        """
+        wave_r =  wave[1::2]
+        wave_l = wave[0::2]
+
+        max_frame  = int(60/bpm/2 *44100)
+        bank = 4.0 #3～
+        curve = np.full(0, 0.0)
+        for hz, len_sec in sec_list_ctrl:
+            if hz > 0 :
+                len_frame = int(len_sec *  44100)
+                if len_frame > 0 and len_frame <= max_frame :
+                    step = (bank-0.0)/len_frame
+                    x = np.arange(0.0, bank, step)
+                    curve = np.r_[curve, np.tanh(x)]
+                elif len_frame > max_frame :
+                    step = (bank-0.0)/max_frame
+                    x = np.arange(0.0, bank, step)
+                    fix = np.full(len_frame - max_frame , 1.0)
+                    curve = np.r_[curve, np.tanh(x), fix]
+            else:
+                len_frame = int(len_sec *  44100)
+                curve = np.r_[curve, np.full(len_frame, 1.0)]
+
+        if len(curve) < len(wave_r):
+            fix = np.full((len(wave_r) - len(curve)), 1.0)
+            curve = np.r_[curve, fix]
+        elif len(curve) > len(wave_r):
+            curve = curve[0:len(wave_r)]
+
+        wave[1::2] = wave_r * curve
+        wave[0::2] = wave_l * curve
+
+        return wave
+
     def fourBeat_stereo(self, wave, bpm, start = [0], end = [0],  min = [2.0], max = [4.0]):
         """
         長さ変わらない
@@ -766,7 +803,7 @@ if __name__ == '__main__' :
     #synthesizer = Synthesizer(["sine", "sine"], [1.0, 0.8], [1.0, 1.0], 'lowpass', [200], [0.0, 0.04, 0.3, 0.1], 44100)
 
     #guitar
-    synthesizer = Synthesizer_Poly(["sawtooth", "sawtooth", "sawtooth", "sine", "sine", "whitenoise"], [0.8, 0.2, 0.1, 0.2, 0.2, 0.3], [1.0, 2.0, 3.0, 4.01, 5.01, 6.0], 'bandpass', [10,18000], [0.0, 0.15, 0.9, 0.1], 44100)
+    synthesizer = Synthesizer_Poly(["square", "square", "square", "sine", "sine", "whitenoise"], [0.8, 0.2, 0.1, 0.2, 0.2, 0.3], [1.0, 2.0, 3.0, 4.01, 5.01, 6.0], 'bandpass', [10,18000], [0.02, 0.15, 0.9, 0.1], 44100)
 
     scale = [261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88, 523.25] * 1
     #scale = [261.63/4] * 16
@@ -774,7 +811,7 @@ if __name__ == '__main__' :
 
     wave = np.full(0, 0.0)
     for note in scale:
-        wave = np.r_[wave, synthesizer.setPitch(note,0.2)]
+        wave = np.r_[wave, synthesizer.setPitch(note,0.5)]
     #scale2 = [261.63 * 1.5/4 , 293.66 * 1.5/4,   329.63 * 1.5/4,  349.23 * 1.5/4, 392.00 * 1.5/4, 440.00 * 1.5/4, 493.88 * 1.5/4, 523.25 * 1.5/4] * 1
 
     #scale2 = [261.63*1.5/4] * 16
@@ -788,9 +825,9 @@ if __name__ == '__main__' :
 
 
     #wave = preset.Distortion(wave, 5, 3)
-    wave = preset.Filter(wave, 'bandpass', [20, 5000])
+    wave = preset.Filter(wave, 'bandpass', [200, 15000])
 
-    #wave = preset.Flanger(wave,  gain = 4, depth = 2.0, freq = 0.8, balance = 1.0)
+    swave = preset.Flanger(wave,  gain = 4, depth = 2.0, freq = 0.8, balance = 1.0)
     #wave = preset.Vibrato(wave, 1.0, 1.7)
     #wave = (wave[0:44100*20] + bass_wave[0:44100*20]) / 2
     #wave = preset.Radio(wave, 0.2)

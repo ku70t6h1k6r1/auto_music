@@ -22,9 +22,9 @@
 
             "Melody":
               {
-                "name":"romeria",
-                "range":[65,77],
-                "args":{"reverce":true}
+                "name":"counter",
+                "range":[40,60],
+                "args":{}
               },
 
           "Drums":
@@ -35,16 +35,16 @@
 
           "Bass":
             {
-              "name":"riff16",
+              "name":"riff8",
               "range":[28,60],
               "args":{}
             },
 
             "VoiceProgression":
               {
-                "name":"unisonBass",
+                "name":"powerChord",
                 "range":[40,60],
-                "args": {"subMethodName":"wholeNote"}
+                "args": {"subMethodName":"kick"}
               },
               "Effects":
               {

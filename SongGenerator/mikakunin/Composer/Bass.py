@@ -25,6 +25,7 @@ class Bass:
         self.synchroniseKick = "kick"
         self.riff = "riff"
         self.riff16 = "riff16"
+        self.riff8 = "riff8"
         self.pedal = "pedal"
         self.breaka = "break"
 
@@ -41,6 +42,9 @@ class Bass:
             scoreObj.setBassLine(bassLine)
         elif methodName == self.riff16:
             bassLine = self._methodObject.riff16(scoreObj.chordProg, range)
+            scoreObj.setBassLine(bassLine)
+        elif methodName == self.riff8:
+            bassLine = self._methodObject.riff8(scoreObj.chordProg, range)
             scoreObj.setBassLine(bassLine)
         elif methodName == self.pedal:
             bassLine = self._methodObject.pedal(scoreObj.keyProg, range)
@@ -136,11 +140,48 @@ class Methods:
             else:
                 a[idx] = -2
 
+        bassLine = []
+        a_on = np.where(a > -1)[0]
+        for chord in chordProg:
+            for idx in a_on:
+                a[idx] = self._chordIdx.getTonesFromIdx(chord[0])[np.random.randint(0, 4, 1)[0]]
 
-        a = np.tile(a, len(chordProg))
-        bassLine = self.synchroniseKick(chordProg, a, range, np.random.randint(0, 4, 1)[0])
+            bassLine.extend(a)
+
+        for beat, note in enumerate(bassLine):
+            if note > -1:
+                bassLine[beat] = func.clipping(note, range[0], range[1])
 
         return bassLine
+
+    def riff8(self, chordProg, range):
+        """
+        一旦minorで考える
+        """
+
+        grp_name, patterns = random.choice(list(self._rhythmPatters.items()))
+        a =np.array( patterns[np.random.randint(len(patterns))] )
+
+        for idx, note in enumerate(a):
+            if note > -1:
+                break
+            else:
+                a[idx] = -2
+
+        bassLine = []
+        a_on = np.where(a > -1)[0]
+        for chord in chordProg:
+            for idx in a_on:
+                a[idx] = self._chordIdx.getTonesFromIdx(chord[0])[np.random.randint(0, 4, 1)[0]]
+
+            bassLine.extend(a)
+
+        for beat, note in enumerate(bassLine):
+            if note > -1:
+                bassLine[beat] = func.clipping(note, range[0], range[1])
+
+        return bassLine
+
 
     def pedal(self, keyProg, range):
         patterns = [

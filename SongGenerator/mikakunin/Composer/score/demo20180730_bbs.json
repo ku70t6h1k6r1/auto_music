@@ -1,12 +1,12 @@
 {
   "form": {
-    "name":"iaabi",
-    "args":["i","a","b"]
+    "name":"paasibbis",
+    "args":["p","a","s","i","b"]
     },
   "mix": {
-    "name":"edm2"
+    "name":"edm3"
     },
-    "i":  {
+    "p":  {
             "ChordProgression":
                 {
                   "name":"cherry",
@@ -52,6 +52,98 @@
                   "args": {"temperature":{"melody":0.0005, "hihat":0.0005, "snare":0.0005, "kick":0.001}, "tryN":{"melody":1, "hihat":0.0, "snare":0, "kick":2}}
                 }
               },
+              "s":  {
+                      "ChordProgression":
+                          {
+                            "name":"break",
+                            "args":{"bars": 1}
+                          },
+
+                        "ChordProgressionChild":
+                        {
+                          "name":"",
+                          "args":{}
+                        },
+
+                      "Melody":
+                        {
+                          "name":"break",
+                          "range":[60,72],
+                          "args":{}
+                        },
+
+                      "Drums":
+                        {
+                          "name":"break",
+                          "args":{}
+                        },
+
+                      "Bass":
+                        {
+                          "name":"break",
+                          "range":[28,60],
+                          "args":{}
+                        },
+
+                        "VoiceProgression":
+                          {
+                            "name":"break",
+                            "range":[60,75],
+                            "args":{}
+                          },
+
+                        "Effects":
+                          {
+                            "name":"onbeat",
+                            "args": {"temperature":{"fx1":0.0005, "fx2":0.0005, "fx3":0.0005, "fx4":0.001}, "tryN":{"fx1":1, "fx2":10, "fx3":0, "fx4":2}}
+                          }
+                        },
+      "i": {
+            "ChordProgression":
+                {
+                  "name":"cherry",
+                  "args":{"rotate": -1, "keyMm":[1,0], "chordDeg":[0,6]}
+                },
+
+            "ChordProgressionChild":
+              {
+                "name":"cherryB",
+                "args":{}
+              },
+
+            "Melody":
+              {
+                "name":"zenzenzense",
+                "range":[40,56],
+                "args":{}
+              },
+
+            "Drums":
+              {
+                "name":"snareroll",
+                "args":{}
+              },
+
+            "Bass":
+              {
+                "name":"riff8",
+                "range":[28,60],
+                "args":{}
+              },
+
+              "VoiceProgression":
+                {
+                  "name":"unisonBass",
+                  "range":[60,75],
+                  "args": {}
+                },
+
+              "Effects":
+                {
+                  "name":"onBeat_manual",
+                  "args": {}
+                }
+              },
     "a":  {
         "ChordProgression":
             {
@@ -68,7 +160,7 @@
             "Melody":
               {
                 "name":"cherryA",
-                "range":[65,77],
+                "range":[40,56],
                 "args":{"reverce":true}
               },
 
@@ -112,29 +204,29 @@
 
         "Melody":
           {
-            "name":"approach",
-            "range":[48,62],
-            "args":{"defaultNote":0}
+            "name":"counter",
+            "range":[40,60],
+            "args":{}
           },
 
         "Drums":
           {
-            "name":"fourbeat",
+            "name":"random",
             "args":{}
           },
 
         "Bass":
           {
-            "name":"riff16",
+            "name":"riff8",
             "range":[28,60],
             "args":{}
           },
 
         "VoiceProgression":
           {
-            "name":"unisonBass",
+            "name":"powerChord",
             "range":[40,60],
-            "args": {"subMethodName":""}
+            "args": {"subMethodName":"kick"}
           },
           "Effects":
             {

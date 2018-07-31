@@ -30,6 +30,7 @@ class Melody:
         self.romeria = "romeria"
         self.approach = "approach"
         self.breaka = "break"
+        self.counter = "counter"
 
     def _setMelodyNameWithoutChord(self):
         return None
@@ -68,6 +69,11 @@ class Melody:
             scoreObj.setMelodyLine(melody[2])
         elif melodyName == self.breaka :
             melody = self._methodsObject.breaka( scoreObj.keyProg, scoreObj.chordProg)
+            scoreObj.setKeyProg(melody[0])
+            scoreObj.setChordProg(melody[1])
+            scoreObj.setMelodyLine(melody[2])
+        elif melodyName == self.counter :
+            melody = self._methodsObject.counter( scoreObj.keyProg, scoreObj.chordProg, range)
             scoreObj.setKeyProg(melody[0])
             scoreObj.setChordProg(melody[1])
             scoreObj.setMelodyLine(melody[2])
@@ -546,6 +552,30 @@ class Methods:
         melody = func.processing(tempMelody, range)
         melody = np.array(tempMelody)
         return melody
+
+    def counter(self, keyProg=None, chordProg=None, _range = [69,101]):
+
+        melody = []
+        for chord in chordProg:
+            grp_name, patterns = random.choice(list(self._rhythmPatters.items()))
+            grp_name, patterns2 = random.choice(list(self._rhythmPatters.items()))
+
+            a = patterns[np.random.randint(len(patterns))]
+            a1 = patterns2[np.random.randint(len(patterns2))]
+            a.extend(a1)
+
+            a = np.array(a[0::2] )
+            a_on = np.where(a > -1)[0]
+
+            for idx in a_on:
+                a[idx] = self._chordIdx.getTonesFromIdx(chord[0])[np.random.randint(0, 4, 1)[0]]
+
+            melody.extend(a)
+
+        melody = func.processing(melody, _range)
+        melody = np.array(melody)
+
+        return keyProg, chordProg, melody
 
     def approach(self, keyProg=None, chordProg=None, _range = [69,101], otherNoteDegree = 4):
         #作りかけ

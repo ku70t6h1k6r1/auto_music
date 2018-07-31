@@ -59,6 +59,7 @@ class Methods:
         self.synchroniseKick = "synchroniseKick"
         self.synchroniseBass = "synchroniseBass"
         self.wholeNote = "wholeNote"
+        self.kick = "kick"
 
     def powerChord(self, chordProg, kickScore, bassScore, range, subMethodName = "eightBeat"):
         chordScore = None
@@ -70,6 +71,8 @@ class Methods:
             chordScore = self._subMethods.synchroniseBass(chordProg, bassScore)
         elif subMethodName == self.wholeNote:
             chordScore = self._subMethods.wholeNote(chordProg)
+        elif subMethodName == self.kick:
+            chordScore = self._subMethods.kick(chordProg)
         else:
             print("ERROR IN VoiceProgression")
             return None
@@ -79,6 +82,9 @@ class Methods:
             if chord > -1:
                 score[i][0] = func.clipping(self._chordIdx.getTonesFromIdx(chord)[0], range[0], range[1])
                 score[i][1] = func.clipping(self._chordIdx.getTonesFromIdx(chord)[2], range[0], range[1])
+            elif chord == -2:
+                score[i][0] =-2
+                score[i][1] =-2
         return score
 
     def triad(self, chordProg, kickScore, bassScore, range, subMethodName = "synchroniseKick"):
@@ -90,6 +96,8 @@ class Methods:
             chordScore = self._subMethods.synchroniseBass(chordProg, bassScore)
         elif subMethodName == self.wholeNote:
             chordScore = self._subMethods.wholeNote(chordProg)
+        elif subMethodName == self.kick:
+            chordScore = self._subMethods.kick(chordProg)
         else:
             print("ERROR IN VoiceProgression")
             return None
@@ -100,6 +108,9 @@ class Methods:
                 score[i][0] = func.clipping(self._chordIdx.getTonesFromIdx(chord)[0], range[0], range[1])
                 score[i][1] = func.clipping(self._chordIdx.getTonesFromIdx(chord)[1], range[0], range[1])
                 score[i][2] = func.clipping(self._chordIdx.getTonesFromIdx(chord)[2], range[0], range[1])
+            elif chord == -2:
+                score[i][0] =-2
+                score[i][1] =-2
         return score
 
     def doubleStop(self, chordProg, kickScore, bassScore, range, subMethodName =  "synchroniseBass"):
@@ -111,6 +122,8 @@ class Methods:
             chordScore = self._subMethods.synchroniseBass(chordProg, bassScore)
         elif subMethodName == self.wholeNote:
             chordScore = self._subMethods.wholeNote(chordProg)
+        elif subMethodName == self.kick:
+            chordScore = self._subMethods.kick(chordProg)
         else:
             print("ERROR IN VoiceProgression")
             return None
@@ -120,6 +133,9 @@ class Methods:
             if chord > -1:
                 score[i][0] = func.clipping(self._chordIdx.getTonesFromIdx(chord)[1], range[0], range[1])
                 score[i][1] = func.clipping(self._chordIdx.getTonesFromIdx(chord)[3], range[0], range[1])
+            elif chord == -2:
+                score[i][0] =-2
+                score[i][1] =-2
         return score
 
     def unisonBass(self, chordProg, bassScore, range ):
@@ -179,6 +195,36 @@ class SubMethods:
                 = chord
 
         return  chordScore
+
+    def kick(self, chordProg):
+        patterns = [
+            [0,-1,-1,-1, -2,-1,-1,-1, -2,-1,-1,-1, -1,-1,-1,-1 ]
+            ,[0,-1,-1,-1, -1,-1,0,-1, -2,-1,-1,-1, -1,-1,-1,-1 ]
+            ,[0,-1,-1,-1, -1,-1,0,-1, -1,-1,-1,-1, -1,-1,-1,-1 ]
+            ,[0,-1,0,-1, -2,-1,-1,-1, -1,-1,-1,-1, -1,-1,-1,-1 ]
+            ,[0,-1,0,-1, -1,-1,-1,-1, -1,-1,-1,-1, -1,-1,-1,-1 ]
+            ,[0,0,0,-1, -1,-1,-1,-1, -1,-1,-1,-1, -1,-1,-1,-1 ]
+        ]
+
+        silent = [-2,-1,-1,-1, -1,-1,-1,-1, -1,-1,-1,-1, -1,-1,-1,-1]
+
+        pattern = patterns[np.random.randint(0, len(patterns), 1)[0]]
+        pattern.extend(silent)
+        pattern = np.array(pattern)
+
+        if len(chordProg) % 2 == 0 and len(chordProg) >= 2 :
+            chordScore = np.tile(pattern, int(len(chordProg)/2) )
+
+            for bar, chords in enumerate(chordProg):
+                for beat, chord in enumerate(chords):
+                    #issue1
+                    if chordScore[int(bar*self._notePerBar_n + beat*self._notePerBar_n/4*2) ] > -1:
+                        chordScore[int(bar*self._notePerBar_n + beat*self._notePerBar_n/4*2) ] = chord
+
+        return  chordScore
+
+
+
 
 
 if __name__ == '__main__':
