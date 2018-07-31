@@ -88,15 +88,15 @@ class Score:
             self.melodyLine  = self._append(self.melodyLine, off_sounds)
         else:
             self.melodyLine  = self._append(self.melodyLine, scoreObj.melodyLine)
+
         self.form = self._append_form(self.form, len(self.melodyLine))
 
-        if 'melodyLine2' in useable_Part_list.keys():
-            if not useable_Part_list['melodyLine2']:
-                off_sounds = np.full(len(scoreObj.melodyLine), -1)
-                off_sounds[0] = -2
-                self.melodyLine2  = self._append(self.melodyLine2, off_sounds)
-            else:
-                self.melodyLine2  = self._append(self.melodyLine2, scoreObj.melodyLine)
+        if not useable_Part_list['melodyLine2']:
+            off_sounds = np.full(len(scoreObj.melodyLine2), -1)
+            off_sounds[0] = -2
+            self.melodyLine2  = self._append(self.melodyLine2, off_sounds)
+        else:
+            self.melodyLine2  = self._append(self.melodyLine2, scoreObj.melodyLine2)
 
         if not useable_Part_list['bassLine']:
             off_sounds = np.full(len(scoreObj.bassLine), -1)

@@ -17,6 +17,8 @@ class Section:
         self.paaibbi = "paaibbi"
         self.ppaabbi = "ppaabbi"
         self.piaabbi = "piaabbi"
+        self.pasbbis = "pasbbis"
+        self.pasbis = "pasbis"
         self.iaabbi = "iaabbi"
         self.iaabi = "iaabi"
         self.aaba = "aaba"
@@ -44,6 +46,10 @@ class Section:
             return self._methodObject.paaibbi()
         elif methodName == self.paasibbis:
             return self._methodObject.paasibbis()
+        elif methodName == self.pasbbis:
+            return self._methodObject.pasbbis()
+        elif methodName == self.pasbis:
+            return self._methodObject.pasbis()
 
 class Methods:
     def __init__(self):
@@ -70,6 +76,22 @@ class Methods:
         a = cs.Score()
         b = cs.Score()
         return [p,p,a,a,b,b,i]
+
+    def pasbbis(self):
+        p = cs.Score()
+        i = cs.Score()
+        a = cs.Score()
+        b = cs.Score()
+        s = cs.Score()
+        return [p,a,s,b,b,i,s]
+
+    def pasbis(self):
+        p = cs.Score()
+        i = cs.Score()
+        a = cs.Score()
+        b = cs.Score()
+        s = cs.Score()
+        return [p,a,s,b,i,s]
 
     def piaabbi(self):
         p = cs.Score()

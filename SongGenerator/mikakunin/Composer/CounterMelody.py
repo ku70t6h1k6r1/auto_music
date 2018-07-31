@@ -15,16 +15,23 @@ class CounterMelody:
 
         #WITH CHORD
         self._methodsObject = Methods(self._notePerBar_n)
-        self._setMelodyNameWithChord()
+        self._setCounterMelody()
 
         #WITHOUT CHORD
-        self._setMelodyNameWithoutChord()
+        #self._setMelodyNameWithoutChord()
 
     def _setCounterMelody(self):
-        self.pattern1 = "pattern1"
+        self.arp = "arp"
+        self.breaka = "break"
 
     def create(self, scoreObj, melodyName,  range, **arg):
-        if melodyName == self.pattern1 :
+        if melodyName == self.arp :
+            melody = self._methodsObject.counter( scoreObj.keyProg, scoreObj.chordProg, range)
+            scoreObj.setMelodyLine2(melody)
+
+        elif melodyName == self.breaka :
+            melody = self._methodsObject.breaka( scoreObj.keyProg, scoreObj.chordProg)
+            scoreObj.setMelodyLine2(melody)
 
 class Methods:
     def __init__(self, notePerBar_n = 16):
@@ -50,4 +57,37 @@ class Methods:
 
         #SET Rhythm Patterns
         self._rhythmPattersObj = _rp.Patterns()
-        self._rhythmPatters = self._rhythmPattersObj.list    
+        self._rhythmPatters = self._rhythmPattersObj.list
+
+    def breaka(self,keyProg=None, chordProg = None):
+        melody = np.full(len(keyProg) * self._notePerBar_n, -1)
+        melody[0] = -2
+
+        return  melody
+
+    def counter(self, keyProg=None, chordProg=None, _range = [69,101]):
+
+        melody = []
+        for chord in chordProg:
+            grp_name, patterns = random.choice(list(self._rhythmPatters.items()))
+            grp_name2, patterns2 = random.choice(list(self._rhythmPatters.items()))
+
+            a = patterns[np.random.randint(len(patterns))]
+            a1 = patterns2[np.random.randint(len(patterns2))]
+
+            tempMelody = np.r_[np.array(a), np.array(a1)]
+
+
+            tempMelody = np.array(tempMelody[0::2] )
+
+            tempMelody_on = np.where(tempMelody > -1)[0]
+
+            for idx in tempMelody_on:
+                tempMelody[idx] = self._chordIdx.getTonesFromIdx(chord[0])[np.random.randint(0, 4, 1)[0]]
+
+            melody.extend(tempMelody)
+
+        melody = func.processing(melody, _range)
+        melody = np.array(melody)
+
+        return  melody

@@ -204,20 +204,20 @@ class Play:
         """
         #BASS
         #bass = self.filCtrl.lowfi_stereo(bass, self.bpm, [self.score.form[1]], [self.score.form[3]]  ,'bandpass' ,[[1000,5000]])
-        bass = self.volCtrl.feedIn_stereo(bass, self.bpm, [self.score.form[0], self.score.form[3],  self.score.form[5]-16 ], [self.score.form[3],  self.score.form[5]-16, self.score.form[5]], ['liner','liner','tanh'], [0.3, 0.3, 0.99])
+        bass = self.volCtrl.feedIn_stereo(bass, self.bpm, [self.score.form[0], self.score.form[4]], [self.score.form[3], self.score.form[5]], ['liner', 'tanh'], [0.3, 0.3])
         bass = self.volCtrl.sidechain_stereo(bass, self.bpm, kick_hz)
 
         #HARM
         #harm = self.filCtrl.lowfi_stereo(harm, self.bpm, [self.score.form[1]], [self.score.form[4]]  ,'bandpass' ,[[400,4000]])
-        #harm = self.volCtrl.fourBeat_stereo(harm, self.bpm, [self.score.form[5]],  [self.score.form[8]], [0.0], [3.0])
+        harm = self.volCtrl.fourBeat_stereo(harm, self.bpm, [self.score.form[3]],  [self.score.form[6]], [0.0], [3.0])
         harm = self.volCtrl.feedIn_stereo(harm, self.bpm, [self.score.form[0]], [self.score.form[3]], ['liner'], [0.3])
 
         #DRUMS
-        drums = self.volCtrl.feedIn_stereo(drums, self.bpm, [self.score.form[3],  self.score.form[5]-16,  self.score.form[7]], [self.score.form[5]-16, self.score.form[5],  self.score.form[8]], ['liner','tanh','tanh'], [0.3, 0.99, 0.2])
+        drums = self.volCtrl.feedIn_stereo(drums, self.bpm, [self.score.form[4]], [self.score.form[5]], ['tanh'], [0.3])
         #drums = self.filCtrl.lowfi_stereo(drums, self.bpm, [self.score.form[1]], [self.score.form[3]]  ,'bandpass' ,[[3000,10000]])
 
         #FX
-        fx = self.volCtrl.feedIn_stereo(fx, self.bpm, [self.score.form[3],  self.score.form[5]-16 ], [self.score.form[5]-16, self.score.form[5]], ['liner','liner'], [0.6, 0.99])
+        #fx = self.volCtrl.feedIn_stereo(fx, self.bpm, [self.score.form[3],  self.score.form[5]-16 ], [self.score.form[5]-16, self.score.form[5]], ['liner','liner'], [0.6, 0.99])
 
         #all : merge
         wave = func.add([harm, bass, drums, fx], \

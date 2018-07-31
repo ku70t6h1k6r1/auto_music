@@ -2,9 +2,9 @@
   "Volume" :{
     "harm":{  "voicing":{"vol":2.0, "r":0.4, "l":0.6},
               "voicing2":{"vol":1.2, "r":0.6, "l":0.4},
-              "melody":{"vol":2.0, "r":0.47, "l":0.53},
+              "melody":{"vol":4.0, "r":0.2, "l":0.8},
               "melody2":{"vol": 0.0, "r":0.8, "l":0.2},
-              "subMelody":{"vol": 2.0, "r":0.6, "l":0.4}
+              "subMelody":{"vol": 1.0, "r":0.6, "l":0.4}
              },
     "bass":{  "bass":{"vol":2.5, "r":0.5, "l":0.5},
               "bass2":{"vol":2.0, "r":0.6, "l":0.4}
@@ -19,7 +19,7 @@
               "fx2":{"vol":1.0, "r":0.9, "l":0.1},
               "fx3":{"vol":1.0, "r":0.95, "l":0.05},
               "fx4":{"vol":1.0, "r":0.05, "l":0.95} },
-    "master":{"harm":2.0, "bass":1.0, "drums":3.0, "fx":1.0}
+    "master":{"harm":1.5, "bass":2.0, "drums":3.0, "fx":1.0}
   },
   "Preset" : {
     "bass":{
@@ -39,8 +39,8 @@
       "presetArgs": {"gain":2, "depth":1}
     },
     "subLead":{
-      "presetName":"radio",
-      "presetArgs": {"gain":4.0, "depth_pitch":2.3, "freq_pitch":0.3, "depth_vol":0.1, "freq_vol":5.0}
+      "presetName":"dist",
+      "presetArgs":{"gain":2.0 ,"depth":2.0}
     },
     "voice":{
       "presetName":"dist2",
@@ -134,7 +134,7 @@
         "transpose":[1.0, 2.0, 3.0, 4.01, 5.01, 6.0],
         "freqFilterName":"bandpass",
         "freqFilterRange":[10,18000],
-        "adsr":[0.02, 0.15, 0.5, 0.1],
+        "adsr":[0.02, 0.2, 0.0, 0.0],
         "rate":44100
       },
       "voice":{

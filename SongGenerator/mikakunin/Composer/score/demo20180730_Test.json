@@ -22,11 +22,16 @@
 
             "Melody":
               {
-                "name":"counter",
+                "name":"break",
                 "range":[40,60],
                 "args":{}
               },
-
+              "Melody2":
+                {
+                  "name":"arp",
+                  "range":[40,60],
+                  "args":{}
+                },
           "Drums":
             {
               "name":"random",

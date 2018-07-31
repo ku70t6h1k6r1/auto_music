@@ -15,6 +15,8 @@ class Mixer:
         self.edm1 = 'edm1'
         self.edm2 = 'edm2'
         self.edm3 = 'edm3'
+        self.edm4 = 'edm4'
+        self.edm5 = 'edm5'
 
     def create(self, formObj, methodName):
         if methodName == self.default:
@@ -31,6 +33,10 @@ class Mixer:
             return self._methodObject.edm2(formObj)
         elif methodName == self.edm3:
             return self._methodObject.edm3(formObj)
+        elif methodName == self.edm4:
+            return self._methodObject.edm4(formObj)
+        elif methodName == self.edm5:
+            return self._methodObject.edm5(formObj)
         elif methodName == self.test:
             return self._methodObject.test(formObj)
 
@@ -128,7 +134,7 @@ class Methods:
             output[5] = {'melodyLine':False, 'melodyLine2':True, 'bassLine':False, 'voiceProg':False, 'drums':True, 'effects':True}
         return output
 
-    def edm3(self, section):
+    def edm3(self, section): #[p,a,a,s,i,b,b,i,s]
         all_on = {'melodyLine':True, 'melodyLine2':True, 'bassLine':True, 'voiceProg':True, 'drums':True, 'effects':True}
         output = []
         for num in section:
@@ -141,6 +147,59 @@ class Methods:
             output[3] = {'melodyLine':False, 'melodyLine2':True, 'bassLine':False, 'voiceProg':False, 'drums':False, 'effects':True} #s i
             output[5] = {'melodyLine':False, 'melodyLine2':False, 'bassLine':True, 'voiceProg':True, 'drums':True, 'effects':True} #b
             output[6] = {'melodyLine':False, 'melodyLine2':True, 'bassLine':True, 'voiceProg':True, 'drums':True, 'effects':True} #b
-            output[-2] = {'melodyLine':False, 'melodyLine2':True, 'bassLine':False, 'voiceProg':False, 'drums':True, 'effects':True}
+            output[-2] = {'melodyLine':True, 'melodyLine2':False, 'bassLine':False, 'voiceProg':False, 'drums':True, 'effects':True}
             output[-1] = {'melodyLine':False, 'melodyLine2':False, 'bassLine':False, 'voiceProg':False, 'drums':False, 'effects':False}
+        return output
+
+    def edm4(self, section): #[p,a,s,b,b,i,s]
+        all_on = {'melodyLine':True, 'melodyLine2':True, 'bassLine':True, 'voiceProg':True, 'drums':True, 'effects':True}
+        output = []
+        for num in section:
+            output.append(all_on)
+
+        if len(section) > 0:
+            #p
+            output[0] = {'melodyLine':False, 'melodyLine2':False, 'bassLine':False, 'voiceProg':False, 'drums':False, 'effects':True}
+
+            #a
+            output[1] = {'melodyLine':False, 'melodyLine2':False, 'bassLine':True, 'voiceProg':True, 'drums':True, 'effects':True}
+
+            #s
+            output[2] = {'melodyLine':False, 'melodyLine2':False, 'bassLine':False, 'voiceProg':False, 'drums':False, 'effects':True}
+
+            #b
+            output[3] = {'melodyLine':False, 'melodyLine2':False, 'bassLine':True, 'voiceProg':True, 'drums':True, 'effects':True}
+            output[4] = {'melodyLine':False, 'melodyLine2':True, 'bassLine':True, 'voiceProg':True, 'drums':True, 'effects':True}
+
+            #i
+            output[5] = {'melodyLine':True, 'melodyLine2':False, 'bassLine':True, 'voiceProg':False, 'drums':True, 'effects':True}
+
+            #s
+            output[6] = {'melodyLine':False, 'melodyLine2':False, 'bassLine':False, 'voiceProg':False, 'drums':False, 'effects':False}
+        return output
+
+    def edm5(self, section): #[p,a,s,b,i,s]
+        all_on = {'melodyLine':True, 'melodyLine2':True, 'bassLine':True, 'voiceProg':True, 'drums':True, 'effects':True}
+        output = []
+        for num in section:
+            output.append(all_on)
+
+        if len(section) > 0:
+            #p
+            output[0] = {'melodyLine':False, 'melodyLine2':False, 'bassLine':False, 'voiceProg':False, 'drums':False, 'effects':True}
+
+            #a
+            output[1] = {'melodyLine':False, 'melodyLine2':False, 'bassLine':True, 'voiceProg':True, 'drums':True, 'effects':True}
+
+            #s
+            output[2] = {'melodyLine':False, 'melodyLine2':False, 'bassLine':False, 'voiceProg':False, 'drums':False, 'effects':True}
+
+            #b
+            output[3] = {'melodyLine':False, 'melodyLine2':False, 'bassLine':True, 'voiceProg':True, 'drums':True, 'effects':True}
+
+            #i
+            output[4] = {'melodyLine':True, 'melodyLine2':True, 'bassLine':True, 'voiceProg':True, 'drums':True, 'effects':True}
+
+            #s
+            output[5] = {'melodyLine':False, 'melodyLine2':False, 'bassLine':False, 'voiceProg':False, 'drums':False, 'effects':False}
         return output

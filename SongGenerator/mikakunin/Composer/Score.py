@@ -3,6 +3,7 @@ from Composer import Section as sct
 from Composer import Mixer as mix
 from Composer import ChordProgression as cp
 from Composer import Melody as mel
+from Composer import CounterMelody as mel2
 from Composer import Drums as dr
 from Composer import Bass as bs
 from Composer import VoiceProgression as vp
@@ -29,6 +30,7 @@ class Score:
         self.mixObj = mix.Mixer()
         self._chordProgressionObj = cp.ChordProgression()
         self._melodyObj = mel.Melody()
+        self._melody2Obj = mel2.CounterMelody()
         self._drumObj = dr.Drums()
         self._bassObj = bs.Bass()
         self._VoiceProgressionObj = vp.VoiceProgression()
@@ -47,6 +49,7 @@ class Score:
             self._chordProgressionObj.create(scoreObj, score_json[form['args'][i]]['ChordProgression']['name'], **score_json[form['args'][i]]['ChordProgression']['args'])
             self._chordProgressionObj.update(scoreObj, score_json[form['args'][i]]['ChordProgressionChild']['name'])
             self._melodyObj.create(scoreObj, score_json[form['args'][i]]['Melody']['name'], score_json[form['args'][i]]['Melody']['range'],  **score_json[form['args'][i]]['Melody']['args'])
+            self._melody2Obj.create(scoreObj, score_json[form['args'][i]]['Melody2']['name'], score_json[form['args'][i]]['Melody2']['range'],  **score_json[form['args'][i]]['Melody2']['args'])
             self._drumObj.create(scoreObj, score_json[form['args'][i]]['Drums']['name'])
             self._bassObj.create(scoreObj, score_json[form['args'][i]]['Bass']['name'], score_json[form['args'][i]]['Bass']['range'])
             self._VoiceProgressionObj.create(scoreObj, score_json[form['args'][i]]['VoiceProgression']['name'], score_json[form['args'][i]]['VoiceProgression']['range'], **score_json[form['args'][i]]['VoiceProgression']['args'])
