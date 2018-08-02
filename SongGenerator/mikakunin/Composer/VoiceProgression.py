@@ -41,6 +41,23 @@ class VoiceProgression:
             voiceProg = self._methodsObject.breaka(scoreObj.chordProg)
             scoreObj.setVoiceProg(voiceProg)
 
+    def create2(self, scoreObj, voicingName, range, **arg ):
+        if voicingName == self.powerChord:
+            voiceProg = self._methodsObject.powerChord(scoreObj.chordProg, scoreObj.drumObj.kick, scoreObj.bassLine, range, arg['subMethodName'])
+            scoreObj.setVoiceProg2(voiceProg)
+        elif voicingName == self.triad:
+            voiceProg = self._methodsObject.triad(scoreObj.chordProg, scoreObj.drumObj.kick, scoreObj.bassLine, range, arg['subMethodName'])
+            scoreObj.setVoiceProg2(voiceProg)
+        elif voicingName == self.doubleStop:
+            voiceProg = self._methodsObject.doubleStop(scoreObj.chordProg, scoreObj.drumObj.kick, scoreObj.bassLine, range, arg['subMethodName'])
+            scoreObj.setVoiceProg2(voiceProg)
+        elif voicingName == self.unisonBass:
+            voiceProg = self._methodsObject.unisonBass(scoreObj.chordProg, scoreObj.bassLine, range)
+            scoreObj.setVoiceProg2(voiceProg)
+        elif voicingName == self.breaka:
+            voiceProg = self._methodsObject.breaka(scoreObj.chordProg)
+            scoreObj.setVoiceProg2(voiceProg)
+
 class Methods:
     def __init__(self, notePerBar_n = 16):
         self._notePerBar_n = notePerBar_n
@@ -142,11 +159,12 @@ class Methods:
         chordScore = None
         chordScore = self._subMethods.synchroniseBass(chordProg, bassScore)
 
-        score = np.full([len(chordProg)*self._notePerBar_n, 2], -1)
+        score = np.full([len(chordProg)*self._notePerBar_n, 3], -1)
         for i, chord in enumerate(chordScore):
             if chord > -1:
                 score[i][0] = func.clipping(bassScore[i], range[0], range[1])
                 score[i][1] = func.clipping(self._chordIdx.getTonesFromIdx(chord)[2], range[0], range[1])
+                score[i][2] = func.clipping(bassScore[i], range[0], range[1]) + 12
         return score
 
     def breaka(self, chordProg):

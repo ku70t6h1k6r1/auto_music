@@ -803,7 +803,7 @@ if __name__ == '__main__' :
     #synthesizer = Synthesizer(["sine", "sine"], [1.0, 0.8], [1.0, 1.0], 'lowpass', [200], [0.0, 0.04, 0.3, 0.1], 44100)
 
     #guitar
-    synthesizer = Synthesizer_Poly(["square", "square", "square", "sine", "sine", "whitenoise"], [0.8, 0.2, 0.1, 0.2, 0.2, 0.3], [1.0, 2.0, 3.0, 4.01, 5.01, 6.0], 'bandpass', [10,18000], [0.02, 0.15, 0.9, 0.1], 44100)
+    synthesizer = Synthesizer_Poly(["sawtooth", "sawtooth", "sine", "sine", "sine", "sawtooth"], [0.8, 0.2, 0.1, 0.2, 0.2, 0.3], [0.5, 1.0, 2.0, 3.0, 4.0, 5.0], 'bandpass', [10,18000], [0.02, 0.15, 0.9, 0.1], 44100)
 
     scale = [261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88, 523.25] * 1
     #scale = [261.63/4] * 16

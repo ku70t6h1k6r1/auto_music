@@ -39,6 +39,7 @@ class Score:
         self.melodyLine2 = None
         self.bassLine = None
         self.voiceProg = None
+        self.voiceProg2 = None
         self.drumObj = Drums() #Drumの中身どうしよう
         self.effectsObj = Effects()
 
@@ -62,6 +63,9 @@ class Score:
     def setVoiceProg(self, voiceProg):
         self.voiceProg = voiceProg
 
+    def setVoiceProg2(self, voiceProg):
+        self.voiceProg2 = voiceProg
+
     def setDrumObj(self, drumObj):
         self.drumObj = drumObj
 
@@ -74,11 +78,12 @@ class Score:
         self.melodyLine  = self._append(self.melodyLine, scoreObj.melodyLine)
         self.bassLine  = self._append(self.bassLine, scoreObj.bassLine)
         self.voiceProg  = self._appendPoly(self.voiceProg, scoreObj.voiceProg)
+        self.voiceProg2  = self._appendPoly(self.voiceProg2, scoreObj.voiceProg2)
         self.drumObj._append(scoreObj.drumObj)
         self.effectsObj._append(scoreObj.effectsObj)
 
 
-    def addScoreObj(self, scoreObj, useable_Part_list={'melodyLine':False, 'bassLine':False, 'voiceProg':False, 'drums':False, 'effects':False}):
+    def addScoreObj(self, scoreObj, useable_Part_list={'melodyLine':False, 'bassLine':False, 'voiceProg':False, 'voiceProg2':False, 'drums':False, 'effects':False}):
         self.keyProg  = self._appendPoly(self.keyProg, scoreObj.keyProg)
         self.chordProg  = self._appendPoly(self.chordProg, scoreObj.chordProg)
 
@@ -111,6 +116,13 @@ class Score:
             self.voiceProg  = self._appendPoly(self.voiceProg, off_sounds)
         else:
             self.voiceProg  = self._appendPoly(self.voiceProg, scoreObj.voiceProg)
+
+        if not useable_Part_list['voiceProg2']:
+            off_sounds = np.full( (len(scoreObj.voiceProg2[:,0]), 1), tuple([-1]*1) )
+            off_sounds[0,0] = -2
+            self.voiceProg2  = self._appendPoly(self.voiceProg2, off_sounds)
+        else:
+            self.voiceProg2  = self._appendPoly(self.voiceProg2, scoreObj.voiceProg2)
 
         self.drumObj._append(scoreObj.drumObj, useable_Part_list['drums'])
         self.effectsObj._append(scoreObj.effectsObj, useable_Part_list['effects'])

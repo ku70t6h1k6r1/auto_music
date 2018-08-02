@@ -34,6 +34,7 @@ class Score:
         self._drumObj = dr.Drums()
         self._bassObj = bs.Bass()
         self._VoiceProgressionObj = vp.VoiceProgression()
+        self._VoiceProgression2Obj = vp.VoiceProgression()
         self._effectsObj = fx.Effects()
 
     def load(self, dir):
@@ -53,6 +54,7 @@ class Score:
             self._drumObj.create(scoreObj, score_json[form['args'][i]]['Drums']['name'])
             self._bassObj.create(scoreObj, score_json[form['args'][i]]['Bass']['name'], score_json[form['args'][i]]['Bass']['range'])
             self._VoiceProgressionObj.create(scoreObj, score_json[form['args'][i]]['VoiceProgression']['name'], score_json[form['args'][i]]['VoiceProgression']['range'], **score_json[form['args'][i]]['VoiceProgression']['args'])
+            self._VoiceProgression2Obj.create2(scoreObj, score_json[form['args'][i]]['VoiceProgression2']['name'], score_json[form['args'][i]]['VoiceProgression2']['range'], **score_json[form['args'][i]]['VoiceProgression2']['args'])
             self._effectsObj.create(scoreObj, score_json[form['args'][i]]['Effects']['name'], **score_json[form['args'][i]]['Effects']['args'] )
 
 

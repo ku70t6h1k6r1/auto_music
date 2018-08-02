@@ -1,26 +1,26 @@
 {
   "Volume" :{
-    "melody":{"melody":{"vol":3.5, "r":0.47, "l":0.53},
+    "melody":{"melody":{"vol":2.5, "r":0.47, "l":0.53},
               "melody2":{"vol": 0.0, "r":0.8, "l":0.2},
               "subMelody":{"vol": 1.0, "r":0.6, "l":0.4}
             },
-    "harm":{  "voicing":{"vol":2.0, "r":0.8, "l":0.2},
-              "voicing2":{"vol":0.0, "r":0.8, "l":0.2}
+    "harm":{  "voicing":{"vol":2.0, "r":0.4, "l":0.6},
+              "voicing2":{"vol":1.0, "r":0.6, "l":0.4}
              },
     "bass":{  "bass":{"vol":2.5, "r":0.5, "l":0.5},
               "bass2":{"vol":2.0, "r":0.6, "l":0.4}
             },
-    "drums":{ "kick":{"vol":4.0, "r":0.5, "l":0.5},
-              "kick2":{"vol":5.0, "r":0.51, "l":0.49},
-              "snare":{"vol":2.0, "r":0.3, "l":0.7},
-              "snare2":{"vol":4.0, "r":0.31, "l":0.69},
+    "drums":{ "kick":{"vol":7.5, "r":0.5, "l":0.5},
+              "kick2":{"vol":1.0, "r":0.75, "l":0.25},
+              "snare":{"vol":1.0, "r":0.3, "l":0.7},
+              "snare2":{"vol":2.5, "r":0.7, "l":0.3},
               "hihat":{"vol":1.0, "r":0.2, "l":0.8},
-              "hihat2":{"vol":2.0, "r":0.4, "l":0.6}  },
+              "hihat2":{"vol":0.6, "r":0.4, "l":0.6}  },
     "fx":{    "fx1":{"vol":1.0, "r":0.1, "l":0.9},
               "fx2":{"vol":1.0, "r":0.9, "l":0.1},
               "fx3":{"vol":1.0, "r":0.95, "l":0.05},
               "fx4":{"vol":1.0, "r":0.05, "l":0.95} },
-    "master":{"melody":0.0, "harm": 1.0, "bass":0.5, "drums":2.5, "fx":0.0}
+    "master":{"melody":1.4, "harm":1.0, "bass":1.5, "drums":3.5, "fx":2.0}
   },
   "Preset" : {
     "bass":{
@@ -32,24 +32,24 @@
       "presetArgs":{}
     },
     "lead":{
-      "presetName":"tape",
-      "presetArgs": {"gain":0.2 , "depth":0.1}
+      "presetName":"dist",
+      "presetArgs":{"gain":2.0 ,"depth":2.0}
     },
     "lead2":{
       "presetName":"tape",
       "presetArgs": {"gain":2, "depth":1}
     },
     "subLead":{
-      "presetName":"radio",
-      "presetArgs": {"gain":1.0, "depth_pitch":2.3, "freq_pitch":0.3, "depth_vol":0.1, "freq_vol":5.0}
+      "presetName":"dist",
+      "presetArgs":{"gain":2.0 ,"depth":2.0}
     },
     "voice":{
       "presetName":"dist2",
       "presetArgs":{"gain":5 ,"depth":3, "freq":[5, 6000]}
     },
     "voice2":{
-      "presetName":"tape",
-      "presetArgs": {"gain":4, "depth":4}
+      "presetName":"reverb",
+      "presetArgs":{"delay": 0.05, "amp": 0.6, "depth": 0.8}
     },
     "hihat":{
       "presetName":"dist",
@@ -130,12 +130,12 @@
         "rate":44100
       },
       "subLead":{
-        "waveForm":["sawtooth", "sawtooth", "sawtooth", "sine", "sine", "whitenoise"],
-        "volume":[1.0, 0.9, 0.1, 0.2, 0.2, 0.75],
+        "waveForm":["square", "square", "square", "sine", "sine", "whitenoise"],
+        "volume":[0.8, 0.2, 0.1, 0.2, 0.2, 0.3],
         "transpose":[1.0, 2.0, 3.0, 4.01, 5.01, 6.0],
         "freqFilterName":"bandpass",
-        "freqFilterRange":[300,8000],
-        "adsr":[0.15, 0.01, 0.5, 0.1],
+        "freqFilterRange":[10,18000],
+        "adsr":[0.02, 0.2, 0.0, 0.0],
         "rate":44100
       },
       "voice":{
@@ -144,16 +144,16 @@
         "transpose":[0.5, 1.0, 2.0, 3.0, 4.01, 5.01, 6.0],
         "freqFilterName":"bandpass",
         "freqFilterRange":[300,8000],
-        "adsr":[0.01, 0.15, 0.6, 0.1],
+        "adsr":[0.0, 0.15, 0.6, 0.1],
         "rate":44100
       },
       "voice2":{
-        "waveForm":["sawtooth", "sawtooth", "sawtooth", "sawtooth", "sine", "sine", "whitenoise"],
-        "volume":[0.74, 0.8, 0.2, 0.1, 0.2, 0.2, 0.3],
-        "transpose":[0.5, 1.0, 2.0, 3.0, 4.01, 5.01, 6.0],
-        "freqFilterName":"bandpass",
-        "freqFilterRange":[300,8000],
-        "adsr":[0.011, 0.15, 0.6, 0.1],
+        "waveForm":["sine", "square"],
+        "volume":[0.3, 1.0],
+        "transpose":[0.5, 1.0],
+        "freqFilterName":"lowpass",
+        "freqFilterRange":[15000],
+        "adsr":[0.02, 0.3, 0.9, 0.01],
         "rate":44100
       },
       "kick":{
@@ -162,7 +162,7 @@
         "volume":[0.8, 0.8],
         "transpose":[1.0, 1.0],
         "freqFilterName":"lowpass",
-        "freqFilterRange":[1500],
+        "freqFilterRange":[200],
         "adsr":[0.0, 0.04, 0.3 ,0.1],
         "rate":44100
       },
@@ -171,9 +171,9 @@
         "waveForm":["sawtooth", "whitenoise"],
         "volume":[0.2, 1.0],
         "transpose":[1.0, 1.0],
-        "freqFilterName":"bandpass",
-        "freqFilterRange":[100,5000],
-        "adsr":[0.0, 0.02, 0.01, 0.01],
+        "freqFilterName":"bandcut",
+        "freqFilterRange":[1000,3000],
+        "adsr":[0.01, 0.02, 0.01, 0.01],
         "rate":44100
       },
       "hihat":{
@@ -187,55 +187,55 @@
         "rate":44100
       }
     },
-  "Sampler" :{
-      "fx1":{
-        "file":"C:/Users/hikari.kubota/Documents/GitHub/auto_music/SongGenerator/mikakunin/wav/sample/*",
-        "freqFilterName":"bandpass",
-        "freqFilterRange":[500,15000],
-        "adsr": [0.3, 0.02, 0.8, 0.02],
-        "rate":44100
-      },
-      "fx2":{
-        "file":"C:/Users/hikari.kubota/Documents/GitHub/auto_music/SongGenerator/mikakunin/wav/sample/*",
-        "freqFilterName":"bandpass",
-        "freqFilterRange":[200,12000],
-        "adsr":[0.0, 0.02, 0.9, 0.02],
-        "rate":44100
-      },
-      "fx3":{
-        "file":"C:/Users/hikari.kubota/Documents/GitHub/auto_music/SongGenerator/mikakunin/wav/sample/*",
-        "freqFilterName":"bandpass",
-        "freqFilterRange":[100,10000],
-        "adsr":[0.0, 0.02, 0.9, 0.02],
-        "rate":44100
-      },
-      "fx4":{
-        "file":"C:/Users/hikari.kubota/Documents/GitHub/auto_music/SongGenerator/mikakunin/wav/sample/*",
-        "freqFilterName":"bandpass",
-        "freqFilterRange":[2,9500],
-        "adsr":[0.01, 0.2, 0.8, 0.1],
-        "rate":44100
-      },
-      "kick":{
-        "file":"C:/Users/hikari.kubota/Documents/GitHub/auto_music/SongGenerator/mikakunin/wav/sample/Kick.wav",
-        "freqFilterName":"lowpass",
-        "freqFilterRange":[18000],
-        "adsr":[0.0, 0.02, 0.9, 0.01],
-        "rate":44100
-      },
-      "snare":{
-        "file":"C:/Users/hikari.kubota/Documents/GitHub/auto_music/SongGenerator/mikakunin/wav/sample/snare.wav",
-        "freqFilterName":"lowpass",
-        "freqFilterRange":[18000],
-        "adsr":[0.0, 0.02, 0.9, 0.01],
-        "rate":44100
-      },
-      "hihat":{
-        "file":"C:/Users/hikari.kubota/Documents/GitHub/auto_music/SongGenerator/mikakunin/wav/sample/ohh.wav",
-        "freqFilterName":"highpass",
-        "freqFilterRange":[20],
-        "adsr":[0.0, 0.02, 0.9, 0.01],
-        "rate":44100
+    "Sampler" :{
+        "fx1":{
+          "file":"C:/Users/hikari.kubota/Documents/GitHub/auto_music/SongGenerator/mikakunin/wav/sample/sawaki/*",
+          "freqFilterName":"bandpass",
+          "freqFilterRange":[500,15000],
+          "adsr": [0.3, 0.02, 0.8, 0.02],
+          "rate":44100
+        },
+        "fx2":{
+          "file":"C:/Users/hikari.kubota/Documents/GitHub/auto_music/SongGenerator/mikakunin/wav/sample/sawaki/*",
+          "freqFilterName":"bandpass",
+          "freqFilterRange":[200,12000],
+          "adsr":[0.0, 0.02, 0.9, 0.02],
+          "rate":44100
+        },
+        "fx3":{
+          "file":"C:/Users/hikari.kubota/Documents/GitHub/auto_music/SongGenerator/mikakunin/wav/sample/sawaki/*",
+          "freqFilterName":"bandpass",
+          "freqFilterRange":[100,10000],
+          "adsr":[0.0, 0.02, 0.9, 0.02],
+          "rate":44100
+        },
+        "fx4":{
+          "file":"C:/Users/hikari.kubota/Documents/GitHub/auto_music/SongGenerator/mikakunin/wav/sample/sawaki/*",
+          "freqFilterName":"bandpass",
+          "freqFilterRange":[2,9500],
+          "adsr":[0.01, 0.2, 0.8, 0.1],
+          "rate":44100
+        },
+        "kick":{
+          "file":"C:/Users/hikari.kubota/Documents/GitHub/auto_music/SongGenerator/mikakunin/wav/sample/Kick.wav",
+          "freqFilterName":"lowpass",
+          "freqFilterRange":[18000],
+          "adsr":[0.0, 0.02, 0.9, 0.01],
+          "rate":44100
+        },
+        "snare":{
+          "file":"C:/Users/hikari.kubota/Documents/GitHub/auto_music/SongGenerator/mikakunin/wav/sample/snare.wav",
+          "freqFilterName":"lowpass",
+          "freqFilterRange":[18000],
+          "adsr":[0.0, 0.02, 0.9, 0.01],
+          "rate":44100
+        },
+        "hihat":{
+          "file":"C:/Users/hikari.kubota/Documents/GitHub/auto_music/SongGenerator/mikakunin/wav/sample/ohh.wav",
+          "freqFilterName":"highpass",
+          "freqFilterRange":[20],
+          "adsr":[0.0, 0.02, 0.9, 0.01],
+          "rate":44100
+        }
       }
-    }
 }

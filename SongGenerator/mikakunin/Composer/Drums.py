@@ -84,8 +84,8 @@ class Methods:
 
         snare[-4*self._notePerBar_n:-2*self._notePerBar_n] = np.tile(self._fills[1].snare, 2)
         snare[-2*self._notePerBar_n: len(snare)] = np.tile(self._fills[2].snare, 2)
-
-        drumObj.setHihat(silent)
+        
+        drumObj.setHihat(snare)
         drumObj.setSnare(snare)
         drumObj.setKick(snare)
         return drumObj

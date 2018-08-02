@@ -17,6 +17,7 @@ class Effects:
         self.accentRandom = "accentRandom"
         self.onBeat = "onbeat"
         self.onBeat_manual = "onBeat_manual"
+        self.fill = "fill"
 
     def create(self, scoreObj, methodName, **arg):
 #    def accentRandom(self, melody, hihat, snare, kick , barsPerOneSection = 4, temperature = {'melody':0.0005, 'hihat':0.0005, 'snare':0.0005, 'kick':0.0005}):
@@ -32,6 +33,9 @@ class Effects:
             scoreObj.setEffectsObj(effectsObj)
         elif methodName == self.onBeat_manual:
             effectsObj = self._methodsObject.onBeat_manual(scoreObj.keyProg)
+            scoreObj.setEffectsObj(effectsObj)
+        elif methodName == self.fill:
+            effectsObj = self._methodsObject.fill(scoreObj.keyProg)
             scoreObj.setEffectsObj(effectsObj)
 
 class Methods:
@@ -128,6 +132,27 @@ class Methods:
         effectsObj.setPt4(score)
 
         return effectsObj
+
+    def fill(self, keyProg):
+        """
+        1 barしか考えてない
+        """
+
+        fill_other = [0,-1,-1,-1, -1,-1,-1,-1, -1,-1,-1,-1, -1,-1,-1,-1]
+        fill = [0,-1,0,-1, 0,-1,0,-1, 0,0,0,0, 0,0,0,0]
+
+        effectsObj = cs.Effects()
+
+        score = np.tile(fill_other , len(keyProg))
+        score[-self._notePerBar_n: len(score)] = np.array(fill)
+
+        effectsObj.setPt1(score)
+        effectsObj.setPt2(score)
+        effectsObj.setPt3(score)
+        effectsObj.setPt4(score)
+
+        return effectsObj
+
 
 if __name__ == '__main__':
     melody = [1,-1,-1,-1, 1,-1,-1,-1, 1,-1,-1,-1, 1,-1,-1,-1,

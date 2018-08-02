@@ -9,7 +9,7 @@ class Fills:
 
         #Fours
         instObj = cs.Drums()
-        instObj.setHihat([-2,-1,-1,-1,  -1,-1,-1,-1,    -1,-1,-1,-1,    -1,-1,-1,-1], True)
+        instObj.setHihat([-1,-1,-1,-1,  -1,-1,-1,-1,    -1,-1,-1,-1,    -1,-1,-1,-1], True)
         instObj.setSnare([0,-1,-1,-1,  0,-1,-1,-1,    0,-1,-1,-1,    0,-1,-1,-1], True)
         instObj.setKick([0,-1,-1,-1,  0,-1,-1,-1,    0,-1,-1,-1,    0,-1,-1,-1], True)
         self.list.append(instObj)
@@ -23,7 +23,7 @@ class Fills:
 
         #Sixteens
         instObj = cs.Drums()
-        instObj.setHihat([-2,-1,-1,-1,  -1,-1,-1,-1,    -1,-1,-1,-1,    -1,-1,-1,-1], True)
+        instObj.setHihat([0,0,0,0,  0,0,0,0,    0,0,0,0,    0,0,0,0], True)
         instObj.setSnare([0,0,0,0,  0,0,0,0,    0,0,0,0,    0,0,0,0], True)
         instObj.setKick([0,0,0,0,  0,0,0,0,    0,0,0,0,    0,0,0,0], True)
         self.list.append(instObj)

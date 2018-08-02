@@ -40,7 +40,7 @@ class Effector:
             o = self._presetObject.Distortion(wave, arg["gain"], arg["depth"])
             return o
         elif presetName == self.dist2:
-            o = self._presetObject.Distortion2(wave, arg["gain"], arg["depth"])
+            o = self._presetObject.Distortion2(wave, arg["gain"], arg["depth"], arg["freq"])
             return o
         elif presetName == self.dist3:
             o = self._presetObject.Distortion3(wave, arg["gain"], arg["depth"])
@@ -90,11 +90,11 @@ class Preset:
         wave = filter.processing(wave)
         return wave
 
-    def Distortion2(self, wave, gain = 3, depth = 0.5):
+    def Distortion2(self, wave, gain = 3, depth = 0.5, freq = [300,1000] ):
         wave = Distortion.hardClipping(Distortion(), wave, gain)
         wave = Compressor.sigmoid(Compressor(), wave, depth)
-        filter = Filter('bandpass', [18, 12000])
-        wave = Delay.reverb(Delay(), wave, 0.05, 0.9, 0.85)
+        filter = Filter('bandpass', freq)
+        wave = Delay.reverb(Delay(), wave, 0.07, 0.9, 0.6)
         wave = filter.processing(wave)
         return wave
 

@@ -179,27 +179,27 @@ class Methods:
         return output
 
     def edm5(self, section): #[p,a,s,b,i,s]
-        all_on = {'melodyLine':True, 'melodyLine2':True, 'bassLine':True, 'voiceProg':True, 'drums':True, 'effects':True}
+        all_on = {'melodyLine':True, 'melodyLine2':True, 'bassLine':True, 'voiceProg':True, 'voiceProg2':True, 'drums':True, 'effects':True}
         output = []
         for num in section:
             output.append(all_on)
 
         if len(section) > 0:
             #p
-            output[0] = {'melodyLine':False, 'melodyLine2':False, 'bassLine':False, 'voiceProg':False, 'drums':False, 'effects':True}
+            output[0] = {'melodyLine':False, 'melodyLine2':False, 'bassLine':False, 'voiceProg':False, 'voiceProg2':False, 'drums':False, 'effects':True}
 
             #a
-            output[1] = {'melodyLine':False, 'melodyLine2':False, 'bassLine':True, 'voiceProg':True, 'drums':True, 'effects':True}
+            output[1] = {'melodyLine':False, 'melodyLine2':False, 'bassLine':True, 'voiceProg':True, 'voiceProg2':True, 'drums':True, 'effects':True}
 
             #s
-            output[2] = {'melodyLine':False, 'melodyLine2':False, 'bassLine':False, 'voiceProg':False, 'drums':False, 'effects':True}
+            output[2] = {'melodyLine':False, 'melodyLine2':False, 'bassLine':False, 'voiceProg':False, 'voiceProg2':False, 'drums':False, 'effects':True}
 
             #b
-            output[3] = {'melodyLine':False, 'melodyLine2':False, 'bassLine':True, 'voiceProg':True, 'drums':True, 'effects':True}
+            output[3] = {'melodyLine':False, 'melodyLine2':False, 'bassLine':True, 'voiceProg':True, 'voiceProg2':False, 'drums':True, 'effects':True}
 
             #i
-            output[4] = {'melodyLine':True, 'melodyLine2':True, 'bassLine':True, 'voiceProg':True, 'drums':True, 'effects':True}
+            output[4] = {'melodyLine':True, 'melodyLine2':True, 'bassLine':True, 'voiceProg':True, 'voiceProg2':True, 'drums':True, 'effects':True}
 
             #s
-            output[5] = {'melodyLine':False, 'melodyLine2':False, 'bassLine':False, 'voiceProg':False, 'drums':False, 'effects':False}
+            output[5] = {'melodyLine':False, 'melodyLine2':False, 'bassLine':False, 'voiceProg':False, 'voiceProg2':False, 'drums':False, 'effects':False}
         return output

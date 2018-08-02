@@ -1,10 +1,11 @@
 {
   "Volume" :{
+    "melody":{  "melody":{"vol":2.5, "r":0.47, "l":0.53},
+                "melody2":{"vol": 0.0, "r":0.8, "l":0.2},
+                "subMelody":{"vol": 3.0, "r":0.6, "l":0.4}
+            },
     "harm":{  "voicing":{"vol":2.0, "r":0.4, "l":0.6},
               "voicing2":{"vol":1.2, "r":0.6, "l":0.4},
-              "melody":{"vol":2.5, "r":0.47, "l":0.53},
-              "melody2":{"vol": 0.0, "r":0.8, "l":0.2},
-              "subMelody":{"vol": 3.0, "r":0.6, "l":0.4}
              },
     "bass":{  "bass":{"vol":2.5, "r":0.5, "l":0.5},
               "bass2":{"vol":2.0, "r":0.6, "l":0.4}
@@ -19,7 +20,7 @@
               "fx2":{"vol":1.0, "r":0.9, "l":0.1},
               "fx3":{"vol":1.0, "r":0.95, "l":0.05},
               "fx4":{"vol":1.0, "r":0.05, "l":0.95} },
-    "master":{"harm":2.0, "bass":1.0, "drums":3.0, "fx":0.5}
+    "master":{"melody":1.0, "harm":1.0, "bass":1.0, "drums":3.0, "fx":0.5}
   },
   "Preset" : {
     "bass":{

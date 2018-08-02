@@ -11,7 +11,7 @@
         "ChordProgression":
             {
               "name":"punk",
-              "args":{"is_Maj": false, "chord_per_1bar":1}
+              "args":{"is_Maj": true, "chord_per_1bar":1}
             },
 
           "ChordProgressionChild":
@@ -40,16 +40,16 @@
 
           "Bass":
             {
-              "name":"riff8",
+              "name":"riff16",
               "range":[28,60],
               "args":{}
             },
 
             "VoiceProgression":
               {
-                "name":"powerChord",
+                "name":"unisonBass",
                 "range":[40,60],
-                "args": {"subMethodName":"kick"}
+                "args": {}
               },
               "Effects":
               {

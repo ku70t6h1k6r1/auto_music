@@ -52,6 +52,13 @@
                   "args": {}
                 },
 
+                "VoiceProgression2":
+                  {
+                    "name":"break",
+                    "range":[60,75],
+                    "args": {}
+                  },
+
               "Effects":
                 {
                   "name":"accentRandom",
@@ -90,23 +97,31 @@
                 "args":{}
               },
 
-            "Bass":
-              {
-                "name":"pedal",
-                "range":[28,60],
-                "args":{}
-              },
+              "Bass":
+                {
+                  "name":"riff8",
+                  "range":[28,60],
+                  "args":{}
+                },
 
               "VoiceProgression":
                 {
-                  "name":"unisonBass",
+                  "name":"powerChord",
                   "range":[40,60],
-                  "args": {}
+                  "args": {"subMethodName":"kick"}
                 },
+
+                "VoiceProgression2":
+                  {
+                    "name":"doubleStop",
+                    "range":[60,75],
+                    "args": {"subMethodName":"wholeNote"}
+                  },
+
                 "Effects":
                   {
                     "name":"accentRandom",
-                    "args": {"temperature":{"melody":0.0005, "hihat":0.0005, "snare":0.0005, "kick":0.001}, "tryN":{"melody":1, "hihat":1, "snare":1, "kick":1}}
+                    "args": {"temperature":{"melody":0.0005, "hihat":0.0005, "snare":0.0005, "kick":0.001}, "tryN":{"melody":4, "hihat":4, "snare":4, "kick":5}}
                   }
               },
           "s":  {
@@ -154,18 +169,83 @@
                         "args":{}
                       },
 
+                      "VoiceProgression2":
+                        {
+                          "name":"break",
+                          "range":[60,75],
+                          "args": {}
+                        },
+
                     "Effects":
                       {
-                        "name":"onbeat",
-                        "args": {"temperature":{"fx1":0.0005, "fx2":0.0005, "fx3":0.0005, "fx4":0.001}, "tryN":{"fx1":1, "fx2":10, "fx3":0, "fx4":2}}
+                        "name":"fill",
+                        "args": {}
                       }
                     },
+                  "b": {
+                        "ChordProgression":
+                        {
+                          "name":"punk",
+                          "args":{"is_Maj": false, "chord_per_1bar":1}
+                        },
 
-          "b":  {
+                      "ChordProgressionChild":
+                          {
+                            "name":"none",
+                            "args":{}
+                          },
+
+                        "Melody":
+                          {
+                            "name":"break",
+                            "range":[65,77],
+                            "args":{}
+                          },
+                          "Melody2":
+                            {
+                              "name":"arp",
+                              "range":[40,56],
+                              "args":{}
+                            },
+                        "Drums":
+                          {
+                            "name":"snareroll",
+                            "args":{}
+                          },
+
+                        "Bass":
+                          {
+                            "name":"pedal",
+                            "range":[28,60],
+                            "args":{}
+                          },
+
+                          "VoiceProgression":
+                            {
+                              "name":"unisonBass",
+                              "range":[40,60],
+                              "args": {}
+                            },
+
+                            "VoiceProgression2":
+                              {
+                                "name":"break",
+                                "range":[60,75],
+                                "args": {}
+                              },
+
+                          "Effects":
+                            {
+                              "name":"onBeat_manual",
+                              "args": {}
+                            }
+                          },
+
+          "i":  {
               "ChordProgression":
                   {
                     "name":"punk",
-                    "args":{"is_Maj": false, "chord_per_1bar":1}
+                    "args":{"is_Maj": true, "chord_per_1bar":1}
                   },
 
                 "ChordProgressionChild":
@@ -176,13 +256,13 @@
 
                 "Melody":
                   {
-                    "name":"break",
-                    "range":[40,60],
-                    "args":{}
+                    "name":"approach",
+                    "range":[65,77],
+                    "args":{"defaultNote":0}
                   },
                   "Melody2":
                     {
-                      "name":"break",
+                      "name":"arp",
                       "range":[52,70],
                       "args":{}
                     },
@@ -194,73 +274,30 @@
 
                 "Bass":
                   {
-                    "name":"riff16",
+                    "name":"riff8",
                     "range":[28,60],
                     "args":{}
                   },
 
                 "VoiceProgression":
                   {
-                    "name":"powerChord",
+                    "name":"unisonBass",
                     "range":[40,60],
-                    "args": {"subMethodName":"kick"}
+                    "args": {}
                   },
+
+                  "VoiceProgression2":
+                    {
+                      "name":"doubleStop",
+                      "range":[60,75],
+                      "args": {"subMethodName":"wholeNote"}
+                    },
+
                   "Effects":
                     {
                       "name":"accentRandom",
-                      "args": {"temperature":{"melody":0.0001, "hihat":0.0005, "snare":0.001, "kick":0.001}, "tryN":{"melody":0.8, "hihat":0.2, "snare":0.8, "kick":0.8}}
+                      "args": {"temperature":{"melody":0.0001, "hihat":0.0005, "snare":0.001, "kick":0.001}, "tryN":{"melody":6, "hihat":8, "snare":2, "kick":10}}
                     }
-            },
-          "i": {
-                "ChordProgression":
-                {
-                  "name":"punk",
-                  "args":{"is_Maj": false, "chord_per_1bar":1}
-                },
-
-              "ChordProgressionChild":
-                  {
-                    "name":"none",
-                    "args":{}
-                  },
-
-                "Melody":
-                  {
-                    "name":"approach",
-                    "range":[65,77],
-                    "args":{"defaultNote":0}
-                  },
-                  "Melody2":
-                    {
-                      "name":"arp",
-                      "range":[40,56],
-                      "args":{}
-                    },
-                "Drums":
-                  {
-                    "name":"snareroll",
-                    "args":{}
-                  },
-
-                "Bass":
-                  {
-                    "name":"riff8",
-                    "range":[28,60],
-                    "args":{}
-                  },
-
-                  "VoiceProgression":
-                    {
-                      "name":"powerChord",
-                      "range":[40,60],
-                      "args": {"subMethodName":"kick"}
-                    },
-
-                  "Effects":
-                    {
-                      "name":"onBeat_manual",
-                      "args": {}
-                    }
-                  }
+            }
 
 }
