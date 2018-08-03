@@ -25,6 +25,7 @@ class Effector:
         self.tremolo = "tremolo"
         self.vibrato = "vibrato"
         self.flanger = "flanger"
+        self.flanger2 = "flanger2"
         self.reverb = "reverb"
         self.radio = "radio"
         self.wahwah = "wahwah"
@@ -53,6 +54,9 @@ class Effector:
             return o
         elif presetName == self.flanger:
             o = self._presetObject.Flanger(wave, arg["depth"], arg["freq"], arg["balance"])
+            return o
+        elif presetName == self.flanger2:
+            o = self._presetObject.Flanger2(wave, arg["depth"], arg["freq"], arg["balance"])
             return o
         elif presetName == self.reverb:
             o = self._presetObject.Reverb(wave, arg["delay"], arg["amp"], arg["depth"])
@@ -127,6 +131,13 @@ class Preset:
         wave = self.Distortion(wave, gain = gain)
         wave_proc = Vibrato.sine(Vibrato(), wave, depth, freq)
         wave = func.add([wave, wave_proc], [1.0, balance])
+        return wave
+
+    def Flanger2(self, wave, gain = 2, depth = 0.5, freq = 0.3, balance = 1.0):
+        wave = self.Distortion(wave, gain = gain)
+        wave_proc = Vibrato.sine(Vibrato(), wave, depth, freq)
+        wave = func.add([wave, wave_proc], [1.0, balance])
+        wave = Delay.reverb(Delay(), wave, 0.06, 0.5, 0.9)
         return wave
 
     def Reverb(self, wave, delay = 0.05, amp = 0.2, depth = 0.2):

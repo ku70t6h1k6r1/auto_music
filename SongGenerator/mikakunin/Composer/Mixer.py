@@ -46,7 +46,7 @@ class Methods:
         return None
 
     def default(self, section):
-        all_on = {'melodyLine':True, 'melodyLine2':False, 'bassLine':True, 'voiceProg':True, 'drums':True, 'effects':True}
+        all_on = {'melodyLine':True, 'melodyLine2':False, 'bassLine':True, 'voiceProg':True,'voiceProg2':True, 'drums':True, 'effects':True}
         output = []
         for num in section:
             output.append(all_on)
@@ -54,7 +54,7 @@ class Methods:
         return output
 
     def test(self, section):
-        all_on = {'melodyLine':False, 'melodyLine2':False, 'bassLine':True, 'voiceProg':True, 'drums':True, 'effects':False}
+        all_on = {'melodyLine':True, 'melodyLine2':False, 'bassLine':True, 'voiceProg':True, 'voiceProg2':False, 'drums':True, 'effects':False}
         output = []
         for num in section:
             output.append(all_on)
@@ -189,7 +189,7 @@ class Methods:
             output[0] = {'melodyLine':False, 'melodyLine2':False, 'bassLine':False, 'voiceProg':False, 'voiceProg2':False, 'drums':False, 'effects':True}
 
             #a
-            output[1] = {'melodyLine':False, 'melodyLine2':False, 'bassLine':True, 'voiceProg':True, 'voiceProg2':True, 'drums':True, 'effects':True}
+            output[1] = {'melodyLine':False, 'melodyLine2':False, 'bassLine':True, 'voiceProg':True, 'voiceProg2':False, 'drums':True, 'effects':True}
 
             #s
             output[2] = {'melodyLine':False, 'melodyLine2':False, 'bassLine':False, 'voiceProg':False, 'voiceProg2':False, 'drums':False, 'effects':True}
@@ -200,6 +200,9 @@ class Methods:
             #i
             output[4] = {'melodyLine':True, 'melodyLine2':True, 'bassLine':True, 'voiceProg':True, 'voiceProg2':True, 'drums':True, 'effects':True}
 
+            #i2
+            output[4] = {'melodyLine':True, 'melodyLine2':True, 'bassLine':True, 'voiceProg':True, 'voiceProg2':True, 'drums':True, 'effects':True}
+
             #s
-            output[5] = {'melodyLine':False, 'melodyLine2':False, 'bassLine':False, 'voiceProg':False, 'voiceProg2':False, 'drums':False, 'effects':False}
+            output[-1] = {'melodyLine':False, 'melodyLine2':False, 'bassLine':False, 'voiceProg':False, 'voiceProg2':False, 'drums':False, 'effects':False}
         return output

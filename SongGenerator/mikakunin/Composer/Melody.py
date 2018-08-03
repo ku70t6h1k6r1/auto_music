@@ -29,6 +29,7 @@ class Melody:
         self.zenzenzense = "zenzenzense" # >0bars　ただし転調しまくるコード進行に対しては多分ひどいことになる
         self.romeria = "romeria"
         self.approach = "approach"
+        self.approach2 = "approach2"
         self.breaka = "break"
         self.counter = "counter"
 
@@ -64,6 +65,11 @@ class Melody:
             scoreObj.setMelodyLine(melody[2])
         elif melodyName == self.approach:
             melody = self._methodsObject.approach( scoreObj.keyProg, scoreObj.chordProg, range, arg['defaultNote'])
+            scoreObj.setKeyProg(melody[0])
+            scoreObj.setChordProg(melody[1])
+            scoreObj.setMelodyLine(melody[2])
+        elif melodyName == self.approach2:
+            melody = self._methodsObject.approach2( scoreObj.keyProg, scoreObj.chordProg, range, arg['defaultNote'])
             scoreObj.setKeyProg(melody[0])
             scoreObj.setChordProg(melody[1])
             scoreObj.setMelodyLine(melody[2])
@@ -577,10 +583,47 @@ class Methods:
 
         return keyProg, chordProg, melody
 
-    def approach(self, keyProg=None, chordProg=None, _range = [69,101], otherNoteDegree = 4):
-        #作りかけ
-        #パターンのグループ抽出
-        #grp_name, patterns = random.choice(list(self._rhythmPatters.items()))
+    def approach2(self, keyProg=None, chordProg=None, _range = [69,101], otherNoteDegree = 4):
+        if len(keyProg) >= 4 :
+            tempKeyProg = np.copy(keyProg[0:4])
+            tempChordProg = np.copy(chordProg[0:4])
+
+            # 1 ~ 3
+            tempMelody1_1 = self.approach(tempKeyProg[0:3], tempChordProg[0:3], _range, otherNoteDegree)
+            tempMelody1_1 = np.r_[ tempMelody1_1[2] , np.array([-1,-1,-1,-1, -1,-1,-1,-1, -1,-1,-1,-1, -1,-1,-1,-1]) ]
+
+            tempMelody1_2 = self.approach(tempKeyProg[0:3], tempChordProg[0:3], _range, otherNoteDegree)
+            tempMelody1_2 = np.r_[ tempMelody1_2[2] , np.array([-1,-1,-1,-1, -1,-1,-1,-1, -1,-1,-1,-1, -1,-1,-1,-1]) ]
+
+            tempMelody1_3 = self.approach(tempKeyProg[0:3], tempChordProg[0:3], _range, otherNoteDegree)
+            tempMelody1_3 = np.r_[ tempMelody1_3[2] , np.array([-1,-1,-1,-1, -1,-1,-1,-1, -1,-1,-1,-1, -1,-1,-1,-1]) ]
+
+            # 4
+
+            tempChordProg2 = np.copy(tempChordProg)
+            lastKey = tempKeyProg[3]
+            if lastKey[1] == 0:
+                print("Melody : CHORDのTONIC コードの種類 8 が決め打ち")
+                # TETRAD 前提
+                TONIC = (self._majorDiatonicChords[0] + lastKey[0] * 8 ) % (12 * 8)
+                tempChordProg2[-1] = [TONIC]
+
+            elif lastKey[1] == 1:
+                print("Melody : CHORDのTONIC コードの種類 8 が決め打ち")
+                # TETRAD 前提
+                TONIC = (self._minorDiatonicChords[0] + lastKey[0] * 8 ) % (12 * 8)
+                tempChordProg2[-1] = [TONIC]
+
+            tempMelody2 = self.approach(tempKeyProg, tempChordProg2, _range, otherNoteDegree, True)
+            tempMelody2 = tempMelody2[2]
+
+            keyProg = np.tile(tempKeyProg, (4,1))
+            chordProg = np.r_[np.tile(tempChordProg, (3,1)), tempChordProg2]
+            melody =  np.r_[tempMelody1_1, tempMelody1_2, tempMelody1_3, tempMelody2]
+
+            return keyProg, chordProg, melody
+
+    def approach(self, keyProg=None, chordProg=None, _range = [69,101], otherNoteDegree = 4, lastFlg = False):
 
         melody = np.full(len(keyProg)*self._notePerBar_n , -1)
         targetNote = None
@@ -631,7 +674,11 @@ class Methods:
                 melody[num*self._notePerBar_n : (num+1)*self._notePerBar_n] = tempMelody
 
             #本当はもっとよく変えたい
-            melody[-self._notePerBar_n]  = targetNote
+            print("Melody 668 : ラストノート対応")
+            melody[onIdxs[0]-self._notePerBar_n]  = targetNote
+
+            if lastFlg and targetNote != scale[0] :
+                melody[onIdxs[1]-self._notePerBar_n]  = scale[0]
 
         melody = func.processing(melody, _range)
         melody = np.array(melody)

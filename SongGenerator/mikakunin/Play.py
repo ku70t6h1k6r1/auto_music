@@ -28,6 +28,7 @@ class Play:
         #Dirs
         self.scoreDir = './Composer/score/'
         self.outputDir = './wav/'
+        self.scoreOutputDir = './json/'
         self.settingsDir = './AnalogSynthesizer/settings/'
 
         #Effecters
@@ -153,9 +154,9 @@ class Play:
         fx4 = self.fxObj.Set(fx4, self.setting_preset["fx4"]["presetName"], **self.setting_preset["fx4"]["presetArgs"])
 
         #
-        bass = self.volCtrl.sidechain(bass, self.bpm, kick_hz)
+        #bass = self.volCtrl.sidechain(bass, self.bpm, kick_hz)
         #bass = self.volCtrl.feedIn2(bass, self.bpm, [self.score.form[3],  self.score.form[5]-16 ], [self.score.form[5]-16, self.score.form[5]] , [0.3, 0.99])
-        bass2 = self.volCtrl.sidechain(bass2, self.bpm, kick_hz)
+        #bass2 = self.volCtrl.sidechain(bass2, self.bpm, kick_hz)
         #bass2 = self.volCtrl.feedIn2(bass2, self.bpm,  [self.score.form[3],  self.score.form[5]-16 ], [self.score.form[5]-16, self.score.form[5]], [0.3, 0.99])
 
         """
@@ -247,14 +248,21 @@ class Play:
 
         if fileOut:
             dt = datetime.now().strftime("%Y%m%d_%H%M%S")
-            fileName = self.scoreName + '_' + self.settingName + '_' + str(self.bpm) + '__' + dt + '.wav'
+            fileName = self.scoreName + '_' + self.settingName + '_' + str(self.bpm) + '__' + dt
 
-            waveFile = wv.open(self.outputDir + fileName , 'wb')
+            fileName_wv = fileName + '.wav'
+            waveFile = wv.open(self.outputDir + fileName_wv , 'wb')
             waveFile.setnchannels(self.channels)
             waveFile.setsampwidth(self.sampwidth)
             waveFile.setframerate(self.rate)
             waveFile.writeframes(wave_bin)
             waveFile.close()
+
+            score_dict = {}
+            score_dict["melody"] = self.score.melodyLine.tolist()
+            score_dict["chordProg"] = self.score.chordProg.tolist()
+            fw = open(self.scoreOutputDir + fileName + '.json', 'w')
+            json.dump(score_dict,fw,indent=4)
 
 
 class midiNotesToWave:

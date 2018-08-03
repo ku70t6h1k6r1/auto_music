@@ -28,6 +28,7 @@ class Play:
         #Dirs
         self.scoreDir = './Composer/score/'
         self.outputDir = './wav/'
+        self.scoreOutputDir = './json/'
         self.settingsDir = './AnalogSynthesizer/settings/'
 
         #Effecters
@@ -153,30 +154,29 @@ class Play:
         長さ確認
         """
         print("melody : ", len(melody), len(self.score.melodyLine))
-        print("melody2 : ", len(melody2))
-        print("subMelody : ", len(subMelody))
-        print("bass : ", len(bass), len(self.score.bassLine))
-        print("bass2 : ", len(bass2))
-        print("voicing : ", len(voicing))
-        print("voicing2 : ", len(voicing2))
+        print("melody2 : ", len(melody2), len(self.score.melodyLine))
+        print("subMelody : ", len(subMelody), len(self.score.melodyLine2))
+        print("bass : ", len(bass), len(self.score.bassLine), len(self.score.bassLine))
+        print("bass2 : ", len(bass2), len(self.score.melodyLine), len(self.score.bassLine))
+        print("voicing : ", len(voicing), len(self.score.voiceProg))
+        print("voicing2 : ", len(voicing2), len(self.score.voiceProg2))
         print("kick  : ", len(kick ), len(self.score.drumObj.kick))
-        print("kick2  : ", len(kick2))
-        print("snare : ", len(snare))
-        print("snare2 : ", len(snare2))
-        print("hihat : ", len(hihat))
-        print("hihat2 : ", len(hihat2))
+        print("kick2  : ", len(kick2), len(self.score.drumObj.kick))
+        print("snare : ", len(snare), len(self.score.drumObj.snare))
+        print("snare2 : ", len(snare2), len(self.score.drumObj.snare))
+        print("hihat : ", len(hihat), len(self.score.drumObj.hihat))
+        print("hihat2 : ", len(hihat2), len(self.score.drumObj.hihat))
         print("fx1 : ", len(fx1))
         print("fx2 : ", len(fx2))
         print("fx3 : ", len(fx3))
         print("fx4 : ", len(fx4))
+
 
         #melody : merge
         melody= func.add_stereo([melody, melody2, subMelody], \
             [  self.volume["melody"]["melody"],
                 self.volume["melody"]["melody2"],
                 self.volume["melody"]["subMelody"]   ])
-
-
 
         #bass:merge
         bass = func.add_stereo([bass, bass2], [self.volume["bass"]["bass"], self.volume["bass"]["bass2"]])
@@ -206,7 +206,8 @@ class Play:
         Mixer関係
         """
         #Melody
-        melody = self.volCtrl.fourBeat_stereo(melody, self.bpm, [self.score.form[3]],  [self.score.form[5]], [0.0], [3.0])
+        melody = self.volCtrl.fourBeat_stereo(melody, self.bpm, [self.score.form[4]],  [self.score.form[6]], [0.4], [3.0])
+        melody = self.volCtrl.sidechain_stereo(melody, self.bpm, snare_hz)
         #melody = self.volCtrl.feedIn_stereo(melody, self.bpm, [self.score.form[0]], [self.score.form[3]], ['liner'], [0.3])
 
         #BASS
@@ -247,15 +248,21 @@ class Play:
 
         if fileOut:
             dt = datetime.now().strftime("%Y%m%d_%H%M%S")
-            fileName = self.scoreName + '_' + self.settingName + '_' + str(self.bpm) + '__' + dt + '.wav'
+            fileName = self.scoreName + '_' + self.settingName + '_' + str(self.bpm) + '__' + dt
 
-            waveFile = wv.open(self.outputDir + fileName , 'wb')
+            fileName_wv = fileName + '.wav'
+            waveFile = wv.open(self.outputDir + fileName_wv , 'wb')
             waveFile.setnchannels(self.channels)
             waveFile.setsampwidth(self.sampwidth)
             waveFile.setframerate(self.rate)
             waveFile.writeframes(wave_bin)
             waveFile.close()
 
+            score_dict = {}
+            score_dict["melody"] = self.score.melodyLine.tolist()
+            score_dict["chordProg"] = self.score.chordProg.tolist()
+            fw = open(self.scoreOutputDir + fileName + '.json', 'w')
+            json.dump(score_dict,fw,indent=4)
 
 class midiNotesToWave:
     def __init__(self, setting, notePerBar_n = 16, bpm = 120):

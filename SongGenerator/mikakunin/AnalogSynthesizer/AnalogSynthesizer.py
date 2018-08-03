@@ -802,8 +802,24 @@ if __name__ == '__main__' :
 
     #synthesizer = Synthesizer(["sine", "sine"], [1.0, 0.8], [1.0, 1.0], 'lowpass', [200], [0.0, 0.04, 0.3, 0.1], 44100)
 
-    #guitar
-    synthesizer = Synthesizer_Poly(["sawtooth", "sawtooth", "sine", "sine", "sine", "sawtooth"], [0.8, 0.2, 0.1, 0.2, 0.2, 0.3], [0.5, 1.0, 2.0, 3.0, 4.0, 5.0], 'bandpass', [10,18000], [0.02, 0.15, 0.9, 0.1], 44100)
+    #trunpet
+    #synthesizer = Synthesizer_Poly(["sine", "sine", "sawtooth", "sawtooth", "square", "square", "whitenoise"],[0.1, 2.0, 0.1, 0.8, 0.2, 0.2, 0.1], [0.5 , 1.0, 2.0, 3.0, 4.0, 5.0, 6.0],'bandpass', [500,3000], [0.2, 0.3, 0.4, 0.01], 44100)
+    #wave = preset.Distortion(wave, 2.0, 2.0)
+
+    #piano
+    #synthesizer = Synthesizer_Poly(["sine", "sine", "sine", "sine", "sine", "sine", "square"],[0.1, 1.0, 0.3, 0.2, 0.15, 0.15, 0.1], [0.5, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0],'bandpass', [300,5000], [0.05, 0.3, 0.0, 0.01], 44100)
+    #wave = preset.Reverb(wave, 0.1, 0.8, 0.8)
+
+    #piano2
+    #synthesizer = Synthesizer_Poly(["sine", "sine", "sine", "sine", "sine", "sawtooth", "sawtooth"],[0.2, 0.2, 1.2, 0.1, 0.1, 0.08, 0.08], [0.25 , 0.5, 1.0, 2.0, 3.0, 4.0, 5.0],'bandpass', [300,5000], [0.0, 0.3, 0.0, 0.01], 44100)
+
+    #synthe
+    #synthesizer = Synthesizer_Poly(["sine", "sawtooth", "sawtooth", "sine", "sine", "sawtooth", "sawtooth"],[0.2, 0.2, 1.2, 0.1, 0.1, 0.08, 0.08], [0.5 , 1.0, 2.0, 3.0, 4.0, 5.0, 6.0],'bandpass', [10,18000], [0.0, 0.1, 0.9, 0.01], 44100)
+
+    #synthesizer = Synthesizer_Poly(["sine", "square", "square", "sine", "sine", "sawtooth", "sawtooth"],[0.2, 0.2, 1.2, 0.1, 0.1, 0.08, 0.08], [0.5 , 1.0, 2.0, 3.0, 4.0, 5.0, 6.0],'bandpass', [10,18000], [0.0, 0.1, 0.9, 0.01], 44100)
+
+    synthesizer = Synthesizer_Poly(["sawtooth", "sine", "sine", "sine"], [0.2, 2.0,  0.1, 0.9, 1.2, 0.1, 0.1], [0.5, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0], 'bandpass', [400,8000], [0.03, 0.02, 0.6, 0.01], 44100)
+
 
     scale = [261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88, 523.25] * 1
     #scale = [261.63/4] * 16
@@ -822,17 +838,17 @@ if __name__ == '__main__' :
 
     #wave = add([wave, wave2], [1.0, 1.0])
 
+    #wave = preset.Distortion(wave, 0.2, 0.2)
 
+    wave = preset.Distortion(wave, 4.0, 2.5)
+    #wave = preset.Filter(wave, 'bandpass', [200, 15000])
 
-    #wave = preset.Distortion(wave, 5, 3)
-    wave = preset.Filter(wave, 'bandpass', [200, 15000])
-
-    swave = preset.Flanger(wave,  gain = 4, depth = 2.0, freq = 0.8, balance = 1.0)
+    #swave = preset.Flanger(wave,  gain = 4, depth = 2.0, freq = 0.8, balance = 1.0)
     #wave = preset.Vibrato(wave, 1.0, 1.7)
     #wave = (wave[0:44100*20] + bass_wave[0:44100*20]) / 2
     #wave = preset.Radio(wave, 0.2)
     #wave = preset.Tape(wave, 0.1, 1.4)
-    wave = preset.Reverb(wave, 0.05, 0.2, 0.8)
+    wave = preset.Reverb(wave, 0.2, 0.8, 0.2)
 
 
     wave_bin = (wave * float(2 ** (16 - 2) ) ).astype(np.int16).tobytes()

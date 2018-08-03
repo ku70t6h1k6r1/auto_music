@@ -1,6 +1,6 @@
 {
   "form": {
-    "name":"pasbis",
+    "name":"pasbiis",
     "args":["p","a","s","b","i"]
     },
   "mix": {
@@ -186,7 +186,7 @@
                         "ChordProgression":
                         {
                           "name":"punk",
-                          "args":{"is_Maj": false, "chord_per_1bar":1}
+                          "args":{"is_Maj": false, "chord_per_1bar":2}
                         },
 
                       "ChordProgressionChild":
@@ -244,7 +244,7 @@
           "i":  {
               "ChordProgression":
                   {
-                    "name":"punk",
+                    "name":"jrock",
                     "args":{"is_Maj": true, "chord_per_1bar":1}
                   },
 
@@ -256,13 +256,13 @@
 
                 "Melody":
                   {
-                    "name":"approach",
+                    "name":"approach2",
                     "range":[65,77],
-                    "args":{"defaultNote":0}
+                    "args":{"defaultNote":1}
                   },
                   "Melody2":
                     {
-                      "name":"arp",
+                      "name":"break",
                       "range":[52,70],
                       "args":{}
                     },

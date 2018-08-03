@@ -21,6 +21,7 @@ class ChordProgression:
     def _setChangeName(self):
         self.cherry = "cherry" # >0bars
         self.punk = "punk" # >0bars
+        self.jrock = "jrock" # >0bars
         self.radioIntro = "radioIntro" # >0bars
         self.breaka = "break"
 
@@ -46,6 +47,12 @@ class ChordProgression:
             scoreObj.setKeyProg(chords[0])
             scoreObj.setChordProg(chords[1])
             #def punkRockChanges(self, is_Maj = True , chord_per_1bar = 1):
+
+        elif changeName == self.jrock:
+            chords = self._methodsObject.popRockChanges(arg['is_Maj'], arg['chord_per_1bar'])
+            scoreObj.setKeyProg(chords[0])
+            scoreObj.setChordProg(chords[1])
+
 
         elif changeName == self.radioIntro:
             chords = self._methodsObject.gimmeARadioIntro(arg['is_Maj'], arg['reptation'])
@@ -151,6 +158,47 @@ class Methods:
 
         return keysForReturn,chords
 
+    def popRockChanges(self, is_Maj = True , chord_per_1bar = 1):
+        """
+        chord_per_: 1bar 1 or 2
+        return : 16bars or 8bars
+        """
+        if chord_per_1bar  == 1:
+            bars = 16
+        elif chord_per_1bar  == 2:
+            bars =  8
+
+        prog_dict = [\
+                        [0, 3, 4, 5], \
+                        [5, 3, 4, 0], \
+                        [5, 0, 3, 4], \
+                        [0, 5, 3, 4], \
+                        [3, 4, 5, 0], \
+                        [3, 4, 0, 5], \
+                        [3, 5, 0, 4], \
+                        [5, 4, 0, 3], \
+                        [5, 4, 3, 0], \
+                        [0, 4, 3, 5], \
+                        [4, 0, 3, 5], \
+                        [4, 0, 5, 3] \
+                        ]
+
+        if is_Maj:
+            keyProg = [[0,0]] * bars
+            chordProg = self._fourChordToBeats(prog_dict[np.random.randint(len(prog_dict))], chord_per_1bar)
+            for i, chords in enumerate(chordProg):
+                for j, chord in enumerate(chords):
+                    chordProg[i][j] = self._majorDiatonicChords[chord]
+        else:
+            keyProg = [[0,1]] * bars
+            chordProg = self._fourChordToBeats(prog_dict[np.random.randint(len(prog_dict))], chord_per_1bar)
+            for i, chords in enumerate(chordProg):
+                for j, chord in enumerate(chords):
+                    chordProg[i][j] = self._minorDiatonicChords[chord]
+
+        return np.array(keyProg), np.array(chordProg*int(bars/len(chordProg)))
+
+
     def punkRockChanges(self, is_Maj = True , chord_per_1bar = 1):
         """
         chord_per_: 1bar 1 or 2
@@ -172,7 +220,6 @@ class Methods:
                         [4, 0, 3, 4], \
                         [4, 0, 4, 3] \
                         ]
-
 
         if is_Maj:
             keyProg = [[0,0]] * bars

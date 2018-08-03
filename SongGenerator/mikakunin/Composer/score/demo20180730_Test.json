@@ -8,53 +8,61 @@
     },
 
     "a":  {
-        "ChordProgression":
-            {
-              "name":"punk",
-              "args":{"is_Maj": true, "chord_per_1bar":1}
-            },
+      "ChordProgression":
+          {
+            "name":"jrock",
+            "args":{"is_Maj": true, "chord_per_1bar":1}
+          },
 
-          "ChordProgressionChild":
-              {
-                "name":"none",
-                "args":{}
-              },
-
-            "Melody":
-              {
-                "name":"break",
-                "range":[40,60],
-                "args":{}
-              },
-              "Melody2":
-                {
-                  "name":"arp",
-                  "range":[40,60],
-                  "args":{}
-                },
-          "Drums":
+        "ChordProgressionChild":
             {
-              "name":"random",
+              "name":"none",
               "args":{}
             },
 
-          "Bass":
+        "Melody":
+          {
+            "name":"approach2",
+            "range":[65,77],
+            "args":{"defaultNote":1}
+          },
+          "Melody2":
             {
-              "name":"riff16",
-              "range":[28,60],
+              "name":"break",
+              "range":[52,70],
               "args":{}
             },
+        "Drums":
+          {
+            "name":"random",
+            "args":{}
+          },
 
-            "VoiceProgression":
-              {
-                "name":"unisonBass",
-                "range":[40,60],
-                "args": {}
-              },
-              "Effects":
-              {
-                "name":"onBeat_manual",
-                "args": {}
-              }
+        "Bass":
+          {
+            "name":"riff8",
+            "range":[28,60],
+            "args":{}
+          },
+
+        "VoiceProgression":
+          {
+            "name":"unisonBass",
+            "range":[40,60],
+            "args": {}
+          },
+
+          "VoiceProgression2":
+            {
+              "name":"doubleStop",
+              "range":[60,75],
+              "args": {"subMethodName":"wholeNote"}
+            },
+
+          "Effects":
+            {
+              "name":"accentRandom",
+              "args": {"temperature":{"melody":0.0001, "hihat":0.0005, "snare":0.001, "kick":0.001}, "tryN":{"melody":6, "hihat":8, "snare":2, "kick":10}}
             }
+          }
 }

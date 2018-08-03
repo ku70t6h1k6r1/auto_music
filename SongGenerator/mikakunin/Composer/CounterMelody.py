@@ -23,6 +23,7 @@ class CounterMelody:
     def _setCounterMelody(self):
         self.arp = "arp"
         self.breaka = "break"
+        self.unison = "unison"
 
     def create(self, scoreObj, melodyName,  range, **arg):
         if melodyName == self.arp :
@@ -31,6 +32,10 @@ class CounterMelody:
 
         elif melodyName == self.breaka :
             melody = self._methodsObject.breaka( scoreObj.keyProg, scoreObj.chordProg)
+            scoreObj.setMelodyLine2(melody)
+
+        elif melodyName == self.unison :
+            melody = self._methodsObject.unison(scoreObj.melodyLine)
             scoreObj.setMelodyLine2(melody)
 
 class Methods:
@@ -60,13 +65,18 @@ class Methods:
         self._rhythmPatters = self._rhythmPattersObj.list
 
     def breaka(self,keyProg=None, chordProg = None):
+        #print("break",len(chordProg), chordProg )
         melody = np.full(len(keyProg) * self._notePerBar_n, -1)
         melody[0] = -2
 
+        #print(len(melody))
         return  melody
 
-    def counter(self, keyProg=None, chordProg=None, _range = [69,101]):
+    def unison(self, melody):
+        return melody
 
+    def counter(self, keyProg=None, chordProg=None, _range = [69,101]):
+        #print("counter",len(chordProg), chordProg )
         melody = []
         for chord in chordProg:
             grp_name, patterns = random.choice(list(self._rhythmPatters.items()))
