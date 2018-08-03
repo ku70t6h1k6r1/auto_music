@@ -206,7 +206,7 @@ class Play:
         Mixer関係
         """
         #Melody
-        melody = self.volCtrl.fourBeat_stereo(melody, self.bpm, [self.score.form[4]],  [self.score.form[6]], [0.4], [3.0])
+        #melody = self.volCtrl.fourBeat_stereo(melody, self.bpm, [self.score.form[4]],  [self.score.form[6]], [0.8], [3.0])
         melody = self.volCtrl.sidechain_stereo(melody, self.bpm, snare_hz)
         #melody = self.volCtrl.feedIn_stereo(melody, self.bpm, [self.score.form[0]], [self.score.form[3]], ['liner'], [0.3])
 

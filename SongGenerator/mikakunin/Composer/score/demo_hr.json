@@ -258,7 +258,7 @@
                   {
                     "name":"approach2",
                     "range":[65,77],
-                    "args":{"defaultNote":1}
+                    "args":{"defaultNote":6}
                   },
                   "Melody2":
                     {
